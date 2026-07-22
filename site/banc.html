@@ -759,9 +759,75 @@ lancer.addEventListener('click', async () => {
 /* ---------- comparaison, même logique que src/evalue.py ---------- */
 
 const normalise = v => (v ?? '').toString().toLowerCase()
-  .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
-function verdictDe(modele, reference) {
+// Les dates sont comparées par leur valeur : « 8 février 1930 » et
+// « huit février mil neuf cent trente » désignent le même jour.
+const MOIS = { janvier: 1, fevrier: 2, mars: 3, avril: 4, mai: 5, juin: 6, juillet: 7,
+               aout: 8, septembre: 9, octobre: 10, novembre: 11, decembre: 12 };
+const UNITES = { premier: 1, un: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6,
+                 sept: 7, huit: 8, neuf: 9, dix: 10, onze: 11, douze: 12, treize: 13,
+                 quatorze: 14, quinze: 15, seize: 16 };
+const DIZAINES = { vingt: 20, trente: 30, quarante: 40, cinquante: 50, soixante: 60 };
+const MOTS_IGNORES = new Set(['et', 'le', 'du', 'l', 'an', 'lan', 'lundi', 'mardi',
+                              'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']);
+
+function motsVersNombre(mots) {
+  let total = 0;
+  for (let i = 0; i < mots.length; i++) {
+    const mot = mots[i], suivant = mots[i + 1] || '';
+    if (MOTS_IGNORES.has(mot)) continue;
+    if (mot === 'quatre' && (suivant === 'vingt' || suivant === 'vingts')) {
+      total += 80; i++;
+    } else if (mot in UNITES) total += UNITES[mot];
+    else if (mot in DIZAINES) total += DIZAINES[mot];
+    else if (mot === 'dix sept') total += 17;
+    else return null;
+  }
+  return total || null;
+}
+
+function dateVersIso(brut) {
+  if (!brut) return null;
+  const t = normalise(brut);
+  let m = t.match(/\b(\d{4}) (\d{1,2}) (\d{1,2})\b/);
+  if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  m = t.match(/\b(\d{1,2}) (\d{1,2}) (\d{4})\b/);
+  if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  let annee = null;
+  m = t.match(/\b(1[89]\d\d)\b/);
+  if (m) annee = Number(m[1]);
+  else {
+    m = t.match(/\bmil(?:le)? (huit|neuf) cents?\b((?: [a-z]+){0,4})/);
+    if (m) {
+      const base = m[1] === 'huit' ? 1800 : 1900;
+      const reste = m[2].trim() ? motsVersNombre(m[2].trim().split(' ')) : 0;
+      annee = base + (reste || 0);
+    }
+  }
+  let mois = null, jour = null;
+  for (const [nom, numero] of Object.entries(MOIS)) {
+    const position = t.indexOf(' ' + nom);
+    if (position === -1 && !t.startsWith(nom + ' ')) continue;
+    mois = numero;
+    const avant = t.slice(0, position === -1 ? 0 : position).trim().split(' ').slice(-3);
+    const dernier = avant[avant.length - 1] || '';
+    if (/^\d{1,2}(er)?$/.test(dernier)) jour = parseInt(dernier, 10);
+    else jour = motsVersNombre(avant);
+    break;
+  }
+  if (annee && mois && jour && jour >= 1 && jour <= 31) {
+    return `${annee}-${String(mois).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+  }
+  return null;
+}
+
+function verdictDe(modele, reference, champ) {
+  if (champ === 'date_mariage') {
+    const da = dateVersIso(modele), db = dateVersIso(reference);
+    if (da && db) return da === db ? 'exact' : 'faux';
+  }
   const a = normalise(modele), b = normalise(reference);
   if (a === b) return 'exact';
   if (a && b && (a.includes(b) || b.includes(a))) return 'proche';
@@ -787,7 +853,7 @@ function compare(objet, reference, fournisseur) {
   lignes.innerHTML = '';
   let exacts = 0, proches = 0, faux = 0;
   for (const [champ, libelle] of CHAMPS) {
-    const verdict = verdictDe(objet[champ], reference[champ]);
+    const verdict = verdictDe(objet[champ], reference[champ], champ);
     if (verdict === 'exact') exacts++;
     else if (verdict === 'proche') proches++;
     else faux++;
@@ -850,7 +916,7 @@ function palmares(resultats, reference) {
     if (!resultats[nom].objet) continue;
     let exacts = 0, proches = 0, faux = 0;
     for (const [champ] of CHAMPS) {
-      const verdict = verdictDe(resultats[nom].objet[champ], reference[champ]);
+      const verdict = verdictDe(resultats[nom].objet[champ], reference[champ], champ);
       if (verdict === 'exact') exacts++;
       else if (verdict === 'proche') proches++;
       else faux++;
@@ -887,7 +953,7 @@ function palmares(resultats, reference) {
         html += '<td class="vide">indisponible</td>';
         continue;
       }
-      const verdict = verdictDe(objet[champ], reference[champ]);
+      const verdict = verdictDe(objet[champ], reference[champ], champ);
       const valeur = verdict === 'exact'
         ? (esc(objet[champ] ?? '') || '<span class="vide">rien</span>')
         : surligne(objet[champ], reference[champ]);

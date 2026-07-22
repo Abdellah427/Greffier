@@ -254,7 +254,8 @@ curl_setopt_array($curl, [
                     }
                 }
             } else {
-                $texte = $donnees['choices'][0]['delta']['content'] ?? null;
+                $texte = $donnees['choices'][0]['delta']['content']
+                    ?? $donnees['choices'][0]['message']['content'] ?? null;
                 if ($texte !== null && $texte !== '') {
                     echo $texte;
                     $envoye = true;
@@ -269,6 +270,17 @@ curl_setopt_array($curl, [
 $ok = curl_exec($curl);
 $statut = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
 curl_close($curl);
+
+if (!$envoye && $ok !== false && $statut === 200) {
+    // Fournisseur qui a ignoré le mode streaming : réponse JSON d'un bloc.
+    $entier = json_decode($brut, true);
+    $texte = $entier['choices'][0]['message']['content']
+        ?? $entier['candidates'][0]['content']['parts'][0]['text'] ?? null;
+    if ($texte) {
+        echo $texte;
+        $envoye = true;
+    }
+}
 
 if (!$envoye && ($ok === false || $statut >= 400)) {
     $detail = json_decode($brut, true);

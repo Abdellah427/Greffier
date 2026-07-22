@@ -21,8 +21,12 @@ Un champ est compté :
 import argparse
 import json
 import re
+import sys
 import unicodedata
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from normalize import parse_date
 
 CHAMPS = [
     "date_mariage", "lieu_mariage",
@@ -44,7 +48,14 @@ def normalise(valeur):
     return re.sub(r"\s+", " ", texte).strip()
 
 
-def compare(extrait, reference):
+def compare(extrait, reference, champ=None):
+    if champ == "date_mariage":
+        # « 8 février 1930 » et « huit février mil neuf cent trente » sont
+        # la même date : on compare les valeurs, pas les graphies.
+        iso_extrait, _ = parse_date(extrait)
+        iso_reference, _ = parse_date(reference)
+        if iso_extrait and iso_reference:
+            return "exact" if iso_extrait == iso_reference else "faux"
     a, b = normalise(extrait), normalise(reference)
     if a == b:
         return "exact"
@@ -84,7 +95,7 @@ def main():
     bilan = {champ: {"exact": 0, "proche": 0, "faux": 0} for champ in CHAMPS}
     for reference, extrait in communes:
         for champ in CHAMPS:
-            verdict = compare(extrait.get(champ), reference.get(champ))
+            verdict = compare(extrait.get(champ), reference.get(champ), champ)
             bilan[champ][verdict] += 1
             if verdict == "faux" and args.details:
                 print(f"  {reference['_source_image']} / {champ} : "
