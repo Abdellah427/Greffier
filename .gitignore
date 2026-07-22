@@ -26,8 +26,10 @@ __pycache__/
 # Données M-POPP (téléchargées et régénérées par src/mpopp.py)
 mpopp_data/
 pages_mpopp/
+pages_pretraitees/
 reference_mpopp.json
 extraction_mpopp.json
+extraction_pretraite.json
 
 # Registre des lectures publiques : uniquement sur le serveur
 site/api/releves.jsonl

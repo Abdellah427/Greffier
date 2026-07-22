@@ -142,6 +142,26 @@ python src/evalue.py extraction_mpopp.json reference_mpopp.json
 (l'une des valeurs contient l'autre) ou faux, avec un tableau par champ et
 un score global. L'option `--details` liste chaque désaccord.
 
+### Prétraitement des images : la chaîne maison
+
+[`src/pretraite.py`](src/pretraite.py) applique une chaîne de cinq
+traitements conçus pour les défauts récurrents des numérisations
+d'archives : `recadre` (bords noirs), `redresse` (page penchée), `fond`
+(jaunissement et ombres de reliure, correction par division), `contraste`
+et `nettete`. Chaque étape s'active ou non, ce qui permet une étude
+d'ablation : mesurer l'apport de chacune, preuve à l'appui.
+
+```bash
+python src/pretraite.py pages_mpopp/ -o pages_pretraitees/ --apercu avant_apres.png
+python src/extract.py pages_pretraitees/ -o extraction_pretraite.json --ajouter
+python src/evalue.py extraction_pretraite.json reference_mpopp.json
+```
+
+En comparant ce score à celui des pages brutes, on obtient le gain (ou la
+perte) de chaque configuration. Sur le banc d'essai du site,
+l'interrupteur « Prétraitement » applique la même chaîne et un curseur
+avant/après fait constater la différence sur l'image elle-même.
+
 Données M-POPP : projet EXO-POPP, université de Rouen Normandie et
 partenaires, sous licence CC-BY 4.0.
 

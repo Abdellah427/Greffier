@@ -69,6 +69,7 @@ $fournisseur = (string) ($corps['fournisseur'] ?? '');
 $exacts = $corps['exacts'] ?? null;
 $proches = $corps['proches'] ?? null;
 $faux = $corps['faux'] ?? null;
+$pretraitement = (bool) ($corps['pretraitement'] ?? false);
 
 if (!in_array($fournisseur, $FOURNISSEURS, true)
         || !preg_match('#^banc/[A-Za-z0-9_.-]{1,80}\.jpg$#', $page)
@@ -85,6 +86,7 @@ $releve = [
     'page' => $page,
     'fournisseur' => $fournisseur,
     'modele' => $modele,
+    'pretraitement' => $pretraitement,
     'exacts' => $exacts,
     'proches' => $proches,
     'faux' => $faux,
