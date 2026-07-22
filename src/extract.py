@@ -105,6 +105,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("folder", help="Dossier contenant les images à traiter")
     parser.add_argument("-o", "--output", default="results.json")
+    parser.add_argument("--ajouter", action="store_true",
+                        help="ajoute les actes au fichier de sortie existant au "
+                             "lieu de l'écraser (les images déjà présentes, "
+                             "reconnues par _source_image, sont sautées)")
     parser.add_argument("--backend", choices=BACKENDS, default="ollama")
     parser.add_argument("--model", help="Nom du modèle (défaut selon le backend)")
     parser.add_argument("--delay", type=float, default=0.0,
@@ -123,6 +127,14 @@ def main():
         sys.exit(f"Aucune image trouvée dans {args.folder}")
 
     results = []
+    if args.ajouter and Path(args.output).exists():
+        results = json.loads(Path(args.output).read_text(encoding="utf-8"))
+        deja_traitees = {e.get("_source_image") for e in results}
+        avant = len(images)
+        images = [i for i in images if i.name not in deja_traitees]
+        if avant - len(images):
+            print(f"{avant - len(images)} images déjà traitées, ignorées")
+        print(f"{len(results)} actes existants conservés")
     for i, image in enumerate(images, 1):
         print(f"[{i}/{len(images)}] {image.name} ... ", end="", flush=True)
         try:

@@ -91,6 +91,25 @@ python src/normalize.py results.json
 python src/build_site.py
 ```
 
+### Agrandir le corpus
+
+Le corpus grandit lot par lot : téléchargez de nouvelles pages de registres
+sur le site des [Archives de Paris](https://archives.paris.fr) (état civil
+numérisé), puis :
+
+```bash
+python src/extract.py nouvelles_pages/ --ajouter     # s'ajoute à results.json
+python src/normalize.py results.json
+python src/build_site.py
+python src/deploy.py                                 # mise en ligne
+```
+
+Avec `--ajouter`, les actes existants sont conservés et les images déjà
+traitées (reconnues par leur nom de fichier) sont sautées : on peut relancer
+le même dossier sans créer de doublons. Plus le corpus grandit, plus la
+recherche par nom de famille de l'explorateur devient intéressante pour les
+visiteurs.
+
 ## Deux backends pour le pipeline
 
 | Backend | Coût | Libre ? | Prérequis |
