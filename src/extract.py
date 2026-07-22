@@ -73,10 +73,18 @@ def extract_ollama(image_path, model="qwen2.5vl:7b", host="http://localhost:1143
 
 
 def extract_gemini(image_path, model="gemini-3.6-flash"):
-    api_key = os.environ.get("GEMINI_API_KEY")
+    # La clé vient de la variable d'environnement GEMINI_API_KEY ou, à défaut,
+    # du fichier gemini.key à la racine du dépôt (ignoré par git). Les espaces
+    # et guillemets collés par accident sont nettoyés.
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    fichier_cle = Path(__file__).resolve().parent.parent / "gemini.key"
+    if not api_key and fichier_cle.exists():
+        api_key = fichier_cle.read_text(encoding="utf-8")
+    api_key = api_key.strip().strip('"').strip("'").strip()
     if not api_key:
-        sys.exit("Erreur : définissez la variable d'environnement GEMINI_API_KEY "
-                 "(clé gratuite sur https://aistudio.google.com/apikey).")
+        sys.exit("Erreur : aucune clé trouvée. Collez votre clé "
+                 "(https://aistudio.google.com/apikey) dans un fichier gemini.key "
+                 "à la racine du projet, ou définissez GEMINI_API_KEY.")
     response = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
