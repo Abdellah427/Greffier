@@ -24,15 +24,23 @@ if (!function_exists('imagecreatefromstring')) {
     refuse(503, "La bibliothèque GD n'est pas disponible sur ce serveur.");
 }
 
-// Garde-fou : le prétraitement coûte du calcul, une quarantaine par jour
-// et par visiteur couvre largement un usage réel.
+// Garde-fous : le prétraitement coûte du calcul. Une quarantaine par jour
+// et par visiteur couvre un usage réel, et un plafond global protège le
+// serveur mutualisé si la fréquentation s'emballe.
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'inconnue';
 $compteur = sys_get_temp_dir() . '/greffier_pretraite_' . md5($ip) . '_' . date('Ymd');
 $n = (int) @file_get_contents($compteur);
 if ($n >= 40) {
     refuse(429, 'Assez de prétraitements pour aujourd\'hui : revenez demain.');
 }
+$global = sys_get_temp_dir() . '/greffier_pretraite_global_' . date('Ymd');
+$g = (int) @file_get_contents($global);
+if ($g >= 300) {
+    refuse(429, 'Le service de prétraitement a beaucoup servi aujourd\'hui : '
+              . 'revenez demain, la lecture reste possible sur la page brute.');
+}
 @file_put_contents($compteur, (string) ($n + 1), LOCK_EX);
+@file_put_contents($global, (string) ($g + 1), LOCK_EX);
 
 $corps = json_decode((string) file_get_contents('php://input'), true);
 $brut = base64_decode((string) ($corps['image'] ?? ''), true);
