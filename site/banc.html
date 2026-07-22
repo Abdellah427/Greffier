@@ -120,6 +120,21 @@
     z-index: 2;
   }
   .loupe[hidden] { display: none; }
+  .loupe::after {
+    content: attr(data-facteur);
+    position: absolute;
+    left: 50%;
+    bottom: -.5rem;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: .62rem;
+    background: var(--papier);
+    border: 1px solid var(--encre);
+    border-radius: 2px;
+    padding: 0 .3rem;
+    color: var(--encre);
+    white-space: nowrap;
+  }
   .exemples { display: flex; gap: .6rem; margin-top: .7rem; flex-wrap: wrap; }
   .exemples button {
     flex: 1 1 8rem;
@@ -402,9 +417,9 @@ choisir(0);
 /* ---------- loupe ---------- */
 
 const loupe = el('loupe');
-const cadre = el('cadre');
-const GROSSISSEMENT = 2.4;
-cadre.addEventListener('mousemove', e => {
+let grossissement = 2.4;
+let dernierePosition = null;
+function dessineLoupe(clientX, clientY) {
   if (!apercu.naturalWidth) { loupe.hidden = true; return; }
   const boite = apercu.getBoundingClientRect();
   const echelle = Math.min(boite.width / apercu.naturalWidth,
@@ -413,17 +428,29 @@ cadre.addEventListener('mousemove', e => {
   const hauteur = apercu.naturalHeight * echelle;
   const gauche = boite.left + (boite.width - largeur) / 2;
   const haut = boite.top + (boite.height - hauteur) / 2;
-  const x = e.clientX - gauche, y = e.clientY - haut;
+  const x = clientX - gauche, y = clientY - haut;
   if (x < 0 || y < 0 || x > largeur || y > hauteur) { loupe.hidden = true; return; }
   loupe.hidden = false;
+  loupe.dataset.facteur = '\u00d7 ' + grossissement.toFixed(1).replace('.', ',');
   const rayon = loupe.offsetWidth / 2;
   const boiteCadre = cadre.getBoundingClientRect();
-  loupe.style.left = (e.clientX - boiteCadre.left - rayon) + 'px';
-  loupe.style.top = (e.clientY - boiteCadre.top - rayon) + 'px';
+  loupe.style.left = (clientX - boiteCadre.left - rayon) + 'px';
+  loupe.style.top = (clientY - boiteCadre.top - rayon) + 'px';
   loupe.style.backgroundImage = `url("${apercu.src}")`;
-  loupe.style.backgroundSize = `${largeur * GROSSISSEMENT}px ${hauteur * GROSSISSEMENT}px`;
-  loupe.style.backgroundPosition = `${rayon - x * GROSSISSEMENT}px ${rayon - y * GROSSISSEMENT}px`;
+  loupe.style.backgroundSize = `${largeur * grossissement}px ${hauteur * grossissement}px`;
+  loupe.style.backgroundPosition = `${rayon - x * grossissement}px ${rayon - y * grossissement}px`;
+}
+cadre.addEventListener('mousemove', e => {
+  dernierePosition = [e.clientX, e.clientY];
+  dessineLoupe(e.clientX, e.clientY);
 });
+// La molette règle le grossissement, sans faire défiler la page.
+cadre.addEventListener('wheel', e => {
+  if (loupe.hidden) return;
+  e.preventDefault();
+  grossissement = Math.min(6, Math.max(1.4, grossissement * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+  if (dernierePosition) dessineLoupe(dernierePosition[0], dernierePosition[1]);
+}, { passive: false });
 cadre.addEventListener('mouseleave', () => { loupe.hidden = true; });
 
 /* ---------- lecture via le service du site ---------- */

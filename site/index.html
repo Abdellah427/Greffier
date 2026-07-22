@@ -65,6 +65,13 @@
   header p { color: var(--encre-pale); margin: 0 0 .5rem; max-width: 68ch; }
   header p a { white-space: nowrap; }
   header .consignes { font-size: .92rem; }
+  header .colophon {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .04em;
+    color: var(--encre-pale);
+    margin-top: .8rem;
+  }
   .badge-exemple {
     font-family: var(--mono);
     font-size: .72rem;
@@ -233,6 +240,21 @@
     z-index: 2;
   }
   .loupe[hidden] { display: none; }
+  .loupe::after {
+    content: attr(data-facteur);
+    position: absolute;
+    left: 50%;
+    bottom: -.5rem;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: .62rem;
+    background: var(--papier);
+    border: 1px solid var(--encre);
+    border-radius: 2px;
+    padding: 0 .3rem;
+    color: var(--encre);
+    white-space: nowrap;
+  }
   .face-fiche {
     overflow-y: auto;
     padding: 1rem 1.3rem 1.3rem;
@@ -281,6 +303,8 @@
      <span class="badge-exemple">voir le registre</span> s'ouvrent face à la
      page manuscrite d'origine.
      <a href="demo.html">Ou regardez la machine lire une page en direct →</a></p>
+  <p class="colophon">Lecture des manuscrits : modèles de vision Gemini Flash
+     (service en ligne) et Qwen-VL (exécution locale et libre).</p>
 </header>
 
 <div class="toolbar">
@@ -320,7 +344,7 @@
 </div>
 
 <footer>
-  Greffier · lecture de registres manuscrits par OCR + LLM ·
+  Greffier · registres manuscrits lus par les modèles de vision Gemini Flash & Qwen-VL ·
   <a href="https://github.com/Abdellah427/Greffier">code source sur GitHub</a> ·
   <a href="mailto:abdellah.hassani2002@gmail.com">contact</a>
 </footer>
@@ -458,30 +482,43 @@
   });
 
   // Loupe sur la page manuscrite du face-à-face
-  const loupe = document.getElementById('loupe');
   const faceImage = document.getElementById('face-image');
-  const GROSSISSEMENT = 2.4;
-  faceImage.addEventListener('mousemove', e => {
-    if (!facePhoto.naturalWidth) { loupe.hidden = true; return; }
-    const boite = facePhoto.getBoundingClientRect();
-    const echelle = Math.min(boite.width / facePhoto.naturalWidth,
-                             boite.height / facePhoto.naturalHeight);
-    const largeur = facePhoto.naturalWidth * echelle;
-    const hauteur = facePhoto.naturalHeight * echelle;
-    const gauche = boite.left + (boite.width - largeur) / 2;
-    const haut = boite.top + (boite.height - hauteur) / 2;
-    const x = e.clientX - gauche, y = e.clientY - haut;
-    if (x < 0 || y < 0 || x > largeur || y > hauteur) { loupe.hidden = true; return; }
-    loupe.hidden = false;
-    const rayon = loupe.offsetWidth / 2;
-    const boiteCadre = faceImage.getBoundingClientRect();
-    loupe.style.left = (e.clientX - boiteCadre.left - rayon) + 'px';
-    loupe.style.top = (e.clientY - boiteCadre.top - rayon) + 'px';
-    loupe.style.backgroundImage = `url("${facePhoto.src}")`;
-    loupe.style.backgroundSize = `${largeur * GROSSISSEMENT}px ${hauteur * GROSSISSEMENT}px`;
-    loupe.style.backgroundPosition = `${rayon - x * GROSSISSEMENT}px ${rayon - y * GROSSISSEMENT}px`;
-  });
-  faceImage.addEventListener('mouseleave', () => { loupe.hidden = true; });
+  const loupe = document.getElementById('loupe');
+let grossissement = 2.4;
+let dernierePosition = null;
+function dessineLoupe(clientX, clientY) {
+  if (!facePhoto.naturalWidth) { loupe.hidden = true; return; }
+  const boite = facePhoto.getBoundingClientRect();
+  const echelle = Math.min(boite.width / facePhoto.naturalWidth,
+                           boite.height / facePhoto.naturalHeight);
+  const largeur = facePhoto.naturalWidth * echelle;
+  const hauteur = facePhoto.naturalHeight * echelle;
+  const gauche = boite.left + (boite.width - largeur) / 2;
+  const haut = boite.top + (boite.height - hauteur) / 2;
+  const x = clientX - gauche, y = clientY - haut;
+  if (x < 0 || y < 0 || x > largeur || y > hauteur) { loupe.hidden = true; return; }
+  loupe.hidden = false;
+  loupe.dataset.facteur = '\u00d7 ' + grossissement.toFixed(1).replace('.', ',');
+  const rayon = loupe.offsetWidth / 2;
+  const boiteCadre = faceImage.getBoundingClientRect();
+  loupe.style.left = (clientX - boiteCadre.left - rayon) + 'px';
+  loupe.style.top = (clientY - boiteCadre.top - rayon) + 'px';
+  loupe.style.backgroundImage = `url("${facePhoto.src}")`;
+  loupe.style.backgroundSize = `${largeur * grossissement}px ${hauteur * grossissement}px`;
+  loupe.style.backgroundPosition = `${rayon - x * grossissement}px ${rayon - y * grossissement}px`;
+}
+faceImage.addEventListener('mousemove', e => {
+  dernierePosition = [e.clientX, e.clientY];
+  dessineLoupe(e.clientX, e.clientY);
+});
+// La molette règle le grossissement, sans faire défiler la page.
+faceImage.addEventListener('wheel', e => {
+  if (loupe.hidden) return;
+  e.preventDefault();
+  grossissement = Math.min(6, Math.max(1.4, grossissement * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+  if (dernierePosition) dessineLoupe(dernierePosition[0], dernierePosition[1]);
+}, { passive: false });
+faceImage.addEventListener('mouseleave', () => { loupe.hidden = true; });
 </script>
 </body>
 </html>
