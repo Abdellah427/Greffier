@@ -4,6 +4,9 @@ Archives_1913/
 Archives_1920/
 extracted_images/
 
+# Clé du service en ligne : uniquement sur le serveur
+site/api/config.php
+
 # Python
 __pycache__/
 *.pyc

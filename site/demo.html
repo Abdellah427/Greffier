@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>La machine lit le registre : démonstration en direct</title>
+<title>Greffier : la machine lit le registre, en direct</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
 <style>
   :root {
@@ -447,7 +447,7 @@
 <body>
 
 <nav>
-  <a class="marque" href="index.html">Actes de mariage · Paris 1913-1920</a>
+  <a class="marque" href="index.html">Greffier · Registres de Paris 1913-1920</a>
   <a href="demo.html" aria-current="page">Démonstration</a>
   <a href="index.html">Les 130 actes</a>
   <a href="https://github.com/Abdellah427/IA-Application">Code source</a>
@@ -457,12 +457,14 @@
   <h1>La machine lit <em>le registre</em>.</h1>
   <p class="sous-titre">Déposez la photographie d'une page d'acte de mariage (ou choisissez
      un feuillet de 1913) et regardez le modèle la transcrire puis en établir
-     la fiche, en direct. Tout se passe ici : aucun envoi vers un serveur,
-     aucune clé, aucun compte.</p>
+     la fiche, en direct. Aucune clé, aucun compte : le mode En ligne utilise
+     le service du site, les modes Navigateur et Ollama ne quittent jamais
+     votre machine.</p>
 </header>
 
 <div class="modes" role="group" aria-label="Mode de lecture">
   <button type="button" aria-pressed="true" data-mode="replay">Replay</button>
+  <button type="button" aria-pressed="false" data-mode="enligne">En ligne</button>
   <button type="button" aria-pressed="false" data-mode="navigateur">Navigateur (WebGPU)</button>
   <button type="button" aria-pressed="false" data-mode="ollama">Ollama local</button>
   <p class="mode-note" id="mode-note">Rejoue, telle qu'elle a été enregistrée, l'extraction réelle
@@ -483,6 +485,15 @@
          n'est nécessaire : Ollama autorise localhost par défaut. Évitez
          <code>OLLAMA_ORIGINS="*"</code>, qui ouvrirait votre Ollama à n'importe quel site.</p>
       <p>Le traitement reste entièrement sur votre machine.</p>
+    </details>
+  </div>
+  <div class="config" id="config-enligne" hidden>
+    <details class="aide">
+      <summary>Comment ça marche</summary>
+      <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
+         un modèle vision-langage et renvoie sa réponse en direct. Rien à installer, aucune
+         clé à saisir. Le service est gratuit et partagé : chaque visiteur dispose d'un
+         quota de lectures par jour.</p>
     </details>
   </div>
   <div class="config" id="config-navigateur" hidden>
@@ -528,7 +539,7 @@
       </ol>
       <pre class="flux" id="flux"><span class="invite">La machine attend une page.
 Choisissez un feuillet d'exemple, ou déposez votre propre image
-et passez en mode Navigateur ou Ollama.</span></pre>
+et passez en mode En ligne, Navigateur ou Ollama.</span></pre>
       <p id="annonce" role="status" class="visuellement-masquee"></p>
     </div>
   </section>
@@ -573,8 +584,9 @@ et passez en mode Navigateur ou Ollama.</span></pre>
 </section>
 
 <footer>
-  Archives de Paris, registres AD075EC (1913 &amp; 1920) ·
-  <a href="https://github.com/Abdellah427/IA-Application">projet libre sur GitHub</a>
+  Greffier · lecture de registres manuscrits par OCR + LLM ·
+  Archives de Paris, AD075EC (1913 &amp; 1920) ·
+  <a href="https://github.com/Abdellah427/IA-Application">code source sur GitHub</a>
 </footer>
 
 <script src="data.js"></script>
@@ -624,6 +636,8 @@ const etat = {
 const NOTES = {
   replay: "Rejoue, telle qu'elle a été enregistrée, l'extraction réelle d'un des feuillets " +
           "d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.",
+  enligne: "Le plus rapide pour tester votre propre page : déposez une image, le service du " +
+           "site la fait lire et la réponse arrive en direct. Quota gratuit journalier.",
   navigateur: "Le modèle tourne dans votre navigateur, sans rien installer. Déposez votre propre " +
               "image ou choisissez un feuillet d'exemple.",
   ollama: "La page dialogue avec l'Ollama de votre machine : la meilleure qualité de lecture, " +
@@ -637,6 +651,7 @@ document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
     document.querySelectorAll('.modes > button[data-mode]').forEach(b =>
       b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
     el('config-ollama').hidden = etat.mode !== 'ollama';
+    el('config-enligne').hidden = etat.mode !== 'enligne';
     el('config-navigateur').hidden = etat.mode !== 'navigateur';
     el('mode-note').textContent = NOTES[etat.mode];
     majLancer();
@@ -649,7 +664,7 @@ const exemples = el('exemples');
 const REPLAYS = window.REPLAYS || [];
 if (!REPLAYS.length) {
   legende.textContent = "Les feuillets d'exemple n'ont pas pu être chargés (data.js indisponible) : " +
-    "déposez votre propre image, puis utilisez le mode Navigateur ou Ollama.";
+    "déposez votre propre image, puis utilisez le mode En ligne, Navigateur ou Ollama.";
 }
 REPLAYS.forEach((replay, i) => {
   const bouton = document.createElement('button');
@@ -726,7 +741,7 @@ function chargerFichier(f) {
       depot.hidden = true;
       changer.hidden = false;
       legende.textContent = etat.mode === 'replay'
-        ? `${f.name} : le replay ne rejoue que les feuillets d'exemple, passez en mode Navigateur ou Ollama pour lire cette page.`
+        ? `${f.name} : le replay ne rejoue que les feuillets d'exemple, passez en mode En ligne, Navigateur ou Ollama pour lire cette page.`
         : `${f.name}, prête à être lue.`;
       majLancer();
     };
@@ -894,7 +909,8 @@ lancer.addEventListener('click', () => {
   interrompre.hidden = false;
   majLancer();
   etat.abandon = new AbortController();
-  const partant = { replay: lireReplay, ollama: lireOllama, navigateur: lireNavigateur }[etat.mode]();
+  const partant = { replay: lireReplay, enligne: lireEnLigne,
+                    ollama: lireOllama, navigateur: lireNavigateur }[etat.mode]();
   partant.catch(e => {
     if (e.name === 'AbortError') { fluxEcrit('\n\n-- lecture interrompue --', 'invite'); finDeCourse(); }
     else erreur(`Incident pendant la lecture : ${e.message}`);
@@ -941,6 +957,47 @@ async function lireReplay() {
   fixeEtape(4);
   await pause(reduitMouvement ? 0 : 400, signal);
   terminer(replay.image.split('/').pop());
+}
+
+/* ---------- mode en ligne (service du site) ---------- */
+
+async function lireEnLigne() {
+  const signal = etat.abandon.signal;
+  const base64 = await imagePourLecture(signal);
+  fixeEtape(2);
+  fluxEcrit('envoi au service de lecture du site…\n\n', 'invite');
+
+  let reponse;
+  try {
+    reponse = await fetch('api/lire.php', {
+      method: 'POST',
+      signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64 }),
+    });
+  } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    erreur('Impossible de joindre le service de lecture.',
+           'Réessayez dans un instant, ou utilisez le mode Navigateur ou Ollama.');
+    return;
+  }
+  if (!reponse.ok) {
+    let detail = '';
+    try { detail = (await reponse.json()).erreur || ''; } catch { /* réponse non JSON */ }
+    erreur(detail || `Le service a répondu ${reponse.status}.`,
+           'Les modes Replay, Navigateur et Ollama restent disponibles.');
+    return;
+  }
+
+  const lecteur = reponse.body.getReader();
+  const decodeur = new TextDecoder();
+  for (;;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    recoit(decodeur.decode(value, { stream: true }));
+  }
+  fixeEtape(4);
+  terminer(nomSourceCourant());
 }
 
 /* ---------- mode ollama ---------- */

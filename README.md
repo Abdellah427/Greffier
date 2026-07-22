@@ -1,46 +1,62 @@
-# IA-Application : extraction d'actes de mariage manuscrits par IA
+# Greffier : registres d'état civil manuscrits lus par OCR + LLM
 
-Extraction automatique de données structurées à partir de **registres d'actes de
-mariage parisiens manuscrits de 1913 et 1920** (Archives de Paris, cote AD075EC),
-grâce à un modèle d'IA multimodal (vision + langage).
+Lecture automatique de **registres d'actes de mariage parisiens manuscrits de
+1913 et 1920** (Archives de Paris, cote AD075EC) par un pipeline OCR + LLM :
+un modèle vision-langage transcrit l'écriture manuscrite d'une photographie de
+registre, puis en extrait 16 champs structurés (date et lieu du mariage, noms,
+professions et adresses des époux et de leurs parents).
 
-À partir d'une photographie d'une page de registre, le pipeline transcrit
-l'écriture manuscrite et en extrait 16 champs structurés : date et lieu du
-mariage, noms, professions et adresses des époux ainsi que de leurs parents.
 **130 actes** ont été extraits ([`results.json`](results.json)).
-
-Le projet ne coûte rien à faire tourner ni à héberger, et repose sur des
-modèles libres : voir [« Deux backends, zéro coût »](#deux-backends-zéro-coût).
 
 ## Le site de démonstration
 
-Le dossier [`site/`](site/) est un site **100 % statique** : il se déploie en
-copiant simplement le dossier sur n'importe quel hébergement web, sans backend.
+Le dossier [`site/`](site/) se déploie en copiant simplement le dossier sur
+n'importe quel hébergement web.
 
-- **`demo.html`, la machine qui lit le registre en direct.** On dépose la
+- **`demo.html` : la machine lit le registre, en direct.** On dépose la
   photographie d'une page (ou on choisit un feuillet d'exemple) et on regarde
   le modèle la transcrire en streaming, pendant que la fiche de mariage
-  s'écrit champ par champ. Trois modes, aucun ne demande de clé ni de compte :
+  s'écrit champ par champ. Quatre modes, aucun ne demande de clé ni de compte
+  au visiteur :
   - **Replay** : rejoue une extraction réelle enregistrée.
-    Fonctionne instantanément pour n'importe quel visiteur ;
-  - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, ≈ 2,7 Go
-    téléchargés une fois puis mis en cache) tourne *dans* le navigateur du
-    visiteur, rien ne quitte sa machine ;
+    Fonctionne instantanément, même sans le service en ligne ;
+  - **En ligne** : le test le plus rapide avec sa propre image. La lecture
+    passe par un petit service PHP hébergé avec le site, qui garde la clé
+    côté serveur et impose un quota journalier (voir plus bas) ;
+  - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, environ
+    2,7 Go téléchargés une fois puis mis en cache) tourne dans le navigateur
+    du visiteur, rien ne quitte sa machine ;
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur
     (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
     et libre. Une seule préparation :
-    `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="*" ollama serve`.
-- **`index.html`, l'explorateur.** Les 130 actes extraits, avec recherche
+    `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="https://votre-domaine" ollama serve`.
+- **`index.html` : l'explorateur.** Les 130 actes extraits, avec recherche
   plein texte insensible aux accents et filtres par champ et par année.
 
-Pour l'essayer en local : `python -m http.server -d site` puis ouvrir
-http://localhost:8000/demo.html (les modes réels ont besoin d'être servis en
-HTTP, pas en `file://`).
+Pour l'essayer en local : `php -S localhost:8000 -t site` (ou
+`python -m http.server -d site` sans le mode En ligne), puis ouvrir
+http://localhost:8000/demo.html.
+
+### Activer le mode En ligne sur son hébergement
+
+Le service [`site/api/lire.php`](site/api/lire.php) (PHP 8, présent sur tout
+hébergement mutualisé courant) relaie l'image vers le palier gratuit de
+l'API Gemini et renvoie la réponse en streaming. La clé n'apparaît jamais
+dans le navigateur ni dans le dépôt :
+
+1. copier `site/api/config.sample.php` vers `site/api/config.php` sur le
+   serveur (jamais dans git, il est ignoré) ;
+2. y renseigner une clé gratuite créée sur https://aistudio.google.com/apikey ;
+3. ajuster si besoin les quotas (`quota_ip`, `quota_global`) qui protègent
+   le palier gratuit d'un abus.
+
+Sans `config.php`, le mode En ligne affiche un message clair et les trois
+autres modes restent disponibles.
 
 ## Le pipeline d'extraction
 
 ```
-Images de registres ──► Modèle vision-langage ──► JSON structuré ──► results.json ──► site/
+Images de registres --> Modèle vision-langage --> JSON structuré --> results.json --> site/
        (JPG)              (transcription +           (16 champs        + normalisation
                             extraction)               par acte)          des dates
 ```
@@ -48,7 +64,7 @@ Images de registres ──► Modèle vision-langage ──► JSON structuré �
 | Script | Rôle |
 |---|---|
 | [`src/extract.py`](src/extract.py) | Parcourt un dossier d'images, interroge le modèle, agrège le JSON |
-| [`src/normalize.py`](src/normalize.py) | Ajoute `date_iso` et `annee` aux actes (dates manuscrites → ISO) |
+| [`src/normalize.py`](src/normalize.py) | Ajoute `date_iso` et `annee` aux actes (dates manuscrites vers ISO) |
 | [`src/build_site.py`](src/build_site.py) | Régénère `site/data.js` à partir de `results.json` |
 
 ```bash
@@ -58,7 +74,7 @@ python src/normalize.py results.json
 python src/build_site.py
 ```
 
-## Deux backends, zéro coût
+## Deux backends pour le pipeline
 
 | Backend | Coût | Libre ? | Prérequis |
 |---|---|---|---|
@@ -75,8 +91,7 @@ python src/extract.py mon_dossier_images/ --backend gemini --delay 10
 ```
 
 L'option `--delay` espace les requêtes pour rester dans les quotas du palier
-gratuit de Gemini. Côté site, aucun backend propriétaire : le visiteur n'entre
-jamais de clé.
+gratuit de Gemini.
 
 ## Structure du dépôt
 
@@ -88,6 +103,7 @@ jamais de clé.
 ├── samples/              # Pages de registres d'exemple (images allégées)
 ├── results.json          # Les 130 actes extraits (+ date_iso, annee)
 ├── site/                 # Site statique : demo.html, index.html, data.js
+│   └── api/lire.php      # Service optionnel du mode En ligne (PHP 8)
 ├── Rapport_IA_et_Application_2.pdf   # Rapport du projet
 └── requirements.txt
 ```
@@ -99,6 +115,6 @@ quelques pages d'exemple sont conservées dans `samples/`.
 
 - L'écriture manuscrite de certains officiers d'état civil reste difficile :
   quelques champs sont `null` ou approximatifs, et certaines années lues sont
-  manifestement erronées.
-- Le mode « Navigateur » est expérimental : le modèle 2B lit les manuscrits
+  manifestement erronées (elles sont signalées dans l'explorateur).
+- Le mode Navigateur est expérimental : le modèle 2B lit les manuscrits
   moins bien que le 7B d'Ollama, et WebGPU est nécessaire.
