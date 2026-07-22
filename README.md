@@ -62,8 +62,8 @@ python src/build_site.py
 
 | Backend | Coût | Libre ? | Prérequis |
 |---|---|---|---|
-| **`ollama`** (défaut) | 0 € | ✅ modèle open-weights, exécution 100 % locale | [Ollama](https://ollama.com) + `ollama pull qwen2.5vl:7b` (~6 Go, GPU ou CPU) |
-| `gemini` | 0 € (palier gratuit) | ❌ API propriétaire | Clé gratuite sur [AI Studio](https://aistudio.google.com/apikey), quotas limités |
+| **`ollama`** (défaut) | 0 € | oui, modèle open-weights, exécution 100 % locale | [Ollama](https://ollama.com) + `ollama pull qwen2.5vl:7b` (~6 Go, GPU ou CPU) |
+| `gemini` | 0 € (palier gratuit) | non, API propriétaire | Clé gratuite sur [AI Studio](https://aistudio.google.com/apikey), quotas limités |
 
 ```bash
 # Solution libre et locale (recommandée)
