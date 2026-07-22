@@ -693,8 +693,16 @@
       <summary>Préparer Ollama (une seule fois)</summary>
       <p>Installez <a href="https://ollama.com">Ollama</a>, récupérez le modèle puis autorisez
          cette page à lui parler :</p>
-      <p><code>ollama pull qwen2.5vl:7b</code><br>
+      <p><code>ollama pull qwen2.5vl:7b</code></p>
+      <p>Linux ou Mac :<br>
          <code id="ollama-cmd">OLLAMA_ORIGINS="https://votre-domaine" ollama serve</code></p>
+      <p>Windows (invite de commandes) : quittez d'abord Ollama depuis son icône
+         près de l'horloge (Quit Ollama), puis :<br>
+         <code id="ollama-cmd-windows">set OLLAMA_ORIGINS=https://votre-domaine</code><br>
+         <code>ollama serve</code></p>
+      <p>Réglage permanent sous Windows :
+         <code id="ollama-cmd-setx">setx OLLAMA_ORIGINS https://votre-domaine</code>,
+         puis relancez l'application Ollama.</p>
       <p>Si vous ouvrez cette page en local (<code>http://localhost</code>), aucune variable
          n'est nécessaire : Ollama autorise localhost par défaut. Évitez
          <code>OLLAMA_ORIGINS="*"</code>, qui ouvrirait votre Ollama à n'importe quel site.</p>
@@ -1435,7 +1443,8 @@ async function lireOllama() {
     if (e.name === 'AbortError') throw e;
     erreur(`Impossible de joindre Ollama sur ${hote}.`,
            `Vérifiez qu'Ollama tourne, puis relancez-le en autorisant cette page :\n` +
-           `OLLAMA_ORIGINS="${location.origin !== 'null' ? location.origin : 'votre-domaine'}" ollama serve`);
+           `OLLAMA_ORIGINS="${location.origin !== 'null' ? location.origin : 'votre-domaine'}" ollama serve\n` +
+           `(Windows : set OLLAMA_ORIGINS=${location.origin !== 'null' ? location.origin : 'votre-domaine'} puis ollama serve)`);
     return;
   }
   if (!reponse.ok) {
@@ -1702,10 +1711,11 @@ async function imagePourLecture(signal) {
 if (localStorage.getItem('ollama-hote')) el('ollama-hote').value = localStorage.getItem('ollama-hote');
 if (localStorage.getItem('ollama-modele')) el('ollama-modele').value = localStorage.getItem('ollama-modele');
 
-// Consigne Ollama adaptée au domaine réel où la page est servie.
-const cmdOllama = el('ollama-cmd');
-if (cmdOllama && location.origin !== 'null') {
-  cmdOllama.textContent = `OLLAMA_ORIGINS="${location.origin}" ollama serve`;
+// Consignes Ollama adaptées au domaine réel où la page est servie.
+if (location.origin !== 'null') {
+  el('ollama-cmd').textContent = `OLLAMA_ORIGINS="${location.origin}" ollama serve`;
+  el('ollama-cmd-windows').textContent = `set OLLAMA_ORIGINS=${location.origin}`;
+  el('ollama-cmd-setx').textContent = `setx OLLAMA_ORIGINS ${location.origin}`;
 }
 </script>
 </body>

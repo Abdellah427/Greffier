@@ -32,7 +32,9 @@ n'importe quel hébergement web.
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur
     (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
     et libre. Une seule préparation :
-    `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="https://votre-domaine" ollama serve`.
+    `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="https://votre-domaine" ollama serve`
+    (Windows : `set OLLAMA_ORIGINS=https://votre-domaine` puis `ollama serve`,
+    après avoir quitté l'Ollama de la barre des tâches).
 - **`banc.html` : le banc d'essai.** Six pages de registres transcrites mot à
   mot par des chercheurs (jeu M-POPP, CC-BY 4.0) : on lance la lecture et la
   fiche extraite est comparée champ par champ à leur transcription de
