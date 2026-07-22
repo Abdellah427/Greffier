@@ -109,6 +109,9 @@ def main():
                         help="ajoute les actes au fichier de sortie existant au "
                              "lieu de l'écraser (les images déjà présentes, "
                              "reconnues par _source_image, sont sautées)")
+    parser.add_argument("--max", type=int, metavar="N",
+                        help="traite au plus N images cette session, pour garder "
+                             "une marge de quota (reprendre ensuite avec --ajouter)")
     parser.add_argument("--backend", choices=BACKENDS, default="ollama")
     parser.add_argument("--model", help="Nom du modèle (défaut selon le backend)")
     parser.add_argument("--delay", type=float, default=0.0,
@@ -127,18 +130,33 @@ def main():
         sys.exit(f"Aucune image trouvée dans {args.folder}")
 
     results = []
+    deja = 0
     if args.ajouter and Path(args.output).exists():
         results = json.loads(Path(args.output).read_text(encoding="utf-8"))
         deja_traitees = {e.get("_source_image") for e in results}
         avant = len(images)
         images = [i for i in images if i.name not in deja_traitees]
-        if avant - len(images):
-            print(f"{avant - len(images)} images déjà traitées, ignorées")
+        deja = avant - len(images)
+        if deja:
+            print(f"{deja} images déjà traitées, ignorées")
         print(f"{len(results)} actes existants conservés")
+
+    total_corpus = deja + len(images)
+    restantes_apres = 0
+    if args.max and args.max < len(images):
+        restantes_apres = len(images) - args.max
+        images = images[:args.max]
+        print(f"Session limitée à {args.max} images "
+              f"({restantes_apres} resteront à faire)")
+
+    def barre(position):
+        plein = round(20 * position / total_corpus) if total_corpus else 0
+        return "#" * plein + "-" * (20 - plein)
 
     interrompu = False
     for i, image in enumerate(images, 1):
-        print(f"[{i}/{len(images)}] {image.name} ... ", end="", flush=True)
+        print(f"[{barre(deja + i)} {deja + i}/{total_corpus}] {image.name} ... ",
+              end="", flush=True)
         try:
             entry = extract(image, **kwargs)
             entry["_source_image"] = image.name
@@ -163,6 +181,9 @@ def main():
         print("Quota du jour épuisé : tout ce qui est fait est sauvegardé. "
               "Relancez la même commande demain avec --ajouter pour continuer "
               "là où ça s'est arrêté.")
+    elif restantes_apres:
+        print(f"Marge de quota préservée : {restantes_apres} images restantes. "
+              "Relancez la même commande avec --ajouter pour continuer.")
 
 
 if __name__ == "__main__":
