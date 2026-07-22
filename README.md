@@ -118,7 +118,6 @@ gratuit de Gemini.
 ├── results.json          # Les 130 actes extraits (+ date_iso, annee)
 ├── site/                 # Site statique : demo.html, index.html, data.js
 │   └── api/lire.php      # Service optionnel du mode En ligne (PHP 8)
-├── Rapport_IA_et_Application_2.pdf   # Rapport du projet
 └── requirements.txt
 ```
 
