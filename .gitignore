@@ -10,8 +10,9 @@ site/api/config.php
 # Identifiants FTP du script de déploiement : uniquement en local
 deploy.config.json
 
-# Clé API du pipeline : uniquement en local
+# Clés API du pipeline : uniquement en local
 gemini.key
+openrouter.key
 
 # Python
 __pycache__/

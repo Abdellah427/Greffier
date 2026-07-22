@@ -106,7 +106,45 @@ def extract_gemini(image_path, model="gemini-3.6-flash"):
     return parse_json_response(text)
 
 
-BACKENDS = {"ollama": extract_ollama, "gemini": extract_gemini}
+def extract_openrouter(image_path, model="google/gemma-4-31b-it:free"):
+    """Palier gratuit d'OpenRouter (environ 50 lectures par jour).
+
+    Clé gratuite sur https://openrouter.ai/keys, à coller dans le fichier
+    openrouter.key à la racine du dépôt (ignoré par git) ou dans la
+    variable d'environnement OPENROUTER_API_KEY.
+    """
+    fichier_cle = Path(__file__).resolve().parent.parent / "openrouter.key"
+    api_key = fichier_cle.read_text(encoding="utf-8") if fichier_cle.exists() \
+        else os.environ.get("OPENROUTER_API_KEY", "")
+    api_key = api_key.strip().strip('"').strip("'").strip()
+    if not api_key:
+        sys.exit("Erreur : aucune clé OpenRouter trouvée. Collez votre clé "
+                 "(https://openrouter.ai/keys) dans un fichier openrouter.key "
+                 "à la racine du projet, ou définissez OPENROUTER_API_KEY.")
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}",
+                 "Content-Type": "application/json"},
+        json={
+            "model": model,
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": PROMPT},
+                    {"type": "image_url", "image_url": {
+                        "url": "data:image/jpeg;base64," + image_to_base64(image_path),
+                    }},
+                ],
+            }],
+        },
+        timeout=300,
+    )
+    response.raise_for_status()
+    return parse_json_response(response.json()["choices"][0]["message"]["content"])
+
+
+BACKENDS = {"ollama": extract_ollama, "gemini": extract_gemini,
+            "openrouter": extract_openrouter}
 
 
 def main():
