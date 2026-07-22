@@ -274,6 +274,18 @@
     margin: 1.6rem auto 0;
     padding: 0 1.5rem 4rem;
   }
+  .registre-public {
+    font-family: var(--mono);
+    font-size: .74rem;
+    letter-spacing: .03em;
+    color: var(--encre-pale);
+    border: 1px dashed var(--regle);
+    border-radius: 3px;
+    padding: .5rem .8rem;
+    margin: 0 0 1rem;
+  }
+  .registre-public[hidden] { display: none; }
+  .registre-public b { color: var(--encre); font-weight: normal; }
   .score {
     border: 1px solid var(--regle);
     background: var(--carte);
@@ -429,6 +441,7 @@ et lancez la lecture : le résultat sera comparé
 </main>
 
 <section class="verdict-section" aria-label="Comparaison">
+  <p class="registre-public" id="registre-public" hidden></p>
   <div class="score" id="score" hidden>
     <div class="grand" id="score-exact"><span class="libelle">champs exacts</span></div>
     <div class="grand" id="score-proche" style="color: var(--proche)"><span class="libelle">exacts ou proches</span></div>
@@ -780,7 +793,35 @@ function compare(objet, reference) {
   el('score').hidden = false;
   el('comparaison').hidden = false;
   el('score').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  deposeReleve(fournisseurChoisi, { exacts, proches, faux });
 }
+
+/* ---------- le registre public : la base se construit avec les visiteurs ---------- */
+
+function deposeReleve(fournisseur, comptes) {
+  fetch('api/releve.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ page: window.BANC[choisi].image, fournisseur, ...comptes }),
+  }).then(chargeRegistre).catch(() => { /* le registre est un bonus, jamais bloquant */ });
+}
+
+function chargeRegistre() {
+  fetch('api/releve.php').then(r => r.json()).then(({ releves }) => {
+    const noms = Object.keys(releves || {});
+    if (!noms.length) return;
+    const total = noms.reduce((a, n) => a + releves[n].lectures, 0);
+    const parties = noms.map(n =>
+      `<b>${esc(NOMS_MODELES[n] || n)}</b> ${releves[n].exact_pourcent} % exact ` +
+      `(${releves[n].lectures} lecture${releves[n].lectures > 1 ? 's' : ''})`);
+    const zone = el('registre-public');
+    zone.innerHTML = `Registre public du banc d'essai, construit par les visiteurs : ` +
+      `${total} lecture${total > 1 ? 's' : ''} consignée${total > 1 ? 's' : ''} — ` +
+      parties.join(' · ');
+    zone.hidden = false;
+  }).catch(() => { /* silencieux */ });
+}
+chargeRegistre();
 
 // Palmarès : les lectures des modèles côte à côte, face à la référence.
 function palmares(resultats, reference) {
@@ -788,11 +829,15 @@ function palmares(resultats, reference) {
   const scores = {};
   for (const nom of noms) {
     if (!resultats[nom].objet) continue;
-    let exacts = 0;
+    let exacts = 0, proches = 0, faux = 0;
     for (const [champ] of CHAMPS) {
-      if (verdictDe(resultats[nom].objet[champ], reference[champ]) === 'exact') exacts++;
+      const verdict = verdictDe(resultats[nom].objet[champ], reference[champ]);
+      if (verdict === 'exact') exacts++;
+      else if (verdict === 'proche') proches++;
+      else faux++;
     }
     scores[nom] = exacts;
+    deposeReleve(nom, { exacts, proches, faux });
   }
   const meilleur = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
 

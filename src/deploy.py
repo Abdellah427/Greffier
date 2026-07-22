@@ -49,7 +49,7 @@ def fichiers_a_envoyer():
     return sorted(
         chemin.relative_to(SITE)
         for chemin in SITE.rglob("*")
-        if chemin.is_file() and chemin.name != "config.php"
+        if chemin.is_file() and chemin.name not in ("config.php", "releves.jsonl")
     )
 
 

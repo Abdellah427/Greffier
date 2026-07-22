@@ -28,3 +28,6 @@ mpopp_data/
 pages_mpopp/
 reference_mpopp.json
 extraction_mpopp.json
+
+# Registre des lectures publiques : uniquement sur le serveur
+site/api/releves.jsonl
