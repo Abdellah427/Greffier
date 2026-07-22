@@ -140,7 +140,7 @@ un score global. L'option `--details` liste chaque désaccord.
 Données M-POPP : projet EXO-POPP, université de Rouen Normandie et
 partenaires, sous licence CC-BY 4.0.
 
-## Deux backends pour le pipeline
+## Quatre backends pour le pipeline
 
 | Backend | Coût | Libre ? | Prérequis |
 |---|---|---|---|
