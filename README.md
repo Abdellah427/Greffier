@@ -23,7 +23,7 @@ copiant simplement le dossier sur n'importe quel hébergement web, sans backend.
   s'écrit champ par champ. Trois modes, aucun ne demande de clé ni de compte :
   - **Replay** : rejoue une extraction réelle enregistrée.
     Fonctionne instantanément pour n'importe quel visiteur ;
-  - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, ≈ 1,2 Go
+  - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, ≈ 2,7 Go
     téléchargés une fois puis mis en cache) tourne *dans* le navigateur du
     visiteur, rien ne quitte sa machine ;
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur

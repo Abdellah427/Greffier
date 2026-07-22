@@ -84,7 +84,7 @@
     gap: .5rem;
     align-items: center;
   }
-  .modes [role=tab] {
+  .modes > button {
     font-family: var(--mono);
     font-size: .82rem;
     padding: .5rem .85rem;
@@ -94,7 +94,7 @@
     color: var(--encre);
     cursor: pointer;
   }
-  .modes [role=tab][aria-selected=true] {
+  .modes > button[aria-pressed=true] {
     background: var(--encre);
     border-color: var(--encre);
     color: var(--papier);
@@ -201,6 +201,20 @@
     position: relative;
     z-index: 1;
     min-height: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .6rem;
+  }
+  .page-legende button {
+    font: inherit;
+    color: var(--encre);
+    background: transparent;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    padding: .1rem .5rem;
+    cursor: pointer;
+    white-space: nowrap;
   }
   .exemples {
     display: flex;
@@ -264,7 +278,7 @@
     display: grid;
     gap: .3rem;
   }
-  .etapes li { color: #5a6878; transition: color .3s; }
+  .etapes li { color: #8494a6; transition: color .3s; }
   .etapes li::before { content: '· '; }
   .etapes li.active { color: var(--lueur); }
   .etapes li.active::before { content: '▸ '; color: var(--cyan); }
@@ -281,7 +295,7 @@
     overflow-y: auto;
     max-height: 24rem;
   }
-  .flux .invite { color: #5a6878; }
+  .flux .invite { color: #8494a6; }
   .flux .erreur { color: #d98d7b; }
   .flux .curseur {
     display: inline-block;
@@ -414,6 +428,15 @@
     font-family: var(--mono);
   }
 
+  .visuellement-masquee {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .flux .curseur { animation: none; }
@@ -438,10 +461,10 @@
      aucune clé, aucun compte.</p>
 </header>
 
-<div class="modes" role="tablist" aria-label="Mode de lecture">
-  <button role="tab" aria-selected="true" data-mode="replay">Replay</button>
-  <button role="tab" aria-selected="false" data-mode="navigateur">Navigateur (WebGPU)</button>
-  <button role="tab" aria-selected="false" data-mode="ollama">Ollama local</button>
+<div class="modes" role="group" aria-label="Mode de lecture">
+  <button type="button" aria-pressed="true" data-mode="replay">Replay</button>
+  <button type="button" aria-pressed="false" data-mode="navigateur">Navigateur (WebGPU)</button>
+  <button type="button" aria-pressed="false" data-mode="ollama">Ollama local</button>
   <p class="mode-note" id="mode-note">Rejoue, telle qu'elle a été enregistrée, l'extraction réelle
      d'un des feuillets d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.</p>
 
@@ -455,14 +478,17 @@
       <p>Installez <a href="https://ollama.com">Ollama</a>, récupérez le modèle puis autorisez
          cette page à lui parler :</p>
       <p><code>ollama pull qwen2.5vl:7b</code><br>
-         <code>OLLAMA_ORIGINS="*" ollama serve</code></p>
+         <code id="ollama-cmd">OLLAMA_ORIGINS="https://votre-domaine" ollama serve</code></p>
+      <p>Si vous ouvrez cette page en local (<code>http://localhost</code>), aucune variable
+         n'est nécessaire : Ollama autorise localhost par défaut. Évitez
+         <code>OLLAMA_ORIGINS="*"</code>, qui ouvrirait votre Ollama à n'importe quel site.</p>
       <p>Le traitement reste entièrement sur votre machine.</p>
     </details>
   </div>
   <div class="config" id="config-navigateur" hidden>
     <details class="aide" open>
       <summary>Comment ça marche</summary>
-      <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 1,2 Go,
+      <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 2,7 Go,
          mis en cache) puis exécuté <em>dans votre navigateur</em> grâce à WebGPU : rien ne quitte
          votre machine. Expérimental : il faut un navigateur récent et un peu de patience ;
          la lecture des manuscrits est moins fiable qu'avec le modèle 7B d'Ollama.</p>
@@ -479,7 +505,8 @@
         <span>ou cliquez pour choisir une image (JPG, PNG)</span>
       </button>
       <img class="apercu" id="apercu" alt="" hidden>
-      <div class="page-legende" id="legende">Aucune page chargée.</div>
+      <div class="page-legende"><span id="legende">Aucune page chargée.</span><button
+        id="changer" type="button" hidden>Changer d'image</button></div>
     </div>
     <input type="file" id="fichier" accept="image/jpeg,image/png,image/webp" hidden>
     <div class="exemples" id="exemples" aria-label="Feuillets d'exemple"></div>
@@ -499,9 +526,10 @@
         <li>Réponse analysée</li>
         <li>Fiche établie</li>
       </ol>
-      <pre class="flux" id="flux" aria-live="polite"><span class="invite">La machine attend une page.
+      <pre class="flux" id="flux"><span class="invite">La machine attend une page.
 Choisissez un feuillet d'exemple, ou déposez votre propre image
 et passez en mode Navigateur ou Ollama.</span></pre>
+      <p id="annonce" role="status" class="visuellement-masquee"></p>
     </div>
   </section>
 </main>
@@ -602,12 +630,12 @@ const NOTES = {
           "entièrement locale et libre.",
 };
 
-document.querySelectorAll('.modes [role=tab]').forEach(bouton => {
+document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
   bouton.addEventListener('click', () => {
     if (etat.enCours) return;
     etat.mode = bouton.dataset.mode;
-    document.querySelectorAll('.modes [role=tab]').forEach(b =>
-      b.setAttribute('aria-selected', b === bouton ? 'true' : 'false'));
+    document.querySelectorAll('.modes > button[data-mode]').forEach(b =>
+      b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
     el('config-ollama').hidden = etat.mode !== 'ollama';
     el('config-navigateur').hidden = etat.mode !== 'navigateur';
     el('mode-note').textContent = NOTES[etat.mode];
@@ -618,7 +646,12 @@ document.querySelectorAll('.modes [role=tab]').forEach(bouton => {
 /* ---------- chargement de la page (image) ---------- */
 
 const exemples = el('exemples');
-window.REPLAYS.forEach((replay, i) => {
+const REPLAYS = window.REPLAYS || [];
+if (!REPLAYS.length) {
+  legende.textContent = "Les feuillets d'exemple n'ont pas pu être chargés (data.js indisponible) : " +
+    "déposez votre propre image, puis utilisez le mode Navigateur ou Ollama.";
+}
+REPLAYS.forEach((replay, i) => {
   const bouton = document.createElement('button');
   bouton.type = 'button';
   bouton.setAttribute('aria-pressed', 'false');
@@ -634,16 +667,21 @@ function choisirExemple(i) {
   etat.image = null;
   exemples.querySelectorAll('button').forEach((b, j) =>
     b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
-  const replay = window.REPLAYS[i];
+  const replay = REPLAYS[i];
   apercu.src = replay.image;
   apercu.alt = replay.titre;
   apercu.hidden = false;
   depot.hidden = true;
+  changer.hidden = false;
   legende.textContent = `${replay.titre} (${replay.cote})`;
   majLancer();
 }
 
 depot.addEventListener('click', () => fichier.click());
+const changer = el('changer');
+changer.addEventListener('click', () => {
+  if (!etat.enCours) fichier.click();
+});
 fichier.addEventListener('change', () => {
   if (fichier.files[0]) chargerFichier(fichier.files[0]);
 });
@@ -686,6 +724,7 @@ function chargerFichier(f) {
       apercu.alt = `Page téléversée : ${f.name}`;
       apercu.hidden = false;
       depot.hidden = true;
+      changer.hidden = false;
       legende.textContent = etat.mode === 'replay'
         ? `${f.name} : le replay ne rejoue que les feuillets d'exemple, passez en mode Navigateur ou Ollama pour lire cette page.`
         : `${f.name}, prête à être lue.`;
@@ -709,6 +748,13 @@ function fixeEtape(n) {   // n étapes faites, l'étape n en cours
     li.classList.toggle('faite', i < n);
     li.classList.toggle('active', i === n);
   });
+  const active = etapes.children[n];
+  if (active) annoncer('Étape : ' + active.textContent);
+}
+
+const annonce = el('annonce');
+function annoncer(texte) {
+  annonce.textContent = texte;
 }
 
 let curseur = null;
@@ -773,32 +819,49 @@ function recoit(texte) {
   analyseEnDirect();
 }
 
-function terminer(nomSource) {
-  const m = etat.tampon.match(/\{[\s\S]*\}/);
-  if (m) {
-    try {
-      const objet = JSON.parse(m[0]);
-      CHAMPS.forEach(c => ecritChamp(c, objet[c]));
-      etat.resultat = Object.fromEntries(CHAMPS.map(c => [c, objet[c] ?? null]));
-      etat.resultat._source_image = nomSource;
-      telecharger.disabled = false;
-      mentionSource.textContent = `Source : ${nomSource}`;
-      fixeEtape(5);
-      fluxEcrit('\n\n-- lecture terminée --', 'invite');
-    } catch (e) {
-      erreur(`La réponse du modèle n'est pas un JSON valide (${e.message}).`);
-      return;
+// Premier objet JSON équilibré et parsable du tampon : les modèles sans
+// format contraint (mode Navigateur) entourent parfois le JSON de texte
+// ou d'un brouillon contenant d'autres accolades.
+function extraitObjet(tampon) {
+  for (let d = tampon.indexOf('{'); d !== -1; d = tampon.indexOf('{', d + 1)) {
+    let prof = 0, chaine = false;
+    for (let i = d; i < tampon.length; i++) {
+      const c = tampon[i];
+      if (chaine) { if (c === '\\') i++; else if (c === '"') chaine = false; }
+      else if (c === '"') chaine = true;
+      else if (c === '{') prof++;
+      else if (c === '}' && --prof === 0) {
+        try { return JSON.parse(tampon.slice(d, i + 1)); } catch { break; }
+      }
     }
-  } else {
-    erreur("Le modèle n'a pas renvoyé de JSON : relancez la lecture.");
+  }
+  return null;
+}
+
+function terminer(nomSource) {
+  const objet = extraitObjet(etat.tampon);
+  if (!objet) {
+    erreur("Le modèle n'a pas renvoyé de JSON exploitable : relancez la lecture.");
     return;
   }
+  // La fiche doit refléter le JSON final, pas d'éventuelles paires vues
+  // plus tôt dans la prose du modèle.
+  etat.remplis.clear();
+  CHAMPS.forEach(c => ecritChamp(c, objet[c]));
+  etat.resultat = Object.fromEntries(CHAMPS.map(c => [c, objet[c] ?? null]));
+  etat.resultat._source_image = nomSource;
+  telecharger.disabled = false;
+  mentionSource.textContent = `Source : ${nomSource}`;
+  fixeEtape(5);
+  fluxEcrit('\n\n-- lecture terminée --', 'invite');
+  annoncer('Lecture terminée, fiche établie.');
   finDeCourse();
 }
 
 function erreur(message, aide) {
   fluxEcrit('\n\n' + message, 'erreur');
   if (aide) fluxEcrit('\n' + aide, 'invite');
+  annoncer(message);
   finDeCourse();
 }
 
@@ -852,7 +915,7 @@ const pause = (ms, signal) => new Promise((res, rej) => {
 
 async function lireReplay() {
   const signal = etat.abandon.signal;
-  const replay = window.REPLAYS[etat.replayChoisi];
+  const replay = REPLAYS[etat.replayChoisi];
   fixeEtape(0);
   fluxEcrit(`$ python src/extract.py ${replay.image}\n`, 'invite');
   await pause(reduitMouvement ? 0 : 500, signal);
@@ -906,7 +969,7 @@ async function lireOllama() {
     if (e.name === 'AbortError') throw e;
     erreur(`Impossible de joindre Ollama sur ${hote}.`,
            `Vérifiez qu'Ollama tourne, puis relancez-le en autorisant cette page :\n` +
-           `OLLAMA_ORIGINS="*" ollama serve`);
+           `OLLAMA_ORIGINS="${location.origin !== 'null' ? location.origin : 'votre-domaine'}" ollama serve`);
     return;
   }
   if (!reponse.ok) {
@@ -951,7 +1014,7 @@ async function lireNavigateur() {
 
   fixeEtape(2);
   if (!moteurNavigateur) {
-    fluxEcrit('téléchargement du modèle (une seule fois, ≈ 1,2 Go)…\n', 'invite');
+    fluxEcrit('téléchargement du modèle (une seule fois, ≈ 2,7 Go)…\n', 'invite');
     const progres = {};
     let t;
     try {
@@ -972,8 +1035,13 @@ async function lireNavigateur() {
     };
     const processor = await t.AutoProcessor.from_pretrained(idModele,
                         { progress_callback: suitProgres });
+    if (signal.aborted) throw new DOMException('', 'AbortError');
+    // fp16 pour la vision et les embeddings, q4f16 pour le décodeur : la
+    // quantification q4 uniforme dégrade l'encodeur vision de Qwen2-VL.
     const model = await t.Qwen2VLForConditionalGeneration.from_pretrained(idModele,
-                        { dtype: 'q4', device: 'webgpu', progress_callback: suitProgres });
+                        { dtype: { embed_tokens: 'fp16', vision_encoder: 'fp16',
+                                   decoder_model_merged: 'q4f16' },
+                          device: 'webgpu', progress_callback: suitProgres });
     moteurNavigateur = { t, processor, model };
     legende.textContent = 'Modèle prêt.';
     fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
@@ -983,7 +1051,16 @@ async function lireNavigateur() {
   if (signal.aborted) throw new DOMException('', 'AbortError');
 
   const { t, processor, model } = moteurNavigateur;
-  const image = await t.RawImage.fromURL(dataUrl);
+  let image = await t.RawImage.fromURL(dataUrl);
+  // Qwen2-VL est à résolution dynamique : sans borne, un feuillet de 1600 px
+  // produit environ 2500 tokens visuels. On limite le grand côté à 784 px
+  // (multiple de 28) pour contenir la mémoire GPU et la latence.
+  const COTE_MAX = 784;
+  const ratio = COTE_MAX / Math.max(image.width, image.height);
+  if (ratio < 1) {
+    image = await image.resize(Math.round(image.width * ratio),
+                               Math.round(image.height * ratio));
+  }
   const conversation = [{ role: 'user',
     content: [{ type: 'image' }, { type: 'text', text: PROMPT }] }];
   const texte = processor.apply_chat_template(conversation, { add_generation_prompt: true });
@@ -993,7 +1070,9 @@ async function lireNavigateur() {
     skip_special_tokens: true,
     callback_function: morceau => { if (!signal.aborted) recoit(morceau); },
   });
-  await model.generate({ ...entrees, max_new_tokens: 512, streamer });
+  const arret = new t.InterruptableStoppingCriteria();
+  signal.addEventListener('abort', () => arret.interrupt(), { once: true });
+  await model.generate({ ...entrees, max_new_tokens: 512, streamer, stopping_criteria: arret });
   if (signal.aborted) throw new DOMException('', 'AbortError');
   fixeEtape(4);
   terminer(nomSourceCourant());
@@ -1003,7 +1082,7 @@ async function lireNavigateur() {
 
 function nomSourceCourant() {
   if (etat.image) return etat.image.nom;
-  return window.REPLAYS[etat.replayChoisi].image.split('/').pop();
+  return REPLAYS[etat.replayChoisi].image.split('/').pop();
 }
 
 async function dataUrlPourLecture(signal) {
@@ -1012,7 +1091,7 @@ async function dataUrlPourLecture(signal) {
   fixeEtape(1);
   if (etat.image) return etat.image.dataUrl;
   // Feuillet d'exemple : on le charge depuis le site.
-  const reponse = await fetch(window.REPLAYS[etat.replayChoisi].image, { signal });
+  const reponse = await fetch(REPLAYS[etat.replayChoisi].image, { signal });
   const blob = await reponse.blob();
   return await new Promise(res => {
     const lecteur = new FileReader();
@@ -1030,6 +1109,12 @@ async function imagePourLecture(signal) {
 
 if (localStorage.getItem('ollama-hote')) el('ollama-hote').value = localStorage.getItem('ollama-hote');
 if (localStorage.getItem('ollama-modele')) el('ollama-modele').value = localStorage.getItem('ollama-modele');
+
+// Consigne Ollama adaptée au domaine réel où la page est servie.
+const cmdOllama = el('ollama-cmd');
+if (cmdOllama && location.origin !== 'null') {
+  cmdOllama.textContent = `OLLAMA_ORIGINS="${location.origin}" ollama serve`;
+}
 </script>
 </body>
 </html>

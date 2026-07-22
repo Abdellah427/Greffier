@@ -152,8 +152,9 @@
 </header>
 
 <div class="toolbar">
-  <input id="q" type="search" placeholder="Rechercher un nom, une profession, une adresse…">
-  <select id="who" aria-label="Champ de recherche">
+  <input id="q" type="search" aria-label="Rechercher dans les actes"
+         placeholder="Rechercher un nom, une profession, une adresse…">
+  <select id="who" aria-label="Portée de la recherche">
     <option value="all">Tous les champs</option>
     <option value="maries">Mariés</option>
     <option value="professions">Professions</option>
@@ -188,27 +189,35 @@
     adresses: ['adresse_marie', 'adresse_mariee', 'lieu_mariage'],
   };
 
-  // Années présentes dans le corpus (issues de la normalisation des dates)
+  // Années présentes dans le corpus (issues de la normalisation des dates).
+  // Les registres sources couvrent 1913 et 1920 : toute autre année est une
+  // erreur de lecture probable du modèle, signalée comme telle.
+  const ANNEES_CORPUS = new Set([1913, 1920]);
   const annees = [...new Set(ACTES.map(a => a.annee).filter(Boolean))].sort();
   for (const an of annees) {
     const option = document.createElement('option');
     option.value = an;
-    option.textContent = an;
+    option.textContent = ANNEES_CORPUS.has(an) ? an : `${an} (lecture douteuse)`;
     annee.appendChild(option);
   }
 
   const norm = s => (s || '').toString().toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+  // Les valeurs viennent de sorties brutes du modèle : échappement
+  // systématique avant insertion dans le HTML.
+  const esc = s => String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
   function field(label, value) {
     if (!value) return '';
-    return `<div><dt>${label}</dt><dd>${value}</dd></div>`;
+    return `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`;
   }
 
   function card(a) {
     return `<article class="acte">
-      <h2>${a.nom_prenom_marie || '. . .'} <span class="et">&amp;</span> ${a.nom_prenom_mariee || '. . .'}</h2>
-      <div class="meta">${a.date_mariage || 'date inconnue'} · ${a.lieu_mariage || ''}</div>
+      <h2>${esc(a.nom_prenom_marie || '. . .')} <span class="et">&amp;</span> ${esc(a.nom_prenom_mariee || '. . .')}</h2>
+      <div class="meta">${esc(a.date_mariage || 'date inconnue')} · ${esc(a.lieu_mariage || '')}</div>
       <dl>
         ${field('Profession (lui)', a.profession_marie)}
         ${field('Adresse (lui)', a.adresse_marie)}

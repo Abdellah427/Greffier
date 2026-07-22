@@ -15,6 +15,7 @@ Usage :
 """
 
 import argparse
+import datetime
 import json
 import re
 import unicodedata
@@ -63,7 +64,7 @@ def _mots_vers_nombre(mots):
 
 def _annee_en_lettres(texte):
     """Repère "mil(le) neuf cent(s) [vingt(-)...]" et renvoie l'année."""
-    match = re.search(r"\bmille?\s+neuf\s+cents?\b\s*((?:[a-z-]+\s*){0,4})", texte)
+    match = re.search(r"\bmil(?:le)?\s+neuf\s+cents?\b\s*((?:[a-z-]+\s*){0,4})", texte)
     if not match:
         return None
     reste = [m for m in re.split(r"[\s-]+", match.group(1).strip()) if m]
@@ -71,6 +72,15 @@ def _annee_en_lettres(texte):
         return 1900
     complement = _mots_vers_nombre(reste)
     return 1900 + complement if complement else 1900
+
+
+def _iso_valide(annee, mois, jour):
+    """Formate YYYY-MM-DD si le triplet est une date calendaire réelle, sinon None."""
+    try:
+        datetime.date(annee, mois, jour)
+    except ValueError:
+        return None
+    return f"{annee:04d}-{mois:02d}-{jour:02d}"
 
 
 def parse_date(brut):
@@ -83,11 +93,11 @@ def parse_date(brut):
     match = re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", texte)
     if match:
         annee, mois, jour = map(int, match.groups())
-        return f"{annee:04d}-{mois:02d}-{jour:02d}", annee
+        return _iso_valide(annee, mois, jour), annee
     match = re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", texte)
     if match:
         jour, mois, annee = map(int, match.groups())
-        return f"{annee:04d}-{mois:02d}-{jour:02d}", annee
+        return _iso_valide(annee, mois, jour), annee
 
     # Année : en chiffres, sinon en toutes lettres
     match = re.search(r"\b(1[89]\d{2})\b", texte)
@@ -99,7 +109,7 @@ def parse_date(brut):
         match = re.search(r"([a-z\d][a-z\d\s-]*?)\s+" + nom + r"\b", texte)
         if match:
             mois = numero
-            devant = match.group(1).split()[-3:]
+            devant = re.split(r"[\s-]+", match.group(1).strip())[-3:]
             chiffre = re.fullmatch(r"(\d{1,2})(?:er)?", devant[-1])
             if chiffre:
                 jour = int(chiffre.group(1))
@@ -107,8 +117,8 @@ def parse_date(brut):
                 jour = _mots_vers_nombre(devant)
             break
 
-    if annee and mois and jour and 1 <= jour <= 31:
-        return f"{annee:04d}-{mois:02d}-{jour:02d}", annee
+    if annee and mois and jour:
+        return _iso_valide(annee, mois, jour), annee
     return None, annee
 
 
