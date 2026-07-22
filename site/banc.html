@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greffier : le banc d'essai, la machine face aux chercheurs</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
+<style>
+  :root {
+    --papier: #efe8d8;
+    --papier-2: #e7dcc4;
+    --regle: #cdbfa0;
+    --encre: #2c2416;
+    --encre-pale: #77684f;
+    --tampon: #8c2f1b;
+    --nuit: #14181f;
+    --nuit-2: #1d232e;
+    --lueur: #b8d2e0;
+    --cyan: #6da3bd;
+    --carte: #f6f0e2;
+    --exact: #557a48;
+    --proche: #a3691e;
+    --faux: #a03225;
+    --serif-display: 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
+    --serif-body: Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--papier);
+    color: var(--encre);
+    font-family: var(--serif-body);
+    line-height: 1.5;
+  }
+  a { color: var(--tampon); }
+  :focus-visible { outline: 2px solid var(--tampon); outline-offset: 2px; }
+
+  nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: baseline;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.1rem 1.5rem 0;
+    font-size: .85rem;
+    font-family: var(--mono);
+    flex-wrap: wrap;
+  }
+  nav .marque {
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin-right: auto;
+    text-decoration: none;
+  }
+  nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav a[aria-current] { color: var(--encre); border-bottom: 2px solid var(--tampon); }
+
+  header {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 2.2rem 1.5rem 1.2rem;
+  }
+  header h1 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.08;
+    margin: 0 0 .5rem;
+  }
+  header h1 em { color: var(--tampon); font-style: italic; }
+  header .sous-titre { color: var(--encre-pale); max-width: 68ch; margin: 0; }
+
+  .pupitre {
+    max-width: 1180px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 1.2rem;
+  }
+  @media (max-width: 880px) { .pupitre { grid-template-columns: 1fr; } }
+  .panneau-titre {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: .55rem;
+    color: var(--encre-pale);
+  }
+  .cote-machine .panneau-titre { color: var(--cyan); }
+
+  .page-cadre {
+    position: relative;
+    border: 1px solid var(--regle);
+    background: #f4eee0;
+    min-height: 22rem;
+  }
+  .page-cadre img.apercu {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0d0d0d;
+    cursor: zoom-in;
+  }
+  .loupe {
+    position: absolute;
+    width: 11rem;
+    height: 11rem;
+    border-radius: 50%;
+    border: 2px solid var(--encre);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35), inset 0 0 4px rgba(0, 0, 0, .3);
+    background-repeat: no-repeat;
+    background-color: #0d0d0d;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .loupe[hidden] { display: none; }
+  .exemples { display: flex; gap: .6rem; margin-top: .7rem; flex-wrap: wrap; }
+  .exemples button {
+    flex: 1 1 8rem;
+    border: 1px solid var(--regle);
+    background: #fff;
+    padding: .35rem;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .exemples button img { width: 100%; display: block; aspect-ratio: 5/4; object-fit: cover; }
+  .exemples button figcaption {
+    font-family: var(--mono);
+    font-size: .66rem;
+    color: var(--encre-pale);
+    padding-top: .3rem;
+  }
+  .exemples button[aria-pressed=true] { border-color: var(--tampon); box-shadow: 0 0 0 1px var(--tampon); }
+  .actions { display: flex; gap: .6rem; margin-top: .9rem; align-items: center; }
+  .actions button {
+    font-family: var(--mono);
+    font-size: .88rem;
+    padding: .65rem 1.2rem;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--tampon);
+  }
+  #lancer { background: var(--tampon); color: #f6efe4; }
+  #lancer:disabled { opacity: .45; cursor: not-allowed; }
+  .note-quota { font-size: .78rem; color: var(--encre-pale); font-family: var(--mono); }
+
+  .machine {
+    background: var(--nuit);
+    border-radius: 4px;
+    min-height: 22rem;
+    display: flex;
+    flex-direction: column;
+    color: var(--lueur);
+    font-family: var(--mono);
+    overflow: hidden;
+  }
+  .flux {
+    flex: 1;
+    margin: 0;
+    padding: 1rem 1.1rem;
+    font-size: .78rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-y: auto;
+    max-height: 26rem;
+  }
+  .flux .invite { color: #8494a6; }
+  .flux .erreur { color: #d98d7b; }
+  .flux .curseur {
+    display: inline-block;
+    width: .55em;
+    height: 1.1em;
+    background: var(--cyan);
+    vertical-align: text-bottom;
+    animation: battre 1s steps(2) infinite;
+  }
+  @keyframes battre { 50% { opacity: 0; } }
+
+  .verdict-section {
+    max-width: 1180px;
+    margin: 1.6rem auto 0;
+    padding: 0 1.5rem 4rem;
+  }
+  .score {
+    border: 1px solid var(--regle);
+    background: var(--carte);
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    gap: 2rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .score[hidden] { display: none; }
+  .score .grand {
+    font-family: var(--serif-display);
+    font-size: 2.4rem;
+    color: var(--exact);
+  }
+  .score .grand .libelle {
+    display: block;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+  }
+  .score .repartition { font-family: var(--mono); font-size: .85rem; color: var(--encre-pale); }
+  .score .repartition b { font-weight: normal; }
+  .p-exact { color: var(--exact); }
+  .p-proche { color: var(--proche); }
+  .p-faux { color: var(--faux); }
+
+  table.comparaison {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--carte);
+    border: 1px solid var(--regle);
+    font-size: .88rem;
+  }
+  table.comparaison[hidden] { display: none; }
+  .comparaison th {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    font-weight: normal;
+    text-align: left;
+    padding: .6rem .8rem;
+    border-bottom: 1px solid var(--regle);
+  }
+  .comparaison td {
+    padding: .45rem .8rem;
+    border-bottom: 1px solid var(--papier-2);
+    vertical-align: top;
+  }
+  .comparaison td.champ { color: var(--encre-pale); font-size: .8rem; white-space: nowrap; }
+  .comparaison .vide { color: var(--regle); }
+  .comparaison mark {
+    background: rgba(160, 50, 37, .16);
+    color: var(--faux);
+    border-radius: 2px;
+    padding: 0 .1em;
+  }
+  .comparaison td.verdict { font-family: var(--mono); font-size: .72rem; white-space: nowrap; }
+  .comparaison tr[data-verdict=exact] td.verdict { color: var(--exact); }
+  .comparaison tr[data-verdict=proche] td.verdict { color: var(--proche); }
+  .comparaison tr[data-verdict=faux] td.verdict { color: var(--faux); }
+  .comparaison tr[data-verdict=faux] { background: rgba(160, 50, 37, .05); }
+
+  .tablo { overflow-x: auto; }
+  footer {
+    border-top: 1px solid var(--regle);
+    color: var(--encre-pale);
+    font-size: .8rem;
+    text-align: center;
+    padding: 1.4rem;
+    font-family: var(--mono);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flux .curseur { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="marque" href="index.html">Greffier · Registres de Paris 1913-1920</a>
+  <a href="demo.html">Démonstration</a>
+  <a href="banc.html" aria-current="page">Banc d'essai</a>
+  <a href="index.html">Les 130 actes</a>
+  <a href="https://github.com/Abdellah427/Greffier">Code source</a>
+</nav>
+
+<header>
+  <h1>La machine face <em>aux chercheurs</em>.</h1>
+  <p class="sous-titre">Ces pages de registres ont été transcrites mot à mot par des
+     chercheurs (jeu de données M-POPP). Choisissez-en une, lancez la lecture :
+     la fiche extraite par le modèle est comparée champ par champ à leur
+     transcription de référence, erreurs surlignées.</p>
+</header>
+
+<main class="pupitre">
+  <section aria-label="La page">
+    <h2 class="panneau-titre">La page annotée</h2>
+    <div class="page-cadre" id="cadre">
+      <img class="apercu" id="apercu" alt="">
+      <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
+    </div>
+    <div class="exemples" id="exemples" aria-label="Pages annotées"></div>
+    <div class="actions">
+      <button id="lancer">Lancer la lecture</button>
+      <span class="note-quota">La lecture utilise le service en ligne du site
+        (quota gratuit journalier).</span>
+    </div>
+  </section>
+
+  <section class="cote-machine" aria-label="La machine">
+    <h2 class="panneau-titre">La machine</h2>
+    <div class="machine">
+      <pre class="flux" id="flux"><span class="invite">Choisissez une page annotée
+et lancez la lecture : le résultat sera comparé
+à la transcription des chercheurs.</span></pre>
+    </div>
+  </section>
+</main>
+
+<section class="verdict-section" aria-label="Comparaison">
+  <div class="score" id="score" hidden>
+    <div class="grand" id="score-exact"><span class="libelle">champs exacts</span></div>
+    <div class="grand" id="score-proche" style="color: var(--proche)"><span class="libelle">exacts ou proches</span></div>
+    <div class="repartition" id="score-detail" role="status"></div>
+  </div>
+  <div class="tablo">
+    <table class="comparaison" id="comparaison" hidden>
+      <thead>
+        <tr><th>Champ</th><th>Lecture du modèle</th><th>Référence des chercheurs</th><th>Verdict</th></tr>
+      </thead>
+      <tbody id="lignes"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Pages et transcriptions de référence : jeu
+  <a href="https://zenodo.org/records/10980636">M-POPP</a> (projet EXO-POPP,
+  licence CC-BY 4.0) · Greffier ·
+  <a href="https://github.com/Abdellah427/Greffier">code source</a> ·
+  <a href="mailto:abdellah.hassani2002@gmail.com">contact</a>
+</footer>
+
+<script src="banc.js"></script>
+<script>
+'use strict';
+
+const CHAMPS = [
+  ['date_mariage', 'Date du mariage'],
+  ['lieu_mariage', 'Lieu'],
+  ['nom_prenom_marie', 'Époux'],
+  ['profession_marie', 'Profession (lui)'],
+  ['adresse_marie', 'Domicile (lui)'],
+  ['nom_prenom_mariee', 'Épouse'],
+  ['profession_mariee', 'Profession (elle)'],
+  ['adresse_mariee', 'Domicile (elle)'],
+  ['nom_pere_marie', 'Père du marié'],
+  ['profession_pere_marie', 'Sa profession'],
+  ['nom_mere_marie', 'Mère du marié'],
+  ['profession_mere_marie', 'Sa profession'],
+  ['nom_pere_mariee', 'Père de la mariée'],
+  ['profession_pere_mariee', 'Sa profession'],
+  ['nom_mere_mariee', 'Mère de la mariée'],
+  ['profession_mere_mariee', 'Sa profession'],
+];
+
+const PROMPT_CHAMPS = CHAMPS.map(c => c[0]);
+const PROMPT = `Tu es un expert en paléographie et en état civil français.
+Cette image est une page d'un registre d'actes de mariage parisien (début XXe siècle),
+rédigée à la main. Transcris l'acte puis extrais les informations suivantes.
+
+Réponds UNIQUEMENT avec un objet JSON (sans texte autour) contenant exactement ces clés :
+${JSON.stringify(PROMPT_CHAMPS, null, 2)}
+
+Si une information est absente ou illisible, mets null. N'invente rien.`;
+
+const el = id => document.getElementById(id);
+const apercu = el('apercu'), flux = el('flux'), lancer = el('lancer');
+const exemples = el('exemples');
+let choisi = 0;
+let enCours = false;
+
+/* ---------- galerie ---------- */
+
+window.BANC.forEach((page, i) => {
+  const bouton = document.createElement('button');
+  bouton.type = 'button';
+  bouton.setAttribute('aria-pressed', 'false');
+  bouton.innerHTML = `<img src="${page.image}" alt="${page.titre}">` +
+                     `<figcaption>${page.titre}</figcaption>`;
+  bouton.addEventListener('click', () => { if (!enCours) choisir(i); });
+  exemples.appendChild(bouton);
+});
+
+function choisir(i) {
+  choisi = i;
+  exemples.querySelectorAll('button').forEach((b, j) =>
+    b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
+  apercu.src = window.BANC[i].image;
+  apercu.alt = window.BANC[i].titre;
+  el('score').hidden = true;
+  el('comparaison').hidden = true;
+}
+choisir(0);
+
+/* ---------- loupe ---------- */
+
+const loupe = el('loupe');
+const cadre = el('cadre');
+const GROSSISSEMENT = 2.4;
+cadre.addEventListener('mousemove', e => {
+  if (!apercu.naturalWidth) { loupe.hidden = true; return; }
+  const boite = apercu.getBoundingClientRect();
+  const echelle = Math.min(boite.width / apercu.naturalWidth,
+                           boite.height / apercu.naturalHeight);
+  const largeur = apercu.naturalWidth * echelle;
+  const hauteur = apercu.naturalHeight * echelle;
+  const gauche = boite.left + (boite.width - largeur) / 2;
+  const haut = boite.top + (boite.height - hauteur) / 2;
+  const x = e.clientX - gauche, y = e.clientY - haut;
+  if (x < 0 || y < 0 || x > largeur || y > hauteur) { loupe.hidden = true; return; }
+  loupe.hidden = false;
+  const rayon = loupe.offsetWidth / 2;
+  const boiteCadre = cadre.getBoundingClientRect();
+  loupe.style.left = (e.clientX - boiteCadre.left - rayon) + 'px';
+  loupe.style.top = (e.clientY - boiteCadre.top - rayon) + 'px';
+  loupe.style.backgroundImage = `url("${apercu.src}")`;
+  loupe.style.backgroundSize = `${largeur * GROSSISSEMENT}px ${hauteur * GROSSISSEMENT}px`;
+  loupe.style.backgroundPosition = `${rayon - x * GROSSISSEMENT}px ${rayon - y * GROSSISSEMENT}px`;
+});
+cadre.addEventListener('mouseleave', () => { loupe.hidden = true; });
+
+/* ---------- lecture via le service du site ---------- */
+
+let curseur = null;
+function fluxInit() {
+  flux.textContent = '';
+  curseur = document.createElement('span');
+  curseur.className = 'curseur';
+  flux.appendChild(curseur);
+}
+function fluxEcrit(texte, classe) {
+  const morceau = document.createElement('span');
+  if (classe) morceau.className = classe;
+  morceau.textContent = texte;
+  flux.insertBefore(morceau, curseur);
+  flux.scrollTop = flux.scrollHeight;
+}
+function fluxFin() { if (curseur) curseur.remove(); curseur = null; }
+
+function extraitObjet(tampon) {
+  for (let d = tampon.indexOf('{'); d !== -1; d = tampon.indexOf('{', d + 1)) {
+    let prof = 0, chaine = false;
+    for (let i = d; i < tampon.length; i++) {
+      const c = tampon[i];
+      if (chaine) { if (c === '\\') i++; else if (c === '"') chaine = false; }
+      else if (c === '"') chaine = true;
+      else if (c === '{') prof++;
+      else if (c === '}' && --prof === 0) {
+        try { return JSON.parse(tampon.slice(d, i + 1)); } catch { break; }
+      }
+    }
+  }
+  return null;
+}
+
+lancer.addEventListener('click', async () => {
+  if (enCours) return;
+  enCours = true;
+  lancer.disabled = true;
+  el('score').hidden = true;
+  el('comparaison').hidden = true;
+  fluxInit();
+  try {
+    const page = window.BANC[choisi];
+    fluxEcrit(`lecture de « ${page.titre} »…\n\n`, 'invite');
+    const blob = await (await fetch(page.image)).blob();
+    const dataUrl = await new Promise(resoudre => {
+      const lecteur = new FileReader();
+      lecteur.onload = () => resoudre(lecteur.result);
+      lecteur.readAsDataURL(blob);
+    });
+    const reponse = await fetch('api/lire.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUrl.split(',')[1] }),
+    });
+    if (!reponse.ok) {
+      let detail = '';
+      try { detail = (await reponse.json()).erreur || ''; } catch { /* réponse non JSON */ }
+      fluxEcrit('\n' + (detail || `Le service a répondu ${reponse.status}.`), 'erreur');
+      return;
+    }
+    let tampon = '';
+    const lecteur = reponse.body.getReader();
+    const decodeur = new TextDecoder();
+    for (;;) {
+      const { done, value } = await lecteur.read();
+      if (done) break;
+      const texte = decodeur.decode(value, { stream: true });
+      tampon += texte;
+      fluxEcrit(texte);
+    }
+    const objet = extraitObjet(tampon);
+    if (!objet) {
+      fluxEcrit("\n\nLe modèle n'a pas renvoyé de JSON exploitable : relancez.", 'erreur');
+      return;
+    }
+    fluxEcrit('\n\n-- lecture terminée, comparaison ci-dessous --', 'invite');
+    compare(objet, page.reference);
+  } catch (e) {
+    fluxEcrit(`\nImpossible de joindre le service de lecture (${e.message}).`, 'erreur');
+  } finally {
+    fluxFin();
+    enCours = false;
+    lancer.disabled = false;
+  }
+});
+
+/* ---------- comparaison, même logique que src/evalue.py ---------- */
+
+const normalise = v => (v ?? '').toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+function verdictDe(modele, reference) {
+  const a = normalise(modele), b = normalise(reference);
+  if (a === b) return 'exact';
+  if (a && b && (a.includes(b) || b.includes(a))) return 'proche';
+  return 'faux';
+}
+
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// Surligne les mots absents de l'autre valeur : les erreurs sautent aux yeux.
+function surligne(valeur, autre) {
+  if (valeur === null || valeur === undefined || valeur === '') {
+    return '<span class="vide">rien</span>';
+  }
+  const motsAutre = new Set(normalise(autre).split(' '));
+  return String(valeur).split(/\s+/).map(mot =>
+    motsAutre.has(normalise(mot)) ? esc(mot) : `<mark>${esc(mot)}</mark>`
+  ).join(' ');
+}
+
+function compare(objet, reference) {
+  const lignes = el('lignes');
+  lignes.innerHTML = '';
+  let exacts = 0, proches = 0, faux = 0;
+  for (const [champ, libelle] of CHAMPS) {
+    const verdict = verdictDe(objet[champ], reference[champ]);
+    if (verdict === 'exact') exacts++;
+    else if (verdict === 'proche') proches++;
+    else faux++;
+    const tr = document.createElement('tr');
+    tr.dataset.verdict = verdict;
+    const modele = verdict === 'exact' ? esc(objet[champ] ?? '') || '<span class="vide">rien</span>'
+                                       : surligne(objet[champ], reference[champ]);
+    const ref = verdict === 'exact' ? esc(reference[champ] ?? '') || '<span class="vide">rien</span>'
+                                    : surligne(reference[champ], objet[champ]);
+    tr.innerHTML = `<td class="champ">${libelle}</td><td>${modele}</td><td>${ref}</td>` +
+                   `<td class="verdict">${verdict}</td>`;
+    lignes.appendChild(tr);
+  }
+  const total = CHAMPS.length;
+  el('score-exact').innerHTML =
+    `${Math.round(100 * exacts / total)} %<span class="libelle">champs exacts (${exacts}/${total})</span>`;
+  el('score-proche').innerHTML =
+    `${Math.round(100 * (exacts + proches) / total)} %<span class="libelle">exacts ou proches</span>`;
+  el('score-detail').innerHTML =
+    `<b class="p-exact">${exacts} exacts</b> · <b class="p-proche">${proches} proches</b> · ` +
+    `<b class="p-faux">${faux} faux</b><br>comparé à la transcription des chercheurs (M-POPP)`;
+  el('score').hidden = false;
+  el('comparaison').hidden = false;
+  el('score').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>

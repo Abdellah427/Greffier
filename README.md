@@ -30,6 +30,10 @@ n'importe quel hébergement web.
     (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
     et libre. Une seule préparation :
     `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="https://votre-domaine" ollama serve`.
+- **`banc.html` : le banc d'essai.** Six pages de registres transcrites mot à
+  mot par des chercheurs (jeu M-POPP, CC-BY 4.0) : on lance la lecture et la
+  fiche extraite est comparée champ par champ à leur transcription de
+  référence, avec pourcentage de correspondance et erreurs surlignées.
 - **`index.html` : l'explorateur.** Les 130 actes extraits, avec recherche
   plein texte insensible aux accents et filtres par champ et par année.
 
