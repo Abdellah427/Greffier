@@ -23,9 +23,12 @@ n'importe quel hébergement web.
   - **En ligne** : le test le plus rapide avec sa propre image. La lecture
     passe par un petit service PHP hébergé avec le site, qui garde la clé
     côté serveur et impose un quota journalier (voir plus bas) ;
-  - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, environ
-    2,7 Go téléchargés une fois puis mis en cache) tourne dans le navigateur
-    du visiteur, rien ne quitte sa machine ;
+  - **Navigateur (WebGPU)** : un modèle de vision open weight (Qwen2-VL 2B,
+    environ 2,7 Go téléchargés une fois puis mis en cache) tourne dans le
+    navigateur du visiteur, rien ne quitte sa machine. Une pastille de
+    compatibilité passe d'abord la machine en revue (WebGPU, processeur
+    graphique, mémoire, espace disque) et bloque le lancement si elle est
+    trop juste ;
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur
     (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
     et libre. Une seule préparation :

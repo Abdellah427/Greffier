@@ -303,6 +303,59 @@
     flex: 1;
     min-width: 12rem;
   }
+  .verif-materiel {
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: rgba(246, 240, 226, .6);
+    padding: .7rem .9rem;
+    margin-bottom: .8rem;
+  }
+  .pastille {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border: 1px solid var(--encre-pale);
+    border-radius: 999px;
+    padding: .25rem .7rem;
+    color: var(--encre-pale);
+  }
+  .pastille[data-etat=compatible] {
+    border-color: #557a48;
+    color: #557a48;
+    background: rgba(85, 122, 72, .08);
+  }
+  .pastille[data-etat=limite] {
+    border-color: #a3691e;
+    color: #a3691e;
+    background: rgba(163, 105, 30, .08);
+  }
+  .pastille[data-etat=incompatible] {
+    border-color: #a03225;
+    color: #a03225;
+    background: rgba(160, 50, 37, .08);
+  }
+  .controles-materiel {
+    list-style: none;
+    margin: .6rem 0 0;
+    padding: 0;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--encre-pale);
+  }
+  .controles-materiel li { margin: .18rem 0; }
+  .controles-materiel .ok { color: #557a48; }
+  .controles-materiel .alerte { color: #a3691e; }
+  .controles-materiel .echec { color: #a03225; }
+  .avertissement {
+    border: 1px solid #a03225;
+    border-left-width: 4px;
+    border-radius: 3px;
+    background: rgba(160, 50, 37, .07);
+    padding: .6rem .8rem;
+  }
+  .avertissement strong { color: #a03225; }
   .loupe {
     position: absolute;
     width: 11rem;
@@ -669,16 +722,22 @@
     </details>
   </div>
   <div class="config" id="config-navigateur" hidden>
+    <div class="verif-materiel">
+      <span class="pastille" id="pastille-materiel" data-etat="test">Vérification de votre machine…</span>
+      <ul class="controles-materiel" id="controles-materiel"></ul>
+    </div>
     <details class="aide" open>
       <summary>Comment ça marche, et ce qu'il faut savoir</summary>
       <p>Un modèle de vision open weight (Qwen2-VL 2B) est téléchargé une seule fois (≈ 2,7 Go,
          mis en cache sur votre disque) puis exécuté <em>dans votre navigateur</em> grâce à
          WebGPU : rien ne quitte votre machine.</p>
-      <p>Attention : pendant la lecture, votre processeur graphique et 3 à 4 Go de mémoire
-         sont fortement sollicités, plusieurs minutes sur une machine modeste. La page
-         vérifie votre matériel avant de démarrer et vous demande une confirmation ;
-         le bouton Interrompre reste utilisable à tout moment. Pour un test sans effort,
-         préférez le mode En ligne.</p>
+      <p class="avertissement"><strong>Attention : il faut une machine récente et bien
+         équipée.</strong> Pendant la lecture, le processeur graphique et 3 à 4 Go de
+         mémoire sont fortement sollicités, plusieurs minutes durant ; une machine trop
+         juste peut se figer. La pastille ci-dessus vérifie votre matériel : si elle est
+         rouge, le lancement est bloqué ; si elle est orange, une confirmation vous est
+         demandée. Le bouton Interrompre reste utilisable à tout moment. Pour un test
+         sans effort, préférez le mode En ligne.</p>
       <p><button type="button" id="vider-cache">Supprimer le modèle téléchargé</button>
          <span id="note-cache"></span></p>
     </details>
@@ -829,8 +888,9 @@ const NOTES = {
           "d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.",
   enligne: "Le plus rapide pour tester votre propre page : déposez une image, le service du " +
            "site la fait lire et la réponse arrive en direct. Quota gratuit journalier.",
-  navigateur: "Le modèle tourne dans votre navigateur, sans rien installer. Déposez votre propre " +
-              "image ou choisissez un feuillet d'exemple.",
+  navigateur: "Le modèle tourne dans votre navigateur, sans rien installer. Réservé aux " +
+              "machines récentes : la pastille ci-dessous vérifie la vôtre et bloque le " +
+              "lancement si elle est trop juste.",
   ollama: "La page dialogue avec l'Ollama de votre machine : la meilleure qualité de lecture " +
           "locale, avec un modèle open weight.",
 };
@@ -845,6 +905,7 @@ document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
     el('config-enligne').hidden = etat.mode !== 'enligne';
     el('config-navigateur').hidden = etat.mode !== 'navigateur';
     el('mode-note').textContent = NOTES[etat.mode];
+    if (etat.mode === 'navigateur') afficheMateriel();
     restaureApercu();
     majLancer();
   });
@@ -1409,6 +1470,90 @@ async function lireOllama() {
 let moteurNavigateur = null;      // Worker conservé entre les lectures
 let modelePret = false;
 let confirmationNavigateur = false;
+let bilanMateriel = null;         // dernier verdict de verifieMateriel()
+
+// Passe la machine du visiteur en revue : chaque contrôle est classé
+// ok, alerte (on préviendra) ou echec (le lancement sera bloqué).
+async function verifieMateriel() {
+  const controles = [];
+  const ajoute = (libelle, etatControle, detail) =>
+    controles.push({ libelle, etat: etatControle, detail });
+
+  if (!navigator.gpu) {
+    ajoute('WebGPU', 'echec',
+           'absent de ce navigateur (Chrome, Edge ou Firefox récent requis)');
+  } else {
+    ajoute('WebGPU', 'ok', 'disponible');
+    const adaptateur = await navigator.gpu.requestAdapter().catch(() => null);
+    if (!adaptateur) {
+      ajoute('Processeur graphique', 'echec', 'aucun adaptateur utilisable par WebGPU');
+    } else {
+      ajoute('Processeur graphique', 'ok', 'détecté et utilisable');
+      const f16 = adaptateur.features.has('shader-f16');
+      ajoute('Calcul en demi-précision (f16)', f16 ? 'ok' : 'alerte',
+             f16 ? 'pris en charge' : 'non pris en charge : lecture bien plus lente');
+    }
+  }
+
+  const memoire = navigator.deviceMemory;
+  if (memoire === undefined) {
+    ajoute('Mémoire vive', 'alerte', 'non communiquée par ce navigateur, 8 Go recommandés');
+  } else if (memoire < 8) {
+    ajoute('Mémoire vive', 'echec', `environ ${memoire} Go détectés, 8 Go nécessaires`);
+  } else {
+    ajoute('Mémoire vive', 'ok', '8 Go ou plus');
+  }
+
+  const coeurs = navigator.hardwareConcurrency || 0;
+  if (coeurs && coeurs < 4) {
+    ajoute('Cœurs du processeur', 'alerte', `${coeurs} détectés : lecture très lente`);
+  } else if (coeurs) {
+    ajoute('Cœurs du processeur', 'ok', `${coeurs} détectés`);
+  }
+
+  try {
+    const { usage = 0, quota = 0 } = await navigator.storage.estimate();
+    const libre = (quota - usage) / 1024 ** 3;
+    if (quota && libre < 3) {
+      ajoute('Espace disque pour le modèle', 'echec',
+             `${libre.toFixed(1)} Go disponibles, 3 Go nécessaires`);
+    } else if (quota) {
+      ajoute('Espace disque pour le modèle', 'ok',
+             `${Math.round(libre)} Go disponibles`);
+    }
+  } catch { /* estimation indisponible : sans avis */ }
+
+  const verdict = controles.some(c => c.etat === 'echec') ? 'incompatible'
+                : controles.some(c => c.etat === 'alerte') ? 'limite'
+                : 'compatible';
+  return { verdict, controles };
+}
+
+const LIBELLES_PASTILLE = {
+  compatible: 'Machine compatible',
+  limite: 'Machine à la limite : prudence',
+  incompatible: 'Machine incompatible : lancement bloqué',
+};
+
+async function afficheMateriel() {
+  const pastille = el('pastille-materiel');
+  const liste = el('controles-materiel');
+  pastille.dataset.etat = 'test';
+  pastille.textContent = 'Vérification de votre machine…';
+  liste.textContent = '';
+  bilanMateriel = await verifieMateriel();
+  pastille.dataset.etat = bilanMateriel.verdict;
+  pastille.textContent = LIBELLES_PASTILLE[bilanMateriel.verdict];
+  for (const controle of bilanMateriel.controles) {
+    const ligne = document.createElement('li');
+    const marque = document.createElement('span');
+    marque.className = controle.etat;
+    marque.textContent = { ok: '[ok]', alerte: '[attention]',
+                           echec: '[bloquant]' }[controle.etat];
+    ligne.append(marque, ` ${controle.libelle} : ${controle.detail}`);
+    liste.appendChild(ligne);
+  }
+}
 
 el('vider-cache').addEventListener('click', async () => {
   if (moteurNavigateur) {
@@ -1431,28 +1576,23 @@ el('vider-cache').addEventListener('click', async () => {
 async function lireNavigateur() {
   const signal = etat.abandon.signal;
 
-  // Vérifications préalables : ce mode sollicite fortement la machine.
-  if (!navigator.gpu) {
-    erreur("WebGPU n'est pas disponible dans ce navigateur.",
-           'Essayez un Chrome, Edge ou Firefox récent, ou utilisez le mode En ligne.');
-    return;
-  }
-  const adaptateur = await navigator.gpu.requestAdapter().catch(() => null);
-  if (!adaptateur) {
-    erreur('Aucun processeur graphique utilisable par WebGPU sur cette machine.',
-           'Utilisez le mode En ligne : la lecture se fait alors côté serveur.');
-    return;
-  }
-  const memoire = navigator.deviceMemory;
-  if (memoire && memoire < 8) {
-    erreur(`Ce mode demande au moins 8 Go de mémoire (détecté : environ ${memoire} Go).`,
+  // La barrière : on refait la revue du matériel au moment du lancement
+  // (la pastille peut dater), et un contrôle bloquant arrête tout net.
+  bilanMateriel = await verifieMateriel();
+  if (bilanMateriel.verdict === 'incompatible') {
+    const blocage = bilanMateriel.controles.find(c => c.etat === 'echec');
+    erreur(`Votre machine ne permet pas ce mode. ${blocage.libelle} : ${blocage.detail}.`,
            'Utilisez le mode En ligne : la lecture se fait alors côté serveur.');
     return;
   }
   if (!confirmationNavigateur) {
     confirmationNavigateur = true;
+    const prudence = bilanMateriel.verdict === 'limite'
+      ? ' La pastille de compatibilité signale des points de prudence : '
+        + 'la lecture pourra être longue et solliciter fortement la machine.'
+      : '';
     erreur('Avant de continuer : ce mode télécharge 2,7 Go (une seule fois) puis sollicite ' +
-           'fortement votre machine pendant plusieurs minutes.',
+           'fortement votre machine pendant plusieurs minutes.' + prudence,
            'Cliquez à nouveau sur Lancer la lecture pour confirmer, ou passez en mode En ligne.');
     return;
   }
