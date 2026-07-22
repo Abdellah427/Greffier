@@ -73,13 +73,13 @@ def extract_ollama(image_path, model="qwen2.5vl:7b", host="http://localhost:1143
 
 
 def extract_gemini(image_path, model="gemini-3.6-flash"):
-    # La clé vient de la variable d'environnement GEMINI_API_KEY ou, à défaut,
-    # du fichier gemini.key à la racine du dépôt (ignoré par git). Les espaces
-    # et guillemets collés par accident sont nettoyés.
-    api_key = os.environ.get("GEMINI_API_KEY", "")
+    # La clé vient du fichier gemini.key à la racine du dépôt (ignoré par git)
+    # ou, à défaut, de la variable d'environnement GEMINI_API_KEY. Le fichier
+    # est prioritaire : une variable oubliée dans le terminal ne peut pas le
+    # masquer. Les espaces et guillemets collés par accident sont nettoyés.
     fichier_cle = Path(__file__).resolve().parent.parent / "gemini.key"
-    if not api_key and fichier_cle.exists():
-        api_key = fichier_cle.read_text(encoding="utf-8")
+    api_key = fichier_cle.read_text(encoding="utf-8") if fichier_cle.exists() \
+        else os.environ.get("GEMINI_API_KEY", "")
     api_key = api_key.strip().strip('"').strip("'").strip()
     if not api_key:
         sys.exit("Erreur : aucune clé trouvée. Collez votre clé "
