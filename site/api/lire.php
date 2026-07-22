@@ -22,6 +22,37 @@ if (!is_array($config) || empty($config['gemini_api_key'])) {
     refuse(503, "Le service en ligne n'est pas configuré sur cet hébergement. "
               . "Utilisez le mode Replay, Navigateur ou Ollama.");
 }
+// Page de diagnostic : /api/lire.php?diagnostic=1 vérifie toute la chaîne
+// (PHP, curl, configuration, joignabilité de l'API) sans révéler la clé.
+if (isset($_GET['diagnostic'])) {
+    $etat = [
+        'php' => PHP_VERSION,
+        'curl' => function_exists('curl_init'),
+        'cle_presente' => true,
+        'modele' => $config['modele'] ?? 'gemini-2.5-flash',
+    ];
+    $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1');
+    curl_setopt_array($curl, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_HTTPHEADER => ['x-goog-api-key: ' . $config['gemini_api_key']],
+    ]);
+    $reponse = curl_exec($curl);
+    $etat['api_code_http'] = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    $etat['api_erreur_reseau'] = curl_error($curl) ?: null;
+    curl_close($curl);
+    if ($reponse !== false && $etat['api_code_http'] >= 400) {
+        $detail = json_decode($reponse, true);
+        $etat['api_message'] = $detail['error']['message'] ?? substr($reponse, 0, 300);
+    }
+    $etat['verdict'] = ($etat['api_code_http'] === 200)
+        ? 'Tout fonctionne : la clé est valide et l\'API répond.'
+        : 'L\'API ne répond pas correctement, voir api_message ou api_erreur_reseau.';
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($etat, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     refuse(405, 'Méthode non autorisée.');
 }
@@ -87,6 +118,7 @@ while (ob_get_level() > 0) {
 }
 
 $tampon = '';
+$brut = '';
 $envoye = false;
 
 $curl = curl_init(
@@ -101,7 +133,10 @@ curl_setopt_array($curl, [
     ],
     CURLOPT_TIMEOUT => 170,
     // Relaye chaque fragment SSE au navigateur dès son arrivée.
-    CURLOPT_WRITEFUNCTION => function ($curl, string $fragment) use (&$tampon, &$envoye): int {
+    CURLOPT_WRITEFUNCTION => function ($curl, string $fragment) use (&$tampon, &$brut, &$envoye): int {
+        if (strlen($brut) < 8192) {
+            $brut .= $fragment;   // conservé pour le détail d'une éventuelle erreur
+        }
         $tampon .= $fragment;
         while (($fin = strpos($tampon, "\n")) !== false) {
             $ligne = trim(substr($tampon, 0, $fin));
@@ -127,6 +162,9 @@ $statut = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
 curl_close($curl);
 
 if (!$envoye && ($ok === false || $statut >= 400)) {
-    refuse(502, 'Le modèle est indisponible pour le moment. Réessayez dans une minute, '
-              . 'ou utilisez le mode Navigateur ou Ollama.');
+    $detail = json_decode($brut, true);
+    $message = $detail['error']['message'] ?? $detail[0]['error']['message'] ?? null;
+    refuse(502, 'Le modèle a refusé la demande'
+              . ($message ? ' : ' . substr($message, 0, 300) : ' (voir api/lire.php?diagnostic=1).')
+              . ' Les modes Navigateur et Ollama restent disponibles.');
 }
