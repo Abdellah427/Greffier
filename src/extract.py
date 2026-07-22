@@ -135,6 +135,8 @@ def main():
         if avant - len(images):
             print(f"{avant - len(images)} images déjà traitées, ignorées")
         print(f"{len(results)} actes existants conservés")
+
+    interrompu = False
     for i, image in enumerate(images, 1):
         print(f"[{i}/{len(images)}] {image.name} ... ", end="", flush=True)
         try:
@@ -142,6 +144,12 @@ def main():
             entry["_source_image"] = image.name
             results.append(entry)
             print("ok")
+        except requests.exceptions.HTTPError as exc:
+            if exc.response is not None and exc.response.status_code == 429:
+                print("quota épuisé")
+                interrompu = True
+                break
+            print(f"échec ({exc})")
         except Exception as exc:
             print(f"échec ({exc})")
         if args.delay and i < len(images):
@@ -150,7 +158,11 @@ def main():
     Path(args.output).write_text(
         json.dumps(results, ensure_ascii=False, indent=4), encoding="utf-8"
     )
-    print(f"\n{len(results)}/{len(images)} actes extraits -> {args.output}")
+    print(f"\n{len(results)} actes au total -> {args.output}")
+    if interrompu:
+        print("Quota du jour épuisé : tout ce qui est fait est sauvegardé. "
+              "Relancez la même commande demain avec --ajouter pour continuer "
+              "là où ça s'est arrêté.")
 
 
 if __name__ == "__main__":
