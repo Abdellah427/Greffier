@@ -49,43 +49,62 @@ if (isset($_GET['fournisseurs'])) {
 }
 
 // Page de diagnostic : /api/lire.php?diagnostic=1 vérifie toute la chaîne
-// (PHP, curl, configuration, joignabilité de l'API) sans révéler les clés.
+// pour chaque fournisseur configuré (validité des clés comprise), sans
+// jamais révéler les clés.
 if (isset($_GET['diagnostic'])) {
     $etat = [
         'php' => PHP_VERSION,
         'curl' => function_exists('curl_init'),
-        'fournisseurs' => array_map(fn($f) => $f['modele'] ?? '', $fournisseurs),
     ];
-    if (isset($fournisseurs['gemini'])) {
-        $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=50');
+
+    // Pour chaque fournisseur, un appel léger qui exige la clé : la réponse
+    // dit si elle est valide, sans consommer de lecture.
+    $verifications = [
+        'gemini' => fn($cle) => ['https://generativelanguage.googleapis.com/v1beta/models?pageSize=1',
+                                 ['x-goog-api-key: ' . $cle]],
+        'openrouter' => fn($cle) => ['https://openrouter.ai/api/v1/key',
+                                     ['Authorization: Bearer ' . $cle]],
+        'mistral' => fn($cle) => ['https://api.mistral.ai/v1/models',
+                                  ['Authorization: Bearer ' . $cle]],
+    ];
+    $tout_va = true;
+    foreach ($fournisseurs as $nom => $fournisseur) {
+        $bilan = ['modele' => $fournisseur['modele'] ?? ''];
+        if (!isset($verifications[$nom])) {
+            $bilan['etat'] = 'fournisseur inconnu du diagnostic';
+            $etat['fournisseurs'][$nom] = $bilan;
+            $tout_va = false;
+            continue;
+        }
+        [$url, $entetes] = $verifications[$nom]($fournisseur['cle']);
+        $curl = curl_init($url);
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 20,
-            CURLOPT_HTTPHEADER => ['x-goog-api-key: ' . $fournisseurs['gemini']['cle']],
+            CURLOPT_HTTPHEADER => $entetes,
         ]);
         $reponse = curl_exec($curl);
-        $etat['api_code_http'] = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        $etat['api_erreur_reseau'] = curl_error($curl) ?: null;
+        $code = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $erreur_reseau = curl_error($curl) ?: null;
         curl_close($curl);
-        if ($reponse !== false && $etat['api_code_http'] >= 400) {
-            $detail = json_decode($reponse, true);
-            $etat['api_message'] = $detail['error']['message'] ?? substr($reponse, 0, 300);
+        $bilan['code_http'] = $code;
+        if ($erreur_reseau) {
+            $bilan['etat'] = "erreur réseau : $erreur_reseau";
+            $tout_va = false;
+        } elseif ($code === 200) {
+            $bilan['etat'] = 'clé valide, API joignable';
+        } else {
+            $detail = json_decode((string) $reponse, true);
+            $bilan['etat'] = 'refusé : ' . substr(
+                (string) ($detail['error']['message'] ?? $detail['message']
+                          ?? substr((string) $reponse, 0, 200)), 0, 200);
+            $tout_va = false;
         }
-        if ($reponse !== false && $etat['api_code_http'] === 200) {
-            $modeles = [];
-            foreach (json_decode($reponse, true)['models'] ?? [] as $m) {
-                if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [], true)) {
-                    $modeles[] = str_replace('models/', '', $m['name']);
-                }
-            }
-            $etat['modeles_gemini_disponibles'] = $modeles;
-        }
-        $etat['verdict'] = ($etat['api_code_http'] === 200)
-            ? 'Tout fonctionne : la clé Gemini est valide et l\'API répond.'
-            : 'L\'API Gemini ne répond pas correctement, voir api_message.';
-    } else {
-        $etat['verdict'] = 'Pas de fournisseur gemini configuré, diagnostic réduit.';
+        $etat['fournisseurs'][$nom] = $bilan;
     }
+    $etat['verdict'] = $tout_va
+        ? 'Tout fonctionne : toutes les clés configurées sont valides.'
+        : 'Au moins un fournisseur pose problème, voir le détail ci-dessus.';
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($etat, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
