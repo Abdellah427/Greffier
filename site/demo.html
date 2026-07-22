@@ -124,6 +124,19 @@
     width: 15rem;
     max-width: 100%;
   }
+  .jauge-quota {
+    flex-basis: 100%;
+    font-size: .76rem;
+    letter-spacing: .03em;
+    color: var(--encre-pale);
+    border: 1px dashed var(--regle);
+    border-radius: 3px;
+    padding: .4rem .7rem;
+    margin: 0;
+    align-self: flex-start;
+  }
+  .jauge-quota[hidden] { display: none; }
+  .jauge-quota.epuise { color: var(--tampon); border-color: var(--tampon); }
   .modeles-enligne {
     flex-basis: 100%;
     display: flex;
@@ -574,6 +587,7 @@
   </div>
   <div class="config" id="config-enligne" hidden>
     <div class="modeles-enligne" id="modeles-enligne" role="group" aria-label="Modèle de lecture"></div>
+    <p class="jauge-quota" id="jauge-quota" hidden></p>
     <details class="aide">
       <summary>Comment ça marche</summary>
       <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
@@ -1102,8 +1116,24 @@ async function lireReplay() {
 let fournisseurEnLigne = 'gemini';
 const NOMS_FOURNISSEURS = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
 
+function majJauge(quota) {
+  if (!quota) return;
+  const jauge = el('jauge-quota');
+  jauge.hidden = false;
+  if (quota.restantes > 0) {
+    jauge.classList.remove('epuise');
+    jauge.textContent = `${quota.par_jour} lectures gratuites par jour et par visiteur, `
+      + `tous modèles confondus : il vous en reste ${quota.restantes} aujourd'hui.`;
+  } else {
+    jauge.classList.add('epuise');
+    jauge.textContent = 'Quota gratuit du jour épuisé : revenez demain, ou utilisez '
+      + 'les modes Replay, Navigateur ou Ollama.';
+  }
+}
+
 // Les modèles configurés sur le serveur deviennent des boutons de choix.
-fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
+fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, quota }) => {
+  majJauge(quota);
   const zone = el('modeles-enligne');
   const noms = Object.keys(fournisseurs || {});
   if (!noms.length) return;
@@ -1164,6 +1194,8 @@ async function lireEnLigne() {
   }
   fixeEtape(4);
   terminer(nomSourceCourant());
+  fetch('api/lire.php?fournisseurs=1').then(r => r.json())
+    .then(({ quota }) => majJauge(quota)).catch(() => { /* silencieux */ });
 }
 
 /* ---------- mode ollama ---------- */

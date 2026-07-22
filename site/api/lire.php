@@ -43,9 +43,17 @@ if (!$fournisseurs) {
 // banc d'essai s'en sert pour griser les modèles absents.
 if (isset($_GET['fournisseurs'])) {
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['fournisseurs' => array_map(
-        fn($f) => ['modele' => $f['modele'] ?? '', 'libelle' => $f['nom'] ?? ''],
-        $fournisseurs)], JSON_UNESCAPED_UNICODE);
+    $ip_visiteur = $_SERVER['REMOTE_ADDR'] ?? 'inconnue';
+    $compteur = sys_get_temp_dir() . '/greffier_ip_' . md5($ip_visiteur) . '_' . date('Ymd');
+    $utilisees = (int) @file_get_contents($compteur);
+    $par_jour = (int) ($config['quota_ip'] ?? 15);
+    echo json_encode([
+        'fournisseurs' => array_map(
+            fn($f) => ['modele' => $f['modele'] ?? '', 'libelle' => $f['nom'] ?? ''],
+            $fournisseurs),
+        'quota' => ['par_jour' => $par_jour,
+                    'restantes' => max(0, $par_jour - $utilisees)],
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

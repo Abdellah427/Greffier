@@ -72,6 +72,19 @@
   }
   header h1 em { color: var(--tampon); font-style: italic; }
   header .sous-titre { color: var(--encre-pale); margin: 0; }
+  .jauge-quota {
+    font-family: var(--mono);
+    font-size: .76rem;
+    letter-spacing: .03em;
+    color: var(--encre-pale);
+    border: 1px dashed var(--regle);
+    border-radius: 3px;
+    padding: .4rem .7rem;
+    margin: .9rem 0 0;
+    display: inline-block;
+  }
+  .jauge-quota[hidden] { display: none; }
+  .jauge-quota.epuise { color: var(--tampon); border-color: var(--tampon); }
 
   .pupitre {
     max-width: 1180px;
@@ -397,9 +410,10 @@
 <header>
   <h1>La machine face <em>aux chercheurs</em>.</h1>
   <p class="sous-titre">Ces pages de registres ont été transcrites mot à mot par des
-     chercheurs (jeu de données M-POPP). Choisissez-en une, lancez la lecture :
-     la fiche extraite par le modèle est comparée champ par champ à leur
-     transcription de référence, erreurs surlignées.</p>
+     chercheurs (jeu de données M-POPP). Choisissez-en une, cochez un ou plusieurs
+     modèles, lancez la lecture : chaque fiche extraite est comparée champ par champ
+     à la transcription de référence, erreurs surlignées.</p>
+  <p class="jauge-quota" id="jauge-quota" hidden></p>
 </header>
 
 <main class="pupitre">
@@ -418,9 +432,7 @@
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
     </div>
-    <p class="note-quota">Cochez un ou plusieurs modèles puis lancez : dès deux modèles,
-       le palmarès les compare côte à côte. Aucune clé à saisir (quota gratuit
-       journalier). La molette règle la loupe sur le document.</p>
+
     <h2 class="panneau-titre titre-machine">La machine</h2>
     <div class="machine">
       <pre class="flux" id="flux"><span class="invite">Choisissez une page annotée
@@ -616,7 +628,28 @@ majLancer();
 
 // Les modèles configurés sur le serveur deviennent des boutons à cocher :
 // ajoutez-en dans config.php, ils apparaissent ici sans toucher au code.
-fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
+function majJauge(quota) {
+  if (!quota) return;
+  const jauge = el('jauge-quota');
+  jauge.hidden = false;
+  if (quota.restantes > 0) {
+    jauge.classList.remove('epuise');
+    jauge.textContent = `Chaque visiteur dispose de ${quota.par_jour} lectures gratuites par jour, `
+      + `tous modèles confondus : il vous en reste ${quota.restantes} aujourd'hui.`;
+  } else {
+    jauge.classList.add('epuise');
+    jauge.textContent = 'Votre quota gratuit du jour est épuisé : revenez demain. '
+      + 'Le mode Replay de la démonstration reste ouvert.';
+  }
+}
+
+function chargeQuota() {
+  fetch('api/lire.php?fournisseurs=1').then(r => r.json())
+    .then(({ quota }) => majJauge(quota)).catch(() => { /* silencieux */ });
+}
+
+fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, quota }) => {
+  majJauge(quota);
   const zone = el('modeles');
   for (const [nom, infos] of Object.entries(fournisseurs || {})) {
     idsModeles[nom] = infos.modele || '';
@@ -736,6 +769,7 @@ lancer.addEventListener('click', async () => {
     fluxEcrit('\n' + e.message, 'erreur');
   } finally {
     termine();
+    chargeQuota();
   }
 });
 
