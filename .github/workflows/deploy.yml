@@ -1,0 +1,29 @@
+# Déploiement automatique du site sur l'hébergement OVH à chaque poussée
+# sur main. Les identifiants FTP sont stockés dans les secrets du dépôt
+# (Settings, Secrets and variables, Actions), jamais dans le code :
+#   FTP_SERVER      ex. ftp.cluster0XX.hosting.ovh.net
+#   FTP_USERNAME    identifiant FTP OVH
+#   FTP_PASSWORD    mot de passe FTP OVH
+#   FTP_SERVER_DIR  dossier cible, ex. www/greffier/ (le / final compte)
+name: Déploiement FTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Envoi du dossier site/ par FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          local-dir: ./site/
+          protocol: ftps
