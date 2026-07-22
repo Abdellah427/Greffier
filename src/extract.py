@@ -77,6 +77,10 @@ def extract_gemini(image_path, model="gemini-3.6-flash"):
     if not api_key:
         sys.exit("Erreur : définissez la variable d'environnement GEMINI_API_KEY "
                  "(clé gratuite sur https://aistudio.google.com/apikey).")
+    if not api_key.startswith("AIza"):
+        sys.exit("Erreur : GEMINI_API_KEY ne ressemble pas à une clé API Gemini "
+                 "(elles commencent par AIza). Copiez la clé depuis "
+                 "https://aistudio.google.com/apikey")
     response = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
