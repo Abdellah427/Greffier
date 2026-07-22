@@ -336,6 +336,32 @@
   }
   .flux .invite { color: #8494a6; }
   .flux .erreur { color: #d98d7b; }
+  .chrono {
+    margin: 0 0 .5rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: #8494a6;
+  }
+  .chrono::before {
+    content: '';
+    display: inline-block;
+    width: .5em;
+    height: .5em;
+    margin-right: .5em;
+    border-radius: 50%;
+    background: #8494a6;
+    animation: chrono-pouls 1.2s ease-in-out infinite;
+  }
+  @keyframes chrono-pouls { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .chrono::before { animation: none; }
+  }
+  .note-ollama {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    margin: .5rem 0 0;
+  }
   .flux .curseur {
     display: inline-block;
     width: .55em;
@@ -503,6 +529,7 @@
   <section class="colonne-commande" aria-label="La commande">
     <h2 class="panneau-titre">Le lecteur</h2>
     <div class="modeles" id="modeles" role="group" aria-label="Modèles de vision"></div>
+    <p class="note-ollama" id="note-ollama" hidden></p>
     <div class="pretraitement">
       <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
       <span class="note-pretraite">Recadrage, redressement, fond aplani, contraste,
@@ -514,6 +541,7 @@
 
     <h2 class="panneau-titre titre-machine">La machine</h2>
     <div class="machine">
+      <p class="chrono" id="chrono" hidden></p>
       <pre class="flux" id="flux"><span class="invite">Choisissez une page annotée
 et lancez la lecture : le résultat sera comparé
 à la transcription des chercheurs.</span></pre>
@@ -734,6 +762,82 @@ function jolieNom(nom) {
   return LIBELLES[nom] || NOMS_CONNUS[nom] || nom.charAt(0).toUpperCase() + nom.slice(1);
 }
 
+/* ---------- chronomètre des lectures ----------
+   Certains modèles, Ollama local en tête, mettent plusieurs minutes avant
+   le premier caractère : ce compteur montre que la machine travaille. */
+
+let chronoTimer = null;
+let chronoDebut = 0;
+let chronoLibelle = '';
+
+function formatDuree(secondes) {
+  return secondes < 60
+    ? `${secondes} s`
+    : `${Math.floor(secondes / 60)} min ${String(secondes % 60).padStart(2, '0')} s`;
+}
+
+function chronoAffiche() {
+  const secondes = Math.floor((Date.now() - chronoDebut) / 1000);
+  el('chrono').textContent = `${chronoLibelle} · ${formatDuree(secondes)}`;
+}
+
+function chronoDemarre(libelle) {
+  chronoArrete();
+  chronoDebut = Date.now();
+  chronoLibelle = libelle;
+  el('chrono').hidden = false;
+  chronoAffiche();
+  chronoTimer = setInterval(chronoAffiche, 1000);
+}
+
+function chronoChange(libelle) {
+  if (chronoTimer) {
+    chronoLibelle = libelle;
+    chronoAffiche();
+  }
+}
+
+function chronoArrete() {
+  if (!chronoTimer) return 0;
+  clearInterval(chronoTimer);
+  chronoTimer = null;
+  el('chrono').hidden = true;
+  return Math.round((Date.now() - chronoDebut) / 1000);
+}
+
+/* ---------- Ollama local sur le banc ----------
+   La lecture locale se mesure aussi face aux chercheurs : le bouton est
+   toujours proposé, même quand le service en ligne du site est absent. */
+
+function ajouteOllama(zone) {
+  const nom = 'ollama';
+  idsModeles[nom] = localStorage.getItem('ollama-modele') || 'qwen2.5vl:7b';
+  LIBELLES[nom] = 'Ollama local';
+  const origine = location.origin !== 'null' ? location.origin : 'votre-domaine';
+  el('note-ollama').textContent =
+    `Ollama local (${idsModeles[nom]}) lit sur votre machine : préparez-le une fois avec `
+    + `ollama pull ${idsModeles[nom]} puis OLLAMA_ORIGINS="${origine}" ollama serve `
+    + `(Windows : set OLLAMA_ORIGINS=${origine} puis ollama serve).`;
+  const bouton = document.createElement('button');
+  bouton.type = 'button';
+  bouton.dataset.fournisseur = nom;
+  bouton.setAttribute('aria-pressed', 'false');
+  bouton.append('Ollama local');
+  bouton.title = `${idsModeles[nom]}, sur votre machine`;
+  bouton.addEventListener('click', () => {
+    if (enCours) return;
+    if (fournisseursChoisis.has(nom)) {
+      fournisseursChoisis.delete(nom);
+    } else {
+      fournisseursChoisis.add(nom);
+    }
+    bouton.setAttribute('aria-pressed', fournisseursChoisis.has(nom) ? 'true' : 'false');
+    el('note-ollama').hidden = !fournisseursChoisis.has(nom);
+    majLancer();
+  });
+  zone.appendChild(bouton);
+}
+
 function majLancer() {
   const n = fournisseursChoisis.size;
   lancer.disabled = enCours || n === 0;
@@ -787,15 +891,25 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
     });
     zone.appendChild(bouton);
   }
-  boutonsModeles = [...zone.children];
+  ajouteOllama(zone);
+  boutonsModeles = [...zone.querySelectorAll('button')];
   if (boutonsModeles.length) {
     fournisseursChoisis.add(boutonsModeles[0].dataset.fournisseur);
     boutonsModeles[0].setAttribute('aria-pressed', 'true');
   }
+  el('note-ollama').hidden = !fournisseursChoisis.has('ollama');
   majLancer();
   majMeilleurModele();
 }).catch(() => {
-  el('modeles').textContent = 'Le service en ligne du site est injoignable.';
+  const zone = el('modeles');
+  const note = document.createElement('span');
+  note.className = 'note-ollama';
+  note.textContent = 'Service en ligne injoignable : seule la lecture Ollama locale est disponible. ';
+  zone.appendChild(note);
+  ajouteOllama(zone);
+  boutonsModeles = [...zone.querySelectorAll('button')];
+  majLancer();
+  majMeilleurModele();
 });
 
 async function imageChoisieBase64() {
@@ -812,6 +926,21 @@ async function imageChoisieBase64() {
 
 // Fait lire la page par un modèle, en écrivant le flux au fur et à mesure.
 async function lecture(fournisseur, base64) {
+  chronoDemarre(fournisseur === 'ollama'
+    ? 'Ollama local déchiffre la page, plusieurs minutes possibles sur processeur'
+    : `${jolieNom(fournisseur)} lit la page`);
+  try {
+    const objet = fournisseur === 'ollama'
+      ? await lectureOllama(base64)
+      : await lectureServeur(fournisseur, base64);
+    fluxEcrit(`\ndurée : ${formatDuree(chronoArrete())}`, 'invite');
+    return objet;
+  } finally {
+    chronoArrete();
+  }
+}
+
+async function lectureServeur(fournisseur, base64) {
   const reponse = await fetch('api/lire.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -823,14 +952,72 @@ async function lecture(fournisseur, base64) {
     throw new Error(detail || `Le service a répondu ${reponse.status}.`);
   }
   let tampon = '';
+  let premierMorceau = true;
   const lecteur = reponse.body.getReader();
   const decodeur = new TextDecoder();
   for (;;) {
     const { done, value } = await lecteur.read();
     if (done) break;
+    if (premierMorceau) {
+      premierMorceau = false;
+      chronoChange("la fiche s'écrit");
+    }
     const texte = decodeur.decode(value, { stream: true });
     tampon += texte;
     fluxEcrit(texte);
+  }
+  const objet = extraitObjet(tampon);
+  if (!objet) throw new Error("Le modèle n'a pas renvoyé de JSON exploitable.");
+  return objet;
+}
+
+// Lecture sur la machine du visiteur, via son Ollama (jamais par le serveur).
+async function lectureOllama(base64) {
+  const hote = (localStorage.getItem('ollama-hote') || 'http://localhost:11434')
+    .trim().replace(/\/$/, '');
+  const modele = idsModeles.ollama || 'qwen2.5vl:7b';
+  const origine = location.origin !== 'null' ? location.origin : 'votre-domaine';
+  let reponse;
+  try {
+    reponse = await fetch(`${hote}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: modele, prompt: PROMPT, images: [base64],
+                             format: 'json', stream: true }),
+    });
+  } catch {
+    throw new Error(`Impossible de joindre Ollama sur ${hote}. Démarrez-le en autorisant `
+      + `cette page : OLLAMA_ORIGINS="${origine}" ollama serve `
+      + `(Windows : set OLLAMA_ORIGINS=${origine} puis ollama serve).`);
+  }
+  if (!reponse.ok) {
+    throw new Error(`Ollama a répondu ${reponse.status}. `
+      + `Le modèle est-il installé ? ollama pull ${modele}`);
+  }
+  let tampon = '';
+  let reste = '';
+  let premierMorceau = true;
+  const lecteur = reponse.body.getReader();
+  const decodeur = new TextDecoder();
+  for (;;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    reste += decodeur.decode(value, { stream: true });
+    const lignes = reste.split('\n');
+    reste = lignes.pop();
+    for (const ligne of lignes) {
+      if (!ligne.trim()) continue;
+      const morceau = JSON.parse(ligne);
+      if (morceau.error) throw new Error(`Ollama : ${morceau.error}`);
+      if (morceau.response) {
+        if (premierMorceau) {
+          premierMorceau = false;
+          chronoChange("la fiche s'écrit");
+        }
+        tampon += morceau.response;
+        fluxEcrit(morceau.response);
+      }
+    }
   }
   const objet = extraitObjet(tampon);
   if (!objet) throw new Error("Le modèle n'a pas renvoyé de JSON exploitable.");
@@ -847,6 +1034,7 @@ function commence() {
 }
 
 function termine() {
+  chronoArrete();
   fluxFin();
   enCours = false;
   majLancer();
@@ -1067,6 +1255,7 @@ function deposeReleve(fournisseur, comptes) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ page: window.BANC[choisi].image, fournisseur,
+                           modele: idsModeles[fournisseur] || '',
                            pretraitement: pretraitementActif, ...comptes }),
   }).then(majMeilleurModele).catch(() => { /* le registre est un bonus, jamais bloquant */ });
 }

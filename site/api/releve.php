@@ -13,6 +13,9 @@ $FOURNISSEURS = array_keys($config_service['fournisseurs'] ?? []);
 if (!$FOURNISSEURS && !empty($config_service['gemini_api_key'])) {
     $FOURNISSEURS = ['gemini'];
 }
+// La lecture locale via l'Ollama du visiteur est toujours proposée sur le
+// banc : ses relevés alimentent le registre au même titre que les autres.
+$FOURNISSEURS[] = 'ollama';
 
 function refuse(int $code, string $message): void
 {
@@ -80,6 +83,12 @@ if (!in_array($fournisseur, $FOURNISSEURS, true)
 }
 
 $modele = $config_service['fournisseurs'][$fournisseur]['modele'] ?? '';
+if ($fournisseur === 'ollama') {
+    // Le modèle tourne chez le visiteur : on consigne son nom, assaini.
+    $modele_client = (string) ($corps['modele'] ?? '');
+    $modele = preg_match('/^[A-Za-z0-9:._-]{1,60}$/', $modele_client)
+        ? $modele_client : 'qwen2.5vl:7b';
+}
 
 $releve = [
     'date' => date('c'),
