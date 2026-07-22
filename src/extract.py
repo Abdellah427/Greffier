@@ -3,7 +3,7 @@
 
 Deux backends au choix :
   - ollama (défaut) : 100 % libre et gratuit, tourne en local via Ollama
-    (modèle vision open-weights, ex. qwen2.5vl:7b).
+    (modèle vision open weight, ex. qwen2.5vl:7b).
   - gemini : API Google Gemini via son palier gratuit. La clé est lue dans
     la variable d'environnement GEMINI_API_KEY, jamais écrite dans le code.
 

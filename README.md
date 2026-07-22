@@ -149,7 +149,7 @@ partenaires, sous licence CC-BY 4.0.
 
 | Backend | Coût | Libre ? | Prérequis |
 |---|---|---|---|
-| **`ollama`** (défaut) | 0 € | oui, modèle open-weights, exécution 100 % locale | [Ollama](https://ollama.com) + `ollama pull qwen2.5vl:7b` (~6 Go, GPU ou CPU) |
+| **`ollama`** (défaut) | 0 € | oui, modèle open weight, exécution 100 % locale | [Ollama](https://ollama.com) + `ollama pull qwen2.5vl:7b` (~6 Go, GPU ou CPU) |
 | `gemini` | 0 € (palier gratuit) | non, API propriétaire | Clé gratuite sur [AI Studio](https://aistudio.google.com/apikey), dans `gemini.key` (ignoré par git) |
 | `openrouter` | 0 € (environ 50 lectures/jour) | selon le modèle choisi | Clé gratuite sur [openrouter.ai/keys](https://openrouter.ai/keys), dans `openrouter.key` (ignoré par git) |
 | `mistral` | 0 € (palier découverte) | non, API propriétaire | Clé sur [console.mistral.ai](https://console.mistral.ai), dans `mistral.key` (ignoré par git) |
