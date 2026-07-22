@@ -41,6 +41,19 @@ REPLAYS = [
 def main():
     actes = json.loads((RACINE / "results.json").read_text(encoding="utf-8"))
 
+    # Rattache chaque acte à l'image de registre dont il provient, quand
+    # elle est présente dans le site : les fiches deviennent cliquables
+    # dans l'explorateur, avec le manuscrit face aux informations extraites.
+    for replay in REPLAYS:
+        actes[replay["index"]]["image"] = replay["image"]
+    for acte in actes:
+        source = acte.get("_source_image")
+        if source and "image" not in acte:
+            for dossier in ("pages", "banc", "samples"):
+                if (RACINE / "site" / dossier / source).exists():
+                    acte["image"] = f"{dossier}/{source}"
+                    break
+
     replays = []
     for replay in REPLAYS:
         entree = {k: v for k, v in actes[replay["index"]].items()
