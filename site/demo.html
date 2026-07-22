@@ -283,6 +283,25 @@
   .etapes li.active::before { content: '▸ '; color: var(--cyan); }
   .etapes li.faite { color: #7d9276; }
   .etapes li.faite::before { content: '✓ '; color: var(--ok); }
+  .telechargement {
+    padding: .7rem 1.1rem;
+    border-bottom: 1px solid var(--nuit-2);
+    font-size: .72rem;
+    color: var(--lueur);
+  }
+  .telechargement[hidden] { display: none; }
+  .telechargement .piste {
+    background: var(--nuit-2);
+    border-radius: 3px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: .35rem;
+  }
+  .telechargement .barre {
+    background: var(--cyan);
+    height: 100%;
+    width: 0%;
+  }
   .flux {
     flex: 1;
     margin: 0;
@@ -536,6 +555,10 @@
         <li>Réponse analysée</li>
         <li>Fiche établie</li>
       </ol>
+      <div class="telechargement" id="telechargement" hidden>
+        <div class="piste"><div class="barre" id="telechargement-barre"></div></div>
+        <span id="telechargement-texte">Téléchargement du modèle…</span>
+      </div>
       <pre class="flux" id="flux"><span class="invite">La machine attend une page.
 Choisissez un feuillet d'exemple, ou déposez votre propre image
 et passez en mode En ligne, Navigateur ou Ollama.</span></pre>
@@ -1071,7 +1094,6 @@ async function lireNavigateur() {
   fixeEtape(2);
   if (!moteurNavigateur) {
     fluxEcrit('téléchargement du modèle (une seule fois, ≈ 2,7 Go)…\n', 'invite');
-    const progres = {};
     let t;
     try {
       t = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.1');
@@ -1081,12 +1103,24 @@ async function lireNavigateur() {
       return;
     }
     const idModele = 'onnx-community/Qwen2-VL-2B-Instruct';
+
+    // Barre de progression du téléchargement, en octets cumulés sur
+    // l'ensemble des fichiers du modèle.
+    const zone = el('telechargement');
+    const barre = el('telechargement-barre');
+    const texteBarre = el('telechargement-texte');
+    zone.hidden = false;
+    const progres = {};
+    const enGo = octets => (octets / 1e9).toFixed(2).replace('.', ',');
     const suitProgres = p => {
-      if (p.status === 'progress' && p.file) {
-        progres[p.file] = p.progress || 0;
-        const fichiers = Object.values(progres);
-        const moyen = fichiers.reduce((a, b) => a + b, 0) / fichiers.length;
-        legende.textContent = `Téléchargement du modèle : ${moyen.toFixed(0)} %`;
+      if (p.status === 'progress' && p.file && p.total) {
+        progres[p.file] = { recu: p.loaded || 0, total: p.total };
+        const recu = Object.values(progres).reduce((a, f) => a + f.recu, 0);
+        const total = Object.values(progres).reduce((a, f) => a + f.total, 0);
+        const pourcent = Math.min(100, Math.round(100 * recu / total));
+        barre.style.width = pourcent + '%';
+        texteBarre.textContent =
+          `Téléchargement du modèle : ${pourcent} % (${enGo(recu)} / ${enGo(total)} Go)`;
       }
     };
     const processor = await t.AutoProcessor.from_pretrained(idModele,
@@ -1099,7 +1133,9 @@ async function lireNavigateur() {
                                    decoder_model_merged: 'q4f16' },
                           device: 'webgpu', progress_callback: suitProgres });
     moteurNavigateur = { t, processor, model };
-    legende.textContent = 'Modèle prêt.';
+    barre.style.width = '100%';
+    texteBarre.textContent = 'Modèle prêt (conservé en cache pour les prochaines lectures).';
+    setTimeout(() => { zone.hidden = true; }, 4000);
     fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
   } else {
     fluxEcrit('lecture en cours…\n\n', 'invite');
