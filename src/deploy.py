@@ -48,11 +48,24 @@ def fichiers_a_envoyer():
 
 
 def connecte(config):
-    ftp = ftplib.FTP_TLS(timeout=30) if config.get("tls", True) else ftplib.FTP(timeout=30)
-    ftp.connect(config["hote"], int(config.get("port", 21)))
+    hote = config["hote"]
+    port = int(config.get("port", 21))
+
+    if config.get("tls", True):
+        try:
+            ftp = ftplib.FTP_TLS(timeout=30)
+            ftp.connect(hote, port)
+            ftp.login(config["identifiant"], config["mot_de_passe"])
+            ftp.prot_p()
+            return ftp
+        except ftplib.error_perm:
+            # Certains hébergements mutualisés ne proposent pas le FTPS
+            # explicite : on retombe sur du FTP simple en le signalant.
+            print("Le serveur ne propose pas le FTPS, bascule en FTP simple.")
+
+    ftp = ftplib.FTP(timeout=30)
+    ftp.connect(hote, port)
     ftp.login(config["identifiant"], config["mot_de_passe"])
-    if isinstance(ftp, ftplib.FTP_TLS):
-        ftp.prot_p()
     return ftp
 
 
