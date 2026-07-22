@@ -134,3 +134,7 @@ quelques pages d'exemple sont conservées dans `samples/`.
   manifestement erronées (elles sont signalées dans l'explorateur).
 - Le mode Navigateur est expérimental : le modèle 2B lit les manuscrits
   moins bien que le 7B d'Ollama, et WebGPU est nécessaire.
+
+## Contact
+
+Abdellah Hassani : abdellah.hassani2002@gmail.com
