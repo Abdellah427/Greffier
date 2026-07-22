@@ -235,6 +235,74 @@
     background: #0d0d0d;
     cursor: zoom-in;
   }
+  .apercu-avant { pointer-events: none; z-index: 1; }
+  .ligne-avant {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--tampon);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ligne-avant[hidden], .apercu-avant[hidden], #curseur-avant[hidden],
+  .etiquette-avant[hidden], .etiquette-apres[hidden] { display: none; }
+  .etiquette-avant, .etiquette-apres {
+    position: absolute;
+    top: .5rem;
+    z-index: 2;
+    font-family: var(--mono);
+    font-size: .62rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    background: rgba(246, 240, 226, .92);
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    padding: .1rem .4rem;
+    color: var(--encre-pale);
+    pointer-events: none;
+  }
+  .etiquette-avant { left: .5rem; }
+  .etiquette-apres { right: .5rem; color: var(--tampon); border-color: var(--tampon); }
+  #curseur-avant {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: .4rem;
+    width: 100%;
+    z-index: 3;
+    accent-color: var(--tampon);
+  }
+  .pretraitement {
+    display: flex;
+    gap: .7rem;
+    align-items: center;
+    margin-top: .8rem;
+    flex-wrap: wrap;
+  }
+  .pretraitement button {
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .45rem .75rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pretraitement button[aria-pressed=true] {
+    background: var(--tampon);
+    border-color: var(--tampon);
+    color: #f6efe4;
+  }
+  .note-pretraite {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    flex: 1;
+    min-width: 12rem;
+  }
   .loupe {
     position: absolute;
     width: 11rem;
@@ -582,12 +650,22 @@
   </div>
   <div class="config" id="config-enligne" hidden>
     <div class="modeles-enligne" id="modeles-enligne" role="group" aria-label="Modèle de lecture"></div>
+    <div class="pretraitement">
+      <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
+      <span class="note-pretraite">Recadrage, redressement, fond aplani, contraste,
+        netteté : la chaîne maison, exécutée par le serveur avant la lecture.</span>
+    </div>
     <details class="aide">
       <summary>Comment ça marche</summary>
       <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
          un modèle de vision et renvoie sa réponse en direct. Rien à installer, aucune
          clé à saisir. Le service est gratuit et partagé : chaque visiteur dispose d'un
          quota de lectures par jour.</p>
+      <p>L'interrupteur Prétraitement fait d'abord passer la page par la chaîne
+         maison du projet (recadrage, redressement, fond aplani, contraste,
+         netteté), exécutée par le serveur ; un curseur permet ensuite de
+         comparer la page brute et la page prétraitée. L'image est traitée en
+         mémoire, jamais conservée.</p>
     </details>
   </div>
   <div class="config" id="config-navigateur" hidden>
@@ -616,6 +694,12 @@
         <span>ou cliquez pour choisir une image (JPG, PNG, WebP)</span>
       </button>
       <img class="apercu" id="apercu" alt="" hidden>
+      <img class="apercu apercu-avant" id="apercu-avant" alt="" hidden>
+      <div class="ligne-avant" id="ligne-avant" hidden></div>
+      <span class="etiquette-avant" id="etiquette-avant" hidden>page brute</span>
+      <span class="etiquette-apres" id="etiquette-apres" hidden>prétraitée</span>
+      <input type="range" id="curseur-avant" min="0" max="100" value="50" hidden
+             aria-label="Comparer la page brute et la page prétraitée">
       <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
       <div class="page-legende"><span id="legende">Aucune page chargée.</span><button
         id="changer" type="button" hidden>Changer d'image</button></div>
@@ -761,9 +845,79 @@ document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
     el('config-enligne').hidden = etat.mode !== 'enligne';
     el('config-navigateur').hidden = etat.mode !== 'navigateur';
     el('mode-note').textContent = NOTES[etat.mode];
+    restaureApercu();
     majLancer();
   });
 });
+
+/* ---------- prétraitement serveur (mode en ligne) ---------- */
+
+let pretraitementActif = false;
+const IDS_AVANT_APRES = ['apercu-avant', 'ligne-avant', 'curseur-avant',
+                         'etiquette-avant', 'etiquette-apres'];
+
+function cacheAvantApres() {
+  IDS_AVANT_APRES.forEach(id => { el(id).hidden = true; });
+}
+
+function restaureApercu() {
+  cacheAvantApres();
+  if (etat.image) apercu.src = etat.image.dataUrl;
+  else if (etat.replayChoisi != null && REPLAYS[etat.replayChoisi]) {
+    apercu.src = REPLAYS[etat.replayChoisi].image;
+  }
+}
+
+function montreAvantApres(avantSrc) {
+  el('apercu-avant').src = avantSrc;
+  IDS_AVANT_APRES.forEach(id => { el(id).hidden = false; });
+  majCurseurAvant();
+}
+
+function majCurseurAvant() {
+  const p = Number(el('curseur-avant').value);
+  el('apercu-avant').style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+  el('ligne-avant').style.left = p + '%';
+}
+el('curseur-avant').addEventListener('input', majCurseurAvant);
+
+el('bascule-pretraite').addEventListener('click', () => {
+  if (etat.enCours) return;
+  pretraitementActif = !pretraitementActif;
+  const bouton = el('bascule-pretraite');
+  bouton.setAttribute('aria-pressed', pretraitementActif ? 'true' : 'false');
+  bouton.textContent = pretraitementActif ? 'Prétraitement : activé'
+                                          : 'Prétraitement : désactivé';
+  if (!pretraitementActif) restaureApercu();
+});
+
+// Envoie la page au service de prétraitement du site (la même chaîne que
+// src/pretraite.py, portée en PHP) et affiche l'avant/après. En cas de
+// souci, la lecture continue simplement sur la page brute.
+async function pretraiteEnLigne(base64, signal) {
+  fluxEcrit('prétraitement de la page (chaîne maison, sur le serveur)…\n', 'invite');
+  try {
+    const reponse = await fetch('api/pretraite.php', {
+      method: 'POST',
+      signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64 }),
+    });
+    const corps = await reponse.json();
+    if (!reponse.ok || !corps.image) {
+      throw new Error(corps.erreur || `réponse ${reponse.status}`);
+    }
+    const avant = apercu.src;
+    apercu.src = 'data:image/jpeg;base64,' + corps.image;
+    montreAvantApres(avant);
+    fluxEcrit('page recadrée, redressée, fond aplani, contraste et netteté ajustés.\n\n', 'invite');
+    return corps.image;
+  } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    fluxEcrit(`prétraitement indisponible (${e.message}) : la page brute est envoyée.\n\n`, 'invite');
+    return base64;
+  }
+}
 
 /* ---------- chargement de la page (image) ---------- */
 
@@ -790,6 +944,7 @@ function choisirExemple(i) {
   exemples.querySelectorAll('button').forEach((b, j) =>
     b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
   const replay = REPLAYS[i];
+  cacheAvantApres();
   apercu.src = replay.image;
   apercu.alt = replay.titre;
   apercu.hidden = false;
@@ -881,6 +1036,7 @@ function chargerFichier(f) {
       etat.image = { dataUrl, base64: dataUrl.split(',')[1], nom: f.name };
       etat.replayChoisi = null;
       exemples.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      cacheAvantApres();
       apercu.src = dataUrl;
       apercu.alt = `Page téléversée : ${f.name}`;
       apercu.hidden = false;
@@ -1152,7 +1308,8 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
 
 async function lireEnLigne() {
   const signal = etat.abandon.signal;
-  const base64 = await imagePourLecture(signal);
+  let base64 = await imagePourLecture(signal);
+  if (pretraitementActif) base64 = await pretraiteEnLigne(base64, signal);
   fixeEtape(2);
   fluxEcrit(`envoi au service de lecture du site (${LIBELLES_ENLIGNE[fournisseurEnLigne] || NOMS_FOURNISSEURS[fournisseurEnLigne] || fournisseurEnLigne})…\n\n`, 'invite');
 

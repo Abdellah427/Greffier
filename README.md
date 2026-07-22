@@ -162,6 +162,12 @@ perte) de chaque configuration. Sur le banc d'essai du site,
 l'interrupteur « Prétraitement » applique la même chaîne et un curseur
 avant/après fait constater la différence sur l'image elle-même.
 
+La chaîne existe aussi en PHP ([`site/api/pretraite.php`](site/api/pretraite.php),
+bibliothèque GD, mêmes étapes et mêmes seuils) : sur la démonstration,
+l'interrupteur « Prétraitement » du mode En ligne l'exécute sur le serveur
+pour n'importe quelle page déposée, avant d'envoyer l'image au modèle,
+avec le même curseur avant/après.
+
 Données M-POPP : projet EXO-POPP, université de Rouen Normandie et
 partenaires, sous licence CC-BY 4.0.
 
