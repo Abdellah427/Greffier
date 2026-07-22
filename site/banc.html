@@ -79,9 +79,12 @@
     padding: 0 1.5rem;
     display: grid;
     grid-template-columns: 1.15fr 1fr;
-    gap: 1.2rem;
+    gap: 1.6rem;
+    align-items: stretch;
   }
   @media (max-width: 880px) { .pupitre { grid-template-columns: 1fr; } }
+  .colonne-commande { display: flex; flex-direction: column; }
+  .colonne-commande .titre-machine { margin-top: 1.1rem; }
   .panneau-titre {
     font-family: var(--mono);
     font-size: .72rem;
@@ -90,14 +93,15 @@
     margin-bottom: .55rem;
     color: var(--encre-pale);
   }
-  .cote-machine .panneau-titre { color: var(--cyan); }
+  .titre-machine { color: var(--cyan) !important; }
 
   .page-cadre {
     position: relative;
     border: 1px solid var(--regle);
     background: #f4eee0;
-    min-height: 22rem;
+    height: 30rem;
   }
+  @media (max-width: 880px) { .page-cadre { height: 22rem; } }
   .page-cadre img.apercu {
     position: absolute;
     inset: 0;
@@ -135,31 +139,48 @@
     color: var(--encre);
     white-space: nowrap;
   }
-  .exemples { display: flex; gap: .6rem; margin-top: .7rem; flex-wrap: wrap; }
+  .exemples {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+    margin-top: .7rem;
+  }
+  @media (max-width: 560px) { .exemples { grid-template-columns: repeat(2, 1fr); } }
   .exemples button {
-    flex: 1 1 8rem;
     border: 1px solid var(--regle);
     background: #fff;
     padding: .35rem;
     cursor: pointer;
     border-radius: 3px;
+    display: flex;
+    flex-direction: column;
   }
-  .exemples button img { width: 100%; display: block; aspect-ratio: 5/4; object-fit: cover; }
+  .exemples button img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
   .exemples button figcaption {
     font-family: var(--mono);
     font-size: .66rem;
     color: var(--encre-pale);
     padding-top: .3rem;
+    min-height: 2.4em;
   }
   .exemples button[aria-pressed=true] { border-color: var(--tampon); box-shadow: 0 0 0 1px var(--tampon); }
-  .modeles { display: flex; gap: .5rem; margin-top: .9rem; flex-wrap: wrap; }
+  .modeles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+  }
   .modeles button {
     font-family: var(--mono);
     font-size: .78rem;
-    padding: .4rem .75rem;
+    padding: .55rem .5rem;
     border: 1px solid var(--regle);
     border-radius: 3px;
-    background: transparent;
+    background: var(--carte);
     color: var(--encre);
     cursor: pointer;
   }
@@ -186,7 +207,12 @@
     color: var(--encre-pale);
     margin-top: .1rem;
   }
-  .actions { display: flex; gap: .6rem; margin-top: .9rem; align-items: center; flex-wrap: wrap; }
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+    margin-top: .8rem;
+  }
   #comparer {
     background: transparent;
     color: var(--tampon);
@@ -202,12 +228,18 @@
   }
   #lancer { background: var(--tampon); color: #f6efe4; }
   #lancer:disabled { opacity: .45; cursor: not-allowed; }
-  .note-quota { font-size: .78rem; color: var(--encre-pale); font-family: var(--mono); }
+  .note-quota {
+    font-size: .74rem;
+    color: var(--encre-pale);
+    font-family: var(--mono);
+    margin: .6rem 0 0;
+  }
 
   .machine {
     background: var(--nuit);
     border-radius: 4px;
-    min-height: 22rem;
+    flex: 1;
+    min-height: 16rem;
     display: flex;
     flex-direction: column;
     color: var(--lueur);
@@ -362,13 +394,17 @@
 </header>
 
 <main class="pupitre">
-  <section aria-label="La page">
+  <section class="colonne-page" aria-label="La page">
     <h2 class="panneau-titre">La page annotée</h2>
     <div class="page-cadre" id="cadre">
       <img class="apercu" id="apercu" alt="">
       <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
     </div>
     <div class="exemples" id="exemples" aria-label="Pages annotées"></div>
+  </section>
+
+  <section class="colonne-commande" aria-label="La commande">
+    <h2 class="panneau-titre">Le lecteur</h2>
     <div class="modeles" id="modeles" role="group" aria-label="Modèle de lecture">
       <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini Flash
         <span class="id-modele"></span></button>
@@ -380,13 +416,10 @@
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
       <button id="comparer" type="button">Faire lire par les trois</button>
-      <span class="note-quota">Le service en ligne du site lit pour vous
-        (quota gratuit journalier).</span>
     </div>
-  </section>
-
-  <section class="cote-machine" aria-label="La machine">
-    <h2 class="panneau-titre">La machine</h2>
+    <p class="note-quota">Le service en ligne du site lit pour vous, aucune clé à saisir
+       (quota gratuit journalier). La molette règle la loupe sur le document.</p>
+    <h2 class="panneau-titre titre-machine">La machine</h2>
     <div class="machine">
       <pre class="flux" id="flux"><span class="invite">Choisissez une page annotée
 et lancez la lecture : le résultat sera comparé
