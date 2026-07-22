@@ -1,0 +1,7 @@
+{
+    "hote": "ftp.cluster0XX.hosting.ovh.net",
+    "identifiant": "votre-identifiant-ftp",
+    "mot_de_passe": "votre-mot-de-passe-ftp",
+    "dossier": "www/greffier",
+    "tls": true
+}

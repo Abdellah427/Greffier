@@ -7,6 +7,9 @@ extracted_images/
 # Clé du service en ligne : uniquement sur le serveur
 site/api/config.php
 
+# Identifiants FTP du script de déploiement : uniquement en local
+deploy.config.json
+
 # Python
 __pycache__/
 *.pyc

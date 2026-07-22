@@ -53,15 +53,19 @@ dans le navigateur ni dans le dépôt :
 Sans `config.php`, le mode En ligne affiche un message clair et les trois
 autres modes restent disponibles.
 
-### Déploiement automatique par FTP
+### Déployer sur son hébergement
 
-Le workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-envoie `site/` sur l'hébergement à chaque poussée sur `main`. Les identifiants
-FTP sont stockés dans les secrets du dépôt (Settings, Secrets and variables,
-Actions) : `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` et `FTP_SERVER_DIR`
-(par exemple `www/greffier/`). Ils ne figurent jamais dans le code. Le
-`config.php` du serveur n'est pas touché par le déploiement : il se dépose
-une seule fois, à la main.
+Le script [`src/deploy.py`](src/deploy.py) envoie `site/` par FTP (FTPS par
+défaut), sans aucune dépendance à installer :
+
+1. copier `deploy.config.sample.json` vers `deploy.config.json` à la racine
+   et y renseigner l'hôte, l'identifiant, le mot de passe et le dossier
+   cible (par exemple `www/greffier`). Ce fichier est ignoré par git : les
+   identifiants ne sont jamais versionnés ;
+2. lancer `python src/deploy.py` (ou `--liste` pour voir ce qui partirait).
+
+Le script crée l'arborescence distante au besoin et ne touche jamais au
+`config.php` du serveur : celui-ci se dépose une seule fois, à la main.
 
 ## Le pipeline d'extraction
 
