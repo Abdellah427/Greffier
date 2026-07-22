@@ -29,9 +29,9 @@ if (isset($_GET['diagnostic'])) {
         'php' => PHP_VERSION,
         'curl' => function_exists('curl_init'),
         'cle_presente' => true,
-        'modele' => $config['modele'] ?? 'gemini-2.5-flash',
+        'modele' => $config['modele'] ?? 'gemini-3.6-flash',
     ];
-    $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1');
+    $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=50');
     curl_setopt_array($curl, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 20,
@@ -44,6 +44,17 @@ if (isset($_GET['diagnostic'])) {
     if ($reponse !== false && $etat['api_code_http'] >= 400) {
         $detail = json_decode($reponse, true);
         $etat['api_message'] = $detail['error']['message'] ?? substr($reponse, 0, 300);
+    }
+    if ($reponse !== false && $etat['api_code_http'] === 200) {
+        // Modèles utilisables pour la lecture : de quoi choisir la valeur
+        // du champ 'modele' de config.php sans deviner.
+        $modeles = [];
+        foreach (json_decode($reponse, true)['models'] ?? [] as $m) {
+            if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [], true)) {
+                $modeles[] = str_replace('models/', '', $m['name']);
+            }
+        }
+        $etat['modeles_disponibles'] = $modeles;
     }
     $etat['verdict'] = ($etat['api_code_http'] === 200)
         ? 'Tout fonctionne : la clé est valide et l\'API répond.'
@@ -104,7 +115,7 @@ $prompt = "Tu es un expert en paléographie et en état civil français.\n"
     . json_encode($champs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n"
     . "Si une information est absente ou illisible, mets null. N'invente rien.";
 
-$modele = $config['modele'] ?? 'gemini-2.5-flash';
+$modele = $config['modele'] ?? 'gemini-3.6-flash';
 $requete = json_encode([
     'contents' => [[
         'parts' => [

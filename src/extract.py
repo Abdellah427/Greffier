@@ -72,7 +72,7 @@ def extract_ollama(image_path, model="qwen2.5vl:7b", host="http://localhost:1143
     return parse_json_response(response.json()["response"])
 
 
-def extract_gemini(image_path, model="gemini-2.5-flash"):
+def extract_gemini(image_path, model="gemini-3.6-flash"):
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         sys.exit("Erreur : définissez la variable d'environnement GEMINI_API_KEY "

@@ -6,7 +6,7 @@ return [
     'gemini_api_key' => '',
 
     // Modèle utilisé par le service.
-    'modele' => 'gemini-2.5-flash',
+    'modele' => 'gemini-3.6-flash',
 
     // Lectures par visiteur et par jour.
     'quota_ip' => 15,
