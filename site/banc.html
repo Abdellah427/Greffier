@@ -207,17 +207,8 @@
     color: var(--encre-pale);
     margin-top: .1rem;
   }
-  .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .6rem;
-    margin-top: .8rem;
-  }
-  #comparer {
-    background: transparent;
-    color: var(--tampon);
-  }
-  #comparer:disabled, #lancer:disabled { opacity: .45; cursor: not-allowed; }
+  .actions { margin-top: .8rem; }
+  .actions button { width: 100%; }
   .actions button {
     font-family: var(--mono);
     font-size: .88rem;
@@ -427,10 +418,10 @@
     </div>
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
-      <button id="comparer" type="button">Faire lire par les trois</button>
     </div>
-    <p class="note-quota">Le service en ligne du site lit pour vous, aucune clé à saisir
-       (quota gratuit journalier). La molette règle la loupe sur le document.</p>
+    <p class="note-quota">Cochez un ou plusieurs modèles puis lancez : dès deux modèles,
+       le palmarès les compare côte à côte. Aucune clé à saisir (quota gratuit
+       journalier). La molette règle la loupe sur le document.</p>
     <h2 class="panneau-titre titre-machine">La machine</h2>
     <div class="machine">
       <pre class="flux" id="flux"><span class="invite">Choisissez une page annotée
@@ -607,38 +598,53 @@ function extraitObjet(tampon) {
   return null;
 }
 
-const comparerBouton = el('comparer');
-let fournisseurChoisi = 'gemini';
 const NOMS_MODELES = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
 const boutonsModeles = [...document.querySelectorAll('#modeles button')];
+const fournisseursChoisis = new Set(['gemini']);
+
+function majLancer() {
+  const n = fournisseursChoisis.size;
+  lancer.disabled = enCours || n === 0;
+  lancer.textContent = n > 1 ? `Lancer la lecture (${n} modèles)` : 'Lancer la lecture';
+}
 
 boutonsModeles.forEach(bouton => bouton.addEventListener('click', () => {
   if (enCours || bouton.disabled) return;
-  fournisseurChoisi = bouton.dataset.fournisseur;
-  boutonsModeles.forEach(b => b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
+  const nom = bouton.dataset.fournisseur;
+  if (fournisseursChoisis.has(nom)) {
+    fournisseursChoisis.delete(nom);
+  } else {
+    fournisseursChoisis.add(nom);
+  }
+  bouton.setAttribute('aria-pressed', fournisseursChoisis.has(nom) ? 'true' : 'false');
+  majLancer();
 }));
 
 // Grise les modèles absents de la configuration du serveur.
 const idsModeles = {};
 fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
   boutonsModeles.forEach(bouton => {
-    const modele = fournisseurs[bouton.dataset.fournisseur];
+    const nom = bouton.dataset.fournisseur;
+    const modele = fournisseurs[nom];
     if (modele === undefined) {
       bouton.disabled = true;
       bouton.title = 'Non configuré sur ce site';
       bouton.setAttribute('aria-pressed', 'false');
+      fournisseursChoisis.delete(nom);
       bouton.querySelector('.id-modele').textContent = 'non configuré';
     } else if (modele) {
-      idsModeles[bouton.dataset.fournisseur] = modele;
+      idsModeles[nom] = modele;
       bouton.querySelector('.id-modele').textContent = modele;
     }
   });
-  const actifs = boutonsModeles.filter(b => !b.disabled);
-  if (actifs.length && actifs.every(b => b.getAttribute('aria-pressed') === 'false')) {
-    actifs[0].setAttribute('aria-pressed', 'true');
-    fournisseurChoisi = actifs[0].dataset.fournisseur;
+  if (!fournisseursChoisis.size) {
+    const premier = boutonsModeles.find(b => !b.disabled);
+    if (premier) {
+      fournisseursChoisis.add(premier.dataset.fournisseur);
+      premier.setAttribute('aria-pressed', 'true');
+    }
   }
-  if (actifs.length < 2) comparerBouton.disabled = true;
+  majLancer();
 }).catch(() => { /* le service dira lui-même ce qui manque */ });
 
 async function imageChoisieBase64() {
@@ -680,57 +686,47 @@ async function lecture(fournisseur, base64) {
 
 function commence() {
   enCours = true;
-  lancer.disabled = true;
-  comparerBouton.disabled = true;
   el('score').hidden = true;
   el('comparaison').hidden = true;
   el('palmares').hidden = true;
   fluxInit();
+  majLancer();
 }
 
 function termine() {
   fluxFin();
   enCours = false;
-  lancer.disabled = false;
-  comparerBouton.disabled = boutonsModeles.filter(b => !b.disabled).length < 2;
+  majLancer();
 }
 
 lancer.addEventListener('click', async () => {
-  if (enCours) return;
-  commence();
-  try {
-    const page = window.BANC[choisi];
-    fluxEcrit(`lecture de « ${page.titre} » par ${NOMS_MODELES[fournisseurChoisi]}…\n\n`, 'invite');
-    const objet = await lecture(fournisseurChoisi, await imageChoisieBase64());
-    fluxEcrit('\n\n-- lecture terminée, comparaison ci-dessous --', 'invite');
-    compare(objet, page.reference);
-  } catch (e) {
-    fluxEcrit('\n' + e.message, 'erreur');
-  } finally {
-    termine();
-  }
-});
-
-comparerBouton.addEventListener('click', async () => {
-  if (enCours) return;
-  commence();
+  if (enCours || !fournisseursChoisis.size) return;
   const page = window.BANC[choisi];
-  const resultats = {};
+  const choisis = boutonsModeles
+    .filter(b => !b.disabled && fournisseursChoisis.has(b.dataset.fournisseur))
+    .map(b => b.dataset.fournisseur);
+  commence();
   try {
     const base64 = await imageChoisieBase64();
-    for (const bouton of boutonsModeles) {
-      if (bouton.disabled) continue;
-      const fournisseur = bouton.dataset.fournisseur;
-      fluxEcrit(`\n== ${NOMS_MODELES[fournisseur]} ==\n`, 'invite');
-      try {
-        resultats[fournisseur] = { objet: await lecture(fournisseur, base64) };
-      } catch (e) {
-        resultats[fournisseur] = { erreur: e.message };
-        fluxEcrit('\n' + e.message, 'erreur');
+    if (choisis.length === 1) {
+      fluxEcrit(`lecture de « ${page.titre} » par ${NOMS_MODELES[choisis[0]]}…\n\n`, 'invite');
+      const objet = await lecture(choisis[0], base64);
+      fluxEcrit('\n\n-- lecture terminée, comparaison ci-dessous --', 'invite');
+      compare(objet, page.reference, choisis[0]);
+    } else {
+      const resultats = {};
+      for (const fournisseur of choisis) {
+        fluxEcrit(`\n== ${NOMS_MODELES[fournisseur]} ==\n`, 'invite');
+        try {
+          resultats[fournisseur] = { objet: await lecture(fournisseur, base64) };
+        } catch (e) {
+          resultats[fournisseur] = { erreur: e.message };
+          fluxEcrit('\n' + e.message, 'erreur');
+        }
       }
+      fluxEcrit('\n\n-- palmarès ci-dessous --', 'invite');
+      palmares(resultats, page.reference);
     }
-    fluxEcrit('\n\n-- palmarès ci-dessous --', 'invite');
-    palmares(resultats, page.reference);
   } catch (e) {
     fluxEcrit('\n' + e.message, 'erreur');
   } finally {
@@ -764,7 +760,7 @@ function surligne(valeur, autre) {
   ).join(' ');
 }
 
-function compare(objet, reference) {
+function compare(objet, reference, fournisseur) {
   const lignes = el('lignes');
   lignes.innerHTML = '';
   let exacts = 0, proches = 0, faux = 0;
@@ -794,7 +790,7 @@ function compare(objet, reference) {
   el('score').hidden = false;
   el('comparaison').hidden = false;
   el('score').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  deposeReleve(fournisseurChoisi, { exacts, proches, faux });
+  deposeReleve(fournisseur, { exacts, proches, faux });
 }
 
 /* ---------- le registre public : la base se construit avec les visiteurs ---------- */
