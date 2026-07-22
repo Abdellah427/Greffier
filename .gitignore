@@ -1,0 +1,13 @@
+# Archives d'images sources (trop lourdes pour git)
+*.zip
+Archives_1913/
+Archives_1920/
+extracted_images/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Notebooks
+.ipynb_checkpoints/
