@@ -13,6 +13,7 @@ deploy.config.json
 # Clés API du pipeline : uniquement en local
 gemini.key
 openrouter.key
+mistral.key
 
 # Python
 __pycache__/

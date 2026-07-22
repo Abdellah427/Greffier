@@ -143,8 +143,44 @@ def extract_openrouter(image_path, model="google/gemma-4-31b-it:free"):
     return parse_json_response(response.json()["choices"][0]["message"]["content"])
 
 
+def extract_mistral(image_path, model="mistral-small-latest"):
+    """API Mistral (palier gratuit possible sur console.mistral.ai).
+
+    Clé dans le fichier mistral.key à la racine du dépôt (ignoré par git)
+    ou dans la variable d'environnement MISTRAL_API_KEY.
+    """
+    fichier_cle = Path(__file__).resolve().parent.parent / "mistral.key"
+    api_key = fichier_cle.read_text(encoding="utf-8") if fichier_cle.exists() \
+        else os.environ.get("MISTRAL_API_KEY", "")
+    api_key = api_key.strip().strip('"').strip("'").strip()
+    if not api_key:
+        sys.exit("Erreur : aucune clé Mistral trouvée. Collez votre clé "
+                 "(https://console.mistral.ai) dans un fichier mistral.key "
+                 "à la racine du projet, ou définissez MISTRAL_API_KEY.")
+    response = requests.post(
+        "https://api.mistral.ai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}",
+                 "Content-Type": "application/json"},
+        json={
+            "model": model,
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": PROMPT},
+                    {"type": "image_url", "image_url": {
+                        "url": "data:image/jpeg;base64," + image_to_base64(image_path),
+                    }},
+                ],
+            }],
+        },
+        timeout=300,
+    )
+    response.raise_for_status()
+    return parse_json_response(response.json()["choices"][0]["message"]["content"])
+
+
 BACKENDS = {"ollama": extract_ollama, "gemini": extract_gemini,
-            "openrouter": extract_openrouter}
+            "openrouter": extract_openrouter, "mistral": extract_mistral}
 
 
 def main():
