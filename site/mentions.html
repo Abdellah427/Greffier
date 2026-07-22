@@ -32,7 +32,7 @@
     display: flex;
     gap: 1.5rem;
     align-items: baseline;
-    max-width: 900px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 1.1rem 1.5rem 0;
     font-size: .85rem;
@@ -49,9 +49,13 @@
   nav a { text-decoration: none; }
   nav a:hover { text-decoration: underline; }
   main {
-    max-width: 900px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2.2rem 1.5rem 4rem;
+  }
+  main p {
+    text-align: justify;
+    hyphens: auto;
   }
   h1 {
     font-family: var(--serif-display);
@@ -80,9 +84,15 @@
   p:last-child { margin-bottom: 0; }
   .hebergeur {
     display: flex;
-    gap: 1.2rem;
-    align-items: baseline;
+    gap: 1.4rem;
+    align-items: center;
     flex-wrap: wrap;
+    margin-bottom: .9rem;
+  }
+  .logo-ovh {
+    height: 28px;
+    width: auto;
+    display: block;
   }
   .drapeau {
     font-family: var(--mono);
@@ -108,7 +118,7 @@
 <body>
 
 <nav>
-  <a class="marque" href="index.html">Greffier · Registres de Paris 1913-1920</a>
+  <a class="marque" href="index.html">Greffier · Registres de mariage parisiens</a>
   <a href="demo.html">Démonstration</a>
   <a href="banc.html">Banc d'essai</a>
   <a href="index.html">Les 130 actes</a>
@@ -127,12 +137,13 @@
   <section>
     <h2>Hébergement</h2>
     <div class="hebergeur">
+      <img class="logo-ovh" src="ovh.svg" alt="OVHcloud">
       <span class="drapeau">Hébergé en France</span>
-      <p>OVH SAS, 2 rue Kellermann, 59100 Roubaix, France<br>
-         RCS Lille Métropole 424 761 419 00045<br>
-         Téléphone : 1007 (depuis la France) ·
-         <a href="https://www.ovhcloud.com">www.ovhcloud.com</a></p>
     </div>
+    <p>OVH SAS, 2 rue Kellermann, 59100 Roubaix, France<br>
+       RCS Lille Métropole 424 761 419 00045<br>
+       Téléphone : 1007 (depuis la France) ·
+       <a href="https://www.ovhcloud.com">www.ovhcloud.com</a></p>
   </section>
 
   <section>
