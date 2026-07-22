@@ -171,7 +171,13 @@ def main():
                 print("quota épuisé")
                 interrompu = True
                 break
-            print(f"échec ({exc})")
+            detail = ""
+            try:
+                detail = exc.response.json()["error"]["message"]
+            except Exception:
+                pass
+            print(f"échec ({exc.response.status_code if exc.response is not None else exc}"
+                  f"{' : ' + detail[:250] if detail else ''})")
         except Exception as exc:
             print(f"échec ({exc})")
         if args.delay and i < len(images):
