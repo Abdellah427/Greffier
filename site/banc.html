@@ -212,20 +212,6 @@
     opacity: .4;
     cursor: not-allowed;
   }
-  .modeles .id-modele {
-    display: block;
-    font-size: .6rem;
-    opacity: .7;
-    margin-top: .15rem;
-  }
-  .comparaison th .id-col {
-    display: block;
-    text-transform: none;
-    letter-spacing: .02em;
-    font-size: .62rem;
-    color: var(--encre-pale);
-    margin-top: .1rem;
-  }
   .actions { margin-top: .8rem; }
   .actions button { width: 100%; }
   .actions button {
@@ -659,10 +645,7 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
     bouton.dataset.fournisseur = nom;
     bouton.setAttribute('aria-pressed', 'false');
     bouton.append(jolieNom(nom));
-    const id = document.createElement('span');
-    id.className = 'id-modele';
-    id.textContent = infos.modele || '';
-    bouton.appendChild(id);
+    if (infos.modele) bouton.title = infos.modele;
     bouton.addEventListener('click', () => {
       if (enCours) return;
       if (fournisseursChoisis.has(nom)) {
@@ -887,8 +870,8 @@ function palmares(resultats, reference) {
                  : `${Math.round(100 * score / CHAMPS.length)} % exact`;
       const laurier = meilleur && nom === meilleur[0] && score !== undefined
         ? ' <span class="meilleur">meilleure lecture</span>' : '';
-      const id = idsModeles[nom] ? `<span class="id-col">${esc(idsModeles[nom])}</span>` : '';
-      return `<th>${esc(jolieNom(nom))}${id}<span class="taux">${taux}</span>${laurier}</th>`;
+      const infobulle = idsModeles[nom] ? ` title="${esc(idsModeles[nom])}"` : '';
+      return `<th${infobulle}>${esc(jolieNom(nom))}<span class="taux">${taux}</span>${laurier}</th>`;
     }).join('');
   tete.appendChild(ligneTete);
 

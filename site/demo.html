@@ -159,12 +159,6 @@
     border-color: var(--encre);
     color: var(--papier);
   }
-  .modeles-enligne .id-modele {
-    display: block;
-    font-size: .6rem;
-    opacity: .7;
-    margin-top: .15rem;
-  }
   details.aide { flex-basis: 100%; font-size: .82rem; color: var(--encre-pale); }
   details.aide code {
     font-family: var(--mono);
@@ -1143,10 +1137,7 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
     bouton.type = 'button';
     bouton.setAttribute('aria-pressed', nom === fournisseurEnLigne ? 'true' : 'false');
     bouton.append(fournisseurs[nom].libelle || NOMS_FOURNISSEURS[nom] || nom);
-    const id = document.createElement('span');
-    id.className = 'id-modele';
-    id.textContent = fournisseurs[nom].modele || '';
-    bouton.appendChild(id);
+    if (fournisseurs[nom].modele) bouton.title = fournisseurs[nom].modele;
     bouton.addEventListener('click', () => {
       if (etat.enCours) return;
       fournisseurEnLigne = nom;
