@@ -418,9 +418,9 @@
   <section class="colonne-commande" aria-label="La commande">
     <h2 class="panneau-titre">Le lecteur</h2>
     <div class="modeles" id="modeles" role="group" aria-label="Modèle de lecture">
-      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini Flash
+      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini
         <span class="id-modele"></span></button>
-      <button type="button" data-fournisseur="openrouter" aria-pressed="false">Gemma · OpenRouter
+      <button type="button" data-fournisseur="openrouter" aria-pressed="false">OpenRouter
         <span class="id-modele"></span></button>
       <button type="button" data-fournisseur="mistral" aria-pressed="false">Mistral
         <span class="id-modele"></span></button>
@@ -608,7 +608,7 @@ function extraitObjet(tampon) {
 
 const comparerBouton = el('comparer');
 let fournisseurChoisi = 'gemini';
-const NOMS_MODELES = { gemini: 'Gemini Flash', openrouter: 'Gemma (OpenRouter)', mistral: 'Mistral' };
+const NOMS_MODELES = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
 const boutonsModeles = [...document.querySelectorAll('#modeles button')];
 
 boutonsModeles.forEach(bouton => bouton.addEventListener('click', () => {

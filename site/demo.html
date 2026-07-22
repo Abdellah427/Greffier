@@ -124,6 +124,34 @@
     width: 15rem;
     max-width: 100%;
   }
+  .modeles-enligne {
+    flex-basis: 100%;
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+  .modeles-enligne:empty { display: none; }
+  .modeles-enligne button {
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .45rem .75rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+  }
+  .modeles-enligne button[aria-pressed=true] {
+    background: var(--encre);
+    border-color: var(--encre);
+    color: var(--papier);
+  }
+  .modeles-enligne .id-modele {
+    display: block;
+    font-size: .6rem;
+    opacity: .7;
+    margin-top: .15rem;
+  }
   details.aide { flex-basis: 100%; font-size: .82rem; color: var(--encre-pale); }
   details.aide code {
     font-family: var(--mono);
@@ -545,6 +573,7 @@
     </details>
   </div>
   <div class="config" id="config-enligne" hidden>
+    <div class="modeles-enligne" id="modeles-enligne" role="group" aria-label="Modèle de lecture"></div>
     <details class="aide">
       <summary>Comment ça marche</summary>
       <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
@@ -1069,11 +1098,39 @@ async function lireReplay() {
 
 /* ---------- mode en ligne (service du site) ---------- */
 
+let fournisseurEnLigne = 'gemini';
+const NOMS_FOURNISSEURS = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
+
+// Les modèles configurés sur le serveur deviennent des boutons de choix.
+fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
+  const zone = el('modeles-enligne');
+  const noms = Object.keys(fournisseurs || {});
+  if (!noms.length) return;
+  if (!fournisseurs[fournisseurEnLigne]) fournisseurEnLigne = noms[0];
+  for (const nom of noms) {
+    const bouton = document.createElement('button');
+    bouton.type = 'button';
+    bouton.setAttribute('aria-pressed', nom === fournisseurEnLigne ? 'true' : 'false');
+    bouton.append(NOMS_FOURNISSEURS[nom] || nom);
+    const id = document.createElement('span');
+    id.className = 'id-modele';
+    id.textContent = fournisseurs[nom];
+    bouton.appendChild(id);
+    bouton.addEventListener('click', () => {
+      if (etat.enCours) return;
+      fournisseurEnLigne = nom;
+      [...zone.children].forEach(b =>
+        b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
+    });
+    zone.appendChild(bouton);
+  }
+}).catch(() => { /* hors ligne : le service répondra lui-même */ });
+
 async function lireEnLigne() {
   const signal = etat.abandon.signal;
   const base64 = await imagePourLecture(signal);
   fixeEtape(2);
-  fluxEcrit('envoi au service de lecture du site…\n\n', 'invite');
+  fluxEcrit(`envoi au service de lecture du site (${NOMS_FOURNISSEURS[fournisseurEnLigne] || fournisseurEnLigne})…\n\n`, 'invite');
 
   let reponse;
   try {
@@ -1081,7 +1138,7 @@ async function lireEnLigne() {
       method: 'POST',
       signal,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64 }),
+      body: JSON.stringify({ image: base64, fournisseur: fournisseurEnLigne }),
     });
   } catch (e) {
     if (e.name === 'AbortError') throw e;
