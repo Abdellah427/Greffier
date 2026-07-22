@@ -199,7 +199,21 @@
     height: 100%;
     object-fit: contain;
     background: #0d0d0d;
+    cursor: zoom-in;
   }
+  .loupe {
+    position: absolute;
+    width: 11rem;
+    height: 11rem;
+    border-radius: 50%;
+    border: 2px solid var(--encre);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35), inset 0 0 4px rgba(0, 0, 0, .3);
+    background-repeat: no-repeat;
+    background-color: #0d0d0d;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .loupe[hidden] { display: none; }
   .page-legende {
     font-family: var(--mono);
     font-size: .72rem;
@@ -550,6 +564,7 @@
         <span>ou cliquez pour choisir une image (JPG, PNG)</span>
       </button>
       <img class="apercu" id="apercu" alt="" hidden>
+      <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
       <div class="page-legende"><span id="legende">Aucune page chargée.</span><button
         id="changer" type="button" hidden>Changer d'image</button></div>
     </div>
@@ -752,6 +767,34 @@ cadre.addEventListener('drop', e => {
   const f = e.dataTransfer.files && e.dataTransfer.files[0];
   if (f) chargerFichier(f);
 });
+
+// Loupe : au survol du document, un cercle grossit la zone sous la souris,
+// bien utile pour déchiffrer l'écriture manuscrite.
+const loupe = el('loupe');
+const GROSSISSEMENT = 2.4;
+cadre.addEventListener('mousemove', e => {
+  if (apercu.hidden || !apercu.naturalWidth) { loupe.hidden = true; return; }
+  const boite = apercu.getBoundingClientRect();
+  // Zone réellement occupée par l'image dans le cadre (object-fit: contain).
+  const echelle = Math.min(boite.width / apercu.naturalWidth,
+                           boite.height / apercu.naturalHeight);
+  const largeur = apercu.naturalWidth * echelle;
+  const hauteur = apercu.naturalHeight * echelle;
+  const gauche = boite.left + (boite.width - largeur) / 2;
+  const haut = boite.top + (boite.height - hauteur) / 2;
+  const x = e.clientX - gauche;
+  const y = e.clientY - haut;
+  if (x < 0 || y < 0 || x > largeur || y > hauteur) { loupe.hidden = true; return; }
+  loupe.hidden = false;
+  const rayon = loupe.offsetWidth / 2;
+  const boiteCadre = cadre.getBoundingClientRect();
+  loupe.style.left = (e.clientX - boiteCadre.left - rayon) + 'px';
+  loupe.style.top = (e.clientY - boiteCadre.top - rayon) + 'px';
+  loupe.style.backgroundImage = `url("${apercu.src}")`;
+  loupe.style.backgroundSize = `${largeur * GROSSISSEMENT}px ${hauteur * GROSSISSEMENT}px`;
+  loupe.style.backgroundPosition = `${rayon - x * GROSSISSEMENT}px ${rayon - y * GROSSISSEMENT}px`;
+});
+cadre.addEventListener('mouseleave', () => { loupe.hidden = true; });
 
 function chargerFichier(f) {
   if (etat.enCours) return;
