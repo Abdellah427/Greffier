@@ -1,8 +1,8 @@
 <?php
 // Service de lecture en ligne : reçoit une image de registre, la fait lire
-// par le palier gratuit de Gemini et renvoie le texte du modèle en streaming.
-// La clé reste côté serveur (config.php, jamais versionné) et des quotas
-// journaliers protègent le palier gratuit.
+// par le modèle demandé et renvoie le texte en streaming. Les clés restent
+// côté serveur (config.php, jamais versionné) et des quotas journaliers
+// protègent les paliers gratuits.
 declare(strict_types=1);
 
 header('Content-Type: text/plain; charset=utf-8');
@@ -18,55 +18,82 @@ function refuse(int $code, string $message): void
 }
 
 $config = @include __DIR__ . '/config.php';
-if (!is_array($config) || empty($config['gemini_api_key'])) {
+if (!is_array($config)) {
+    $config = [];
+}
+
+// Fournisseurs disponibles. Nouvelle forme : $config['fournisseurs'] donne,
+// par nom, la clé et le modèle. L'ancienne forme (gemini_api_key + modele)
+// reste comprise.
+$fournisseurs = $config['fournisseurs'] ?? [];
+if (!$fournisseurs && !empty($config['gemini_api_key'])) {
+    $fournisseurs = ['gemini' => [
+        'cle' => $config['gemini_api_key'],
+        'modele' => $config['modele'] ?? 'gemini-3.6-flash',
+    ]];
+}
+$fournisseurs = array_filter($fournisseurs, fn($f) => !empty($f['cle']));
+
+if (!$fournisseurs) {
     refuse(503, "Le service en ligne n'est pas configuré sur cet hébergement. "
               . "Utilisez le mode Replay, Navigateur ou Ollama.");
 }
+
+// Liste publique des fournisseurs configurés (aucun secret) : la page du
+// banc d'essai s'en sert pour griser les modèles absents.
+if (isset($_GET['fournisseurs'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['fournisseurs' => array_map(
+        fn($f) => $f['modele'] ?? '', $fournisseurs)], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Page de diagnostic : /api/lire.php?diagnostic=1 vérifie toute la chaîne
-// (PHP, curl, configuration, joignabilité de l'API) sans révéler la clé.
+// (PHP, curl, configuration, joignabilité de l'API) sans révéler les clés.
 if (isset($_GET['diagnostic'])) {
     $etat = [
         'php' => PHP_VERSION,
         'curl' => function_exists('curl_init'),
-        'cle_presente' => true,
-        'modele' => $config['modele'] ?? 'gemini-3.6-flash',
+        'fournisseurs' => array_map(fn($f) => $f['modele'] ?? '', $fournisseurs),
     ];
-    $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=50');
-    curl_setopt_array($curl, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 20,
-        CURLOPT_HTTPHEADER => ['x-goog-api-key: ' . $config['gemini_api_key']],
-    ]);
-    $reponse = curl_exec($curl);
-    $etat['api_code_http'] = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-    $etat['api_erreur_reseau'] = curl_error($curl) ?: null;
-    curl_close($curl);
-    if ($reponse !== false && $etat['api_code_http'] >= 400) {
-        $detail = json_decode($reponse, true);
-        $etat['api_message'] = $detail['error']['message'] ?? substr($reponse, 0, 300);
-    }
-    if ($reponse !== false && $etat['api_code_http'] === 200) {
-        // Modèles utilisables pour la lecture : de quoi choisir la valeur
-        // du champ 'modele' de config.php sans deviner.
-        $modeles = [];
-        foreach (json_decode($reponse, true)['models'] ?? [] as $m) {
-            if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [], true)) {
-                $modeles[] = str_replace('models/', '', $m['name']);
-            }
+    if (isset($fournisseurs['gemini'])) {
+        $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models?pageSize=50');
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 20,
+            CURLOPT_HTTPHEADER => ['x-goog-api-key: ' . $fournisseurs['gemini']['cle']],
+        ]);
+        $reponse = curl_exec($curl);
+        $etat['api_code_http'] = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $etat['api_erreur_reseau'] = curl_error($curl) ?: null;
+        curl_close($curl);
+        if ($reponse !== false && $etat['api_code_http'] >= 400) {
+            $detail = json_decode($reponse, true);
+            $etat['api_message'] = $detail['error']['message'] ?? substr($reponse, 0, 300);
         }
-        $etat['modeles_disponibles'] = $modeles;
+        if ($reponse !== false && $etat['api_code_http'] === 200) {
+            $modeles = [];
+            foreach (json_decode($reponse, true)['models'] ?? [] as $m) {
+                if (in_array('generateContent', $m['supportedGenerationMethods'] ?? [], true)) {
+                    $modeles[] = str_replace('models/', '', $m['name']);
+                }
+            }
+            $etat['modeles_gemini_disponibles'] = $modeles;
+        }
+        $etat['verdict'] = ($etat['api_code_http'] === 200)
+            ? 'Tout fonctionne : la clé Gemini est valide et l\'API répond.'
+            : 'L\'API Gemini ne répond pas correctement, voir api_message.';
+    } else {
+        $etat['verdict'] = 'Pas de fournisseur gemini configuré, diagnostic réduit.';
     }
-    $etat['verdict'] = ($etat['api_code_http'] === 200)
-        ? 'Tout fonctionne : la clé est valide et l\'API répond.'
-        : 'L\'API ne répond pas correctement, voir api_message ou api_erreur_reseau.';
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($etat, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    refuse(405, "Ce service s'utilise depuis la page demo.html (mode En ligne), "
-              . "qui lui envoie l'image à lire. Pour vérifier l'installation, "
+    refuse(405, "Ce service s'utilise depuis les pages demo.html et banc.html, "
+              . "qui lui envoient l'image à lire. Pour vérifier l'installation, "
               . "ouvrez api/lire.php?diagnostic=1");
 }
 
@@ -99,6 +126,11 @@ if ($image === '' || strlen($image) > 6 * 1024 * 1024
         || !preg_match('#^[A-Za-z0-9+/=]+$#', $image)) {
     refuse(400, 'Image absente ou invalide.');
 }
+$nom_fournisseur = is_array($corps) ? (string) ($corps['fournisseur'] ?? 'gemini') : 'gemini';
+if (!isset($fournisseurs[$nom_fournisseur])) {
+    refuse(400, "Le modèle demandé ($nom_fournisseur) n'est pas configuré sur ce site.");
+}
+$fournisseur = $fournisseurs[$nom_fournisseur];
 
 $champs = ['date_mariage', 'lieu_mariage',
     'nom_prenom_marie', 'profession_marie', 'adresse_marie',
@@ -115,15 +147,44 @@ $prompt = "Tu es un expert en paléographie et en état civil français.\n"
     . json_encode($champs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n"
     . "Si une information est absente ou illisible, mets null. N'invente rien.";
 
-$modele = $config['modele'] ?? 'gemini-3.6-flash';
-$requete = json_encode([
-    'contents' => [[
-        'parts' => [
-            ['text' => $prompt],
-            ['inline_data' => ['mime_type' => 'image/jpeg', 'data' => $image]],
-        ],
-    ]],
-], JSON_UNESCAPED_UNICODE);
+// Prépare la requête selon le fournisseur : Gemini a son API propre, les
+// autres suivent le format de chat compatible OpenAI.
+if ($nom_fournisseur === 'gemini') {
+    $modele = $fournisseur['modele'] ?? 'gemini-3.6-flash';
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/$modele:streamGenerateContent?alt=sse";
+    $entetes = ['Content-Type: application/json',
+                'x-goog-api-key: ' . $fournisseur['cle']];
+    $requete = json_encode([
+        'contents' => [[
+            'parts' => [
+                ['text' => $prompt],
+                ['inline_data' => ['mime_type' => 'image/jpeg', 'data' => $image]],
+            ],
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+} else {
+    $bases = ['openrouter' => 'https://openrouter.ai/api/v1',
+              'mistral' => 'https://api.mistral.ai/v1'];
+    $url = ($fournisseur['base'] ?? $bases[$nom_fournisseur] ?? '') . '/chat/completions';
+    if ($url === '/chat/completions') {
+        refuse(400, "Fournisseur inconnu : $nom_fournisseur.");
+    }
+    $entetes = ['Content-Type: application/json',
+                'Authorization: Bearer ' . $fournisseur['cle']];
+    $requete = json_encode([
+        'model' => $fournisseur['modele'] ?? '',
+        'stream' => true,
+        'messages' => [[
+            'role' => 'user',
+            'content' => [
+                ['type' => 'text', 'text' => $prompt],
+                ['type' => 'image_url', 'image_url' => [
+                    'url' => 'data:image/jpeg;base64,' . $image,
+                ]],
+            ],
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+}
 
 set_time_limit(180);
 while (ob_get_level() > 0) {
@@ -134,19 +195,15 @@ $tampon = '';
 $brut = '';
 $envoye = false;
 
-$curl = curl_init(
-    "https://generativelanguage.googleapis.com/v1beta/models/$modele:streamGenerateContent?alt=sse"
-);
+$curl = curl_init($url);
 curl_setopt_array($curl, [
     CURLOPT_POST => true,
     CURLOPT_POSTFIELDS => $requete,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'x-goog-api-key: ' . $config['gemini_api_key'],
-    ],
+    CURLOPT_HTTPHEADER => $entetes,
     CURLOPT_TIMEOUT => 170,
     // Relaye chaque fragment SSE au navigateur dès son arrivée.
-    CURLOPT_WRITEFUNCTION => function ($curl, string $fragment) use (&$tampon, &$brut, &$envoye): int {
+    CURLOPT_WRITEFUNCTION => function ($curl, string $fragment)
+            use (&$tampon, &$brut, &$envoye, $nom_fournisseur): int {
         if (strlen($brut) < 8192) {
             $brut .= $fragment;   // conservé pour le détail d'une éventuelle erreur
         }
@@ -154,13 +211,22 @@ curl_setopt_array($curl, [
         while (($fin = strpos($tampon, "\n")) !== false) {
             $ligne = trim(substr($tampon, 0, $fin));
             $tampon = substr($tampon, $fin + 1);
-            if (!str_starts_with($ligne, 'data: ')) {
+            if (!str_starts_with($ligne, 'data: ') || $ligne === 'data: [DONE]') {
                 continue;
             }
             $donnees = json_decode(substr($ligne, 6), true);
-            foreach ($donnees['candidates'][0]['content']['parts'] ?? [] as $part) {
-                if (isset($part['text'])) {
-                    echo $part['text'];
+            if ($nom_fournisseur === 'gemini') {
+                foreach ($donnees['candidates'][0]['content']['parts'] ?? [] as $part) {
+                    if (isset($part['text'])) {
+                        echo $part['text'];
+                        $envoye = true;
+                        flush();
+                    }
+                }
+            } else {
+                $texte = $donnees['choices'][0]['delta']['content'] ?? null;
+                if ($texte !== null && $texte !== '') {
+                    echo $texte;
                     $envoye = true;
                     flush();
                 }

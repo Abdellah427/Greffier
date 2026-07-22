@@ -152,7 +152,32 @@
     padding-top: .3rem;
   }
   .exemples button[aria-pressed=true] { border-color: var(--tampon); box-shadow: 0 0 0 1px var(--tampon); }
-  .actions { display: flex; gap: .6rem; margin-top: .9rem; align-items: center; }
+  .modeles { display: flex; gap: .5rem; margin-top: .9rem; flex-wrap: wrap; }
+  .modeles button {
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .4rem .75rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+  }
+  .modeles button[aria-pressed=true] {
+    background: var(--encre);
+    border-color: var(--encre);
+    color: var(--papier);
+  }
+  .modeles button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+  .actions { display: flex; gap: .6rem; margin-top: .9rem; align-items: center; flex-wrap: wrap; }
+  #comparer {
+    background: transparent;
+    color: var(--tampon);
+  }
+  #comparer:disabled, #lancer:disabled { opacity: .45; cursor: not-allowed; }
   .actions button {
     font-family: var(--mono);
     font-size: .88rem;
@@ -270,6 +295,25 @@
   .comparaison tr[data-verdict=proche] td.verdict { color: var(--proche); }
   .comparaison tr[data-verdict=faux] td.verdict { color: var(--faux); }
   .comparaison tr[data-verdict=faux] { background: rgba(160, 50, 37, .05); }
+  .comparaison td.v-exact { color: var(--exact); }
+  .comparaison td.v-proche { color: var(--proche); }
+  .comparaison td.v-faux { color: var(--faux); background: rgba(160, 50, 37, .06); }
+  .comparaison th .taux {
+    display: block;
+    font-family: var(--serif-display);
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--encre);
+  }
+  .comparaison th .meilleur {
+    display: inline-block;
+    border: 1px solid var(--exact);
+    color: var(--exact);
+    border-radius: 3px;
+    padding: 0 .3rem;
+    margin-top: .2rem;
+  }
 
   .tablo { overflow-x: auto; }
   footer {
@@ -311,9 +355,15 @@
       <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
     </div>
     <div class="exemples" id="exemples" aria-label="Pages annotées"></div>
+    <div class="modeles" id="modeles" role="group" aria-label="Modèle de lecture">
+      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini Flash</button>
+      <button type="button" data-fournisseur="openrouter" aria-pressed="false">Gemma · OpenRouter</button>
+      <button type="button" data-fournisseur="mistral" aria-pressed="false">Mistral</button>
+    </div>
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
-      <span class="note-quota">La lecture utilise le service en ligne du site
+      <button id="comparer" type="button">Faire lire par les trois</button>
+      <span class="note-quota">Le service en ligne du site lit pour vous
         (quota gratuit journalier).</span>
     </div>
   </section>
@@ -340,6 +390,12 @@ et lancez la lecture : le résultat sera comparé
         <tr><th>Champ</th><th>Lecture du modèle</th><th>Référence des chercheurs</th><th>Verdict</th></tr>
       </thead>
       <tbody id="lignes"></tbody>
+    </table>
+  </div>
+  <div class="tablo">
+    <table class="comparaison" id="palmares" hidden>
+      <thead id="palmares-tete"></thead>
+      <tbody id="palmares-lignes"></tbody>
     </table>
   </div>
 </section>
@@ -487,56 +543,131 @@ function extraitObjet(tampon) {
   return null;
 }
 
-lancer.addEventListener('click', async () => {
-  if (enCours) return;
+const comparerBouton = el('comparer');
+let fournisseurChoisi = 'gemini';
+const NOMS_MODELES = { gemini: 'Gemini Flash', openrouter: 'Gemma (OpenRouter)', mistral: 'Mistral' };
+const boutonsModeles = [...document.querySelectorAll('#modeles button')];
+
+boutonsModeles.forEach(bouton => bouton.addEventListener('click', () => {
+  if (enCours || bouton.disabled) return;
+  fournisseurChoisi = bouton.dataset.fournisseur;
+  boutonsModeles.forEach(b => b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
+}));
+
+// Grise les modèles absents de la configuration du serveur.
+fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
+  boutonsModeles.forEach(bouton => {
+    const modele = fournisseurs[bouton.dataset.fournisseur];
+    if (modele === undefined) {
+      bouton.disabled = true;
+      bouton.title = 'Non configuré sur ce site';
+      bouton.setAttribute('aria-pressed', 'false');
+    } else if (modele) {
+      bouton.title = modele;
+    }
+  });
+  const actifs = boutonsModeles.filter(b => !b.disabled);
+  if (actifs.length && actifs.every(b => b.getAttribute('aria-pressed') === 'false')) {
+    actifs[0].setAttribute('aria-pressed', 'true');
+    fournisseurChoisi = actifs[0].dataset.fournisseur;
+  }
+  if (actifs.length < 2) comparerBouton.disabled = true;
+}).catch(() => { /* le service dira lui-même ce qui manque */ });
+
+async function imageChoisieBase64() {
+  const blob = await (await fetch(window.BANC[choisi].image)).blob();
+  const dataUrl = await new Promise(resoudre => {
+    const lecteur = new FileReader();
+    lecteur.onload = () => resoudre(lecteur.result);
+    lecteur.readAsDataURL(blob);
+  });
+  return dataUrl.split(',')[1];
+}
+
+// Fait lire la page par un modèle, en écrivant le flux au fur et à mesure.
+async function lecture(fournisseur, base64) {
+  const reponse = await fetch('api/lire.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: base64, fournisseur }),
+  });
+  if (!reponse.ok) {
+    let detail = '';
+    try { detail = (await reponse.json()).erreur || ''; } catch { /* réponse non JSON */ }
+    throw new Error(detail || `Le service a répondu ${reponse.status}.`);
+  }
+  let tampon = '';
+  const lecteur = reponse.body.getReader();
+  const decodeur = new TextDecoder();
+  for (;;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    const texte = decodeur.decode(value, { stream: true });
+    tampon += texte;
+    fluxEcrit(texte);
+  }
+  const objet = extraitObjet(tampon);
+  if (!objet) throw new Error("Le modèle n'a pas renvoyé de JSON exploitable.");
+  return objet;
+}
+
+function commence() {
   enCours = true;
   lancer.disabled = true;
+  comparerBouton.disabled = true;
   el('score').hidden = true;
   el('comparaison').hidden = true;
+  el('palmares').hidden = true;
   fluxInit();
+}
+
+function termine() {
+  fluxFin();
+  enCours = false;
+  lancer.disabled = false;
+  comparerBouton.disabled = boutonsModeles.filter(b => !b.disabled).length < 2;
+}
+
+lancer.addEventListener('click', async () => {
+  if (enCours) return;
+  commence();
   try {
     const page = window.BANC[choisi];
-    fluxEcrit(`lecture de « ${page.titre} »…\n\n`, 'invite');
-    const blob = await (await fetch(page.image)).blob();
-    const dataUrl = await new Promise(resoudre => {
-      const lecteur = new FileReader();
-      lecteur.onload = () => resoudre(lecteur.result);
-      lecteur.readAsDataURL(blob);
-    });
-    const reponse = await fetch('api/lire.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: dataUrl.split(',')[1] }),
-    });
-    if (!reponse.ok) {
-      let detail = '';
-      try { detail = (await reponse.json()).erreur || ''; } catch { /* réponse non JSON */ }
-      fluxEcrit('\n' + (detail || `Le service a répondu ${reponse.status}.`), 'erreur');
-      return;
-    }
-    let tampon = '';
-    const lecteur = reponse.body.getReader();
-    const decodeur = new TextDecoder();
-    for (;;) {
-      const { done, value } = await lecteur.read();
-      if (done) break;
-      const texte = decodeur.decode(value, { stream: true });
-      tampon += texte;
-      fluxEcrit(texte);
-    }
-    const objet = extraitObjet(tampon);
-    if (!objet) {
-      fluxEcrit("\n\nLe modèle n'a pas renvoyé de JSON exploitable : relancez.", 'erreur');
-      return;
-    }
+    fluxEcrit(`lecture de « ${page.titre} » par ${NOMS_MODELES[fournisseurChoisi]}…\n\n`, 'invite');
+    const objet = await lecture(fournisseurChoisi, await imageChoisieBase64());
     fluxEcrit('\n\n-- lecture terminée, comparaison ci-dessous --', 'invite');
     compare(objet, page.reference);
   } catch (e) {
-    fluxEcrit(`\nImpossible de joindre le service de lecture (${e.message}).`, 'erreur');
+    fluxEcrit('\n' + e.message, 'erreur');
   } finally {
-    fluxFin();
-    enCours = false;
-    lancer.disabled = false;
+    termine();
+  }
+});
+
+comparerBouton.addEventListener('click', async () => {
+  if (enCours) return;
+  commence();
+  const page = window.BANC[choisi];
+  const resultats = {};
+  try {
+    const base64 = await imageChoisieBase64();
+    for (const bouton of boutonsModeles) {
+      if (bouton.disabled) continue;
+      const fournisseur = bouton.dataset.fournisseur;
+      fluxEcrit(`\n== ${NOMS_MODELES[fournisseur]} ==\n`, 'invite');
+      try {
+        resultats[fournisseur] = { objet: await lecture(fournisseur, base64) };
+      } catch (e) {
+        resultats[fournisseur] = { erreur: e.message };
+        fluxEcrit('\n' + e.message, 'erreur');
+      }
+    }
+    fluxEcrit('\n\n-- palmarès ci-dessous --', 'invite');
+    palmares(resultats, page.reference);
+  } catch (e) {
+    fluxEcrit('\n' + e.message, 'erreur');
+  } finally {
+    termine();
   }
 });
 
@@ -596,6 +727,59 @@ function compare(objet, reference) {
   el('score').hidden = false;
   el('comparaison').hidden = false;
   el('score').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Palmarès : les lectures des modèles côte à côte, face à la référence.
+function palmares(resultats, reference) {
+  const noms = Object.keys(resultats);
+  const scores = {};
+  for (const nom of noms) {
+    if (!resultats[nom].objet) continue;
+    let exacts = 0;
+    for (const [champ] of CHAMPS) {
+      if (verdictDe(resultats[nom].objet[champ], reference[champ]) === 'exact') exacts++;
+    }
+    scores[nom] = exacts;
+  }
+  const meilleur = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+
+  const tete = el('palmares-tete');
+  tete.innerHTML = '';
+  const ligneTete = document.createElement('tr');
+  ligneTete.innerHTML = '<th>Champ</th><th>Référence des chercheurs</th>' +
+    noms.map(nom => {
+      const score = scores[nom];
+      const taux = score === undefined ? 'indisponible'
+                 : `${Math.round(100 * score / CHAMPS.length)} % exact`;
+      const laurier = meilleur && nom === meilleur[0] && score !== undefined
+        ? ' <span class="meilleur">meilleure lecture</span>' : '';
+      return `<th>${esc(NOMS_MODELES[nom])}<span class="taux">${taux}</span>${laurier}</th>`;
+    }).join('');
+  tete.appendChild(ligneTete);
+
+  const lignes = el('palmares-lignes');
+  lignes.innerHTML = '';
+  for (const [champ, libelle] of CHAMPS) {
+    const tr = document.createElement('tr');
+    let html = `<td class="champ">${libelle}</td>` +
+      `<td>${esc(reference[champ] ?? '') || '<span class="vide">rien</span>'}</td>`;
+    for (const nom of noms) {
+      const objet = resultats[nom].objet;
+      if (!objet) {
+        html += '<td class="vide">indisponible</td>';
+        continue;
+      }
+      const verdict = verdictDe(objet[champ], reference[champ]);
+      const valeur = verdict === 'exact'
+        ? (esc(objet[champ] ?? '') || '<span class="vide">rien</span>')
+        : surligne(objet[champ], reference[champ]);
+      html += `<td class="v-${verdict}">${valeur}</td>`;
+    }
+    tr.innerHTML = html;
+    lignes.appendChild(tr);
+  }
+  el('palmares').hidden = false;
+  el('palmares').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 </script>
 </body>

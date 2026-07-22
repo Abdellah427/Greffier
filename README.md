@@ -34,6 +34,11 @@ n'importe quel hébergement web.
   mot par des chercheurs (jeu M-POPP, CC-BY 4.0) : on lance la lecture et la
   fiche extraite est comparée champ par champ à leur transcription de
   référence, avec pourcentage de correspondance et erreurs surlignées.
+  Trois modèles au choix (Gemini Flash, Gemma via OpenRouter, Mistral) et un
+  mode « faire lire par les trois » qui affiche leur palmarès côte à côte,
+  la meilleure lecture mise en avant. Chaque modèle s'active en renseignant
+  sa clé dans le `config.php` du serveur (voir `config.sample.php`) ; les
+  modèles sans clé apparaissent grisés.
 - **`index.html` : l'explorateur.** Les 130 actes extraits, avec recherche
   plein texte insensible aux accents et filtres par champ et par année.
 
