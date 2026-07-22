@@ -1,12 +1,28 @@
-# Greffier : registres d'état civil manuscrits lus par OCR + LLM
+# Greffier : registres d'état civil manuscrits lus par des modèles de vision
 
-Lecture automatique de **registres d'actes de mariage parisiens manuscrits de
-1913 et 1920** (Archives de Paris, cote AD075EC) par un pipeline OCR + LLM :
-un modèle vision-langage transcrit l'écriture manuscrite d'une photographie de
-registre, puis en extrait 16 champs structurés (date et lieu du mariage, noms,
-professions et adresses des époux et de leurs parents).
+Lecture automatique de **registres d'actes de mariage parisiens manuscrits**
+par des modèles de vision : le modèle transcrit l'écriture d'une photographie
+de registre, puis en extrait 16 champs structurés (date et lieu du mariage,
+noms, professions et adresses des époux et de leurs parents).
 
-**130 actes** ont été extraits ([`results.json`](results.json)).
+Deux collections se côtoient :
+
+- les actes des années **1913 et 1920** photographiés aux
+  [Archives de Paris](https://archives.paris.fr) (cote AD075EC), que le
+  pipeline dépouille : **130 actes** extraits ([`results.json`](results.json)) ;
+- les pages annotées du jeu de recherche
+  [M-POPP](https://zenodo.org/records/10980636) (Paris et sa banlieue,
+  1880 à 1940, CC-BY 4.0), transcrites mot à mot par des chercheurs, qui
+  servent à mesurer les modèles.
+
+**Le site est en ligne : <https://abdellah-hassani.fr/greffier/demo.html>**
+
+- [Démonstration](https://abdellah-hassani.fr/greffier/demo.html) : la
+  machine lit une page en direct ;
+- [Banc d'essai](https://abdellah-hassani.fr/greffier/banc.html) : les
+  modèles notés face aux transcriptions des chercheurs ;
+- [Explorateur](https://abdellah-hassani.fr/greffier/index.html) : les
+  130 actes extraits, avec les registres en face à face.
 
 ## Le site de démonstration
 
@@ -30,11 +46,15 @@ n'importe quel hébergement web.
     graphique, mémoire, espace disque) et bloque le lancement si elle est
     trop juste ;
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur
-    (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
-    et libre. Une seule préparation :
+    (`qwen2.5vl:7b`). La meilleure qualité de lecture locale, avec un
+    modèle open weight. Une seule préparation :
     `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="https://votre-domaine" ollama serve`
     (Windows : `set OLLAMA_ORIGINS=https://votre-domaine` puis `ollama serve`,
     après avoir quitté l'Ollama de la barre des tâches).
+
+  Dans tous les modes de lecture, un interrupteur applique la chaîne de
+  prétraitement maison (exécutée par le serveur, curseur avant/après sur
+  l'image), et un chronomètre montre l'avancement des étapes longues.
 - **`banc.html` : le banc d'essai.** Six pages de registres transcrites mot à
   mot par des chercheurs (jeu M-POPP, CC-BY 4.0) : on lance la lecture et la
   fiche extraite est comparée champ par champ à leur transcription de
@@ -55,15 +75,21 @@ http://localhost:8000/demo.html.
 ### Activer le mode En ligne sur son hébergement
 
 Le service [`site/api/lire.php`](site/api/lire.php) (PHP 8, présent sur tout
-hébergement mutualisé courant) relaie l'image vers le palier gratuit de
-l'API Gemini et renvoie la réponse en streaming. La clé n'apparaît jamais
-dans le navigateur ni dans le dépôt :
+hébergement mutualisé courant) relaie l'image vers les paliers gratuits des
+API de vision (Gemini, OpenRouter, Mistral) et renvoie la réponse en
+streaming. Les clés n'apparaissent jamais dans le navigateur ni dans le dépôt :
 
 1. copier `site/api/config.sample.php` vers `site/api/config.php` sur le
    serveur (jamais dans git, il est ignoré) ;
-2. y renseigner une clé gratuite créée sur https://aistudio.google.com/apikey ;
+2. y renseigner une ou plusieurs clés gratuites
+   ([AI Studio](https://aistudio.google.com/apikey) pour Gemini,
+   [openrouter.ai/keys](https://openrouter.ai/keys) pour Gemma et les
+   Nemotron, [console.mistral.ai](https://console.mistral.ai) pour
+   Mistral) : chaque entrée renseignée devient un bouton de modèle sur la
+   démonstration et le banc d'essai ;
 3. ajuster si besoin les quotas (`quota_ip`, `quota_global`) qui protègent
-   le palier gratuit d'un abus.
+   les paliers gratuits d'un abus ; le site affiche à chaque visiteur le
+   nombre de lectures qu'il lui reste pour la journée.
 
 Sans `config.php`, le mode En ligne affiche un message clair et les trois
 autres modes restent disponibles.
@@ -88,16 +114,20 @@ Le script crée l'arborescence distante au besoin et ne touche jamais au
 ## Le pipeline d'extraction
 
 ```
-Images de registres --> Modèle vision-langage --> JSON structuré --> results.json --> site/
-       (JPG)              (transcription +           (16 champs        + normalisation
-                            extraction)               par acte)          des dates
+Images de registres --> Modèle de vision --> JSON structuré --> results.json --> site/
+       (JPG)             (transcription +       (16 champs        + normalisation
+                           extraction)           par acte)          des dates
 ```
 
 | Script | Rôle |
 |---|---|
 | [`src/extract.py`](src/extract.py) | Parcourt un dossier d'images, interroge le modèle, agrège le JSON |
 | [`src/normalize.py`](src/normalize.py) | Ajoute `date_iso` et `annee` aux actes (dates manuscrites vers ISO) |
+| [`src/mpopp.py`](src/mpopp.py) | Télécharge le jeu M-POPP, prépare pages et transcriptions de référence |
+| [`src/evalue.py`](src/evalue.py) | Mesure la précision de l'extraction face aux références, champ par champ |
+| [`src/pretraite.py`](src/pretraite.py) | Chaîne de prétraitement des images (cinq étapes composables) |
 | [`src/build_site.py`](src/build_site.py) | Régénère `site/data.js` à partir de `results.json` |
+| [`src/deploy.py`](src/deploy.py) | Met le site en ligne (SFTP, FTPS ou FTP) |
 
 ```bash
 pip install -r requirements.txt
@@ -202,13 +232,18 @@ gratuit de Gemini.
 
 ```
 ├── src/
-│   ├── extract.py        # Pipeline d'extraction (CLI, backends ollama & gemini)
+│   ├── extract.py        # Pipeline d'extraction (backends ollama, gemini, openrouter, mistral)
 │   ├── normalize.py      # Normalisation des dates extraites
-│   └── build_site.py     # Génération de site/data.js
+│   ├── mpopp.py          # Jeu M-POPP : téléchargement, pages, références
+│   ├── evalue.py         # Précision face aux transcriptions de référence
+│   ├── pretraite.py      # Chaîne de prétraitement des images
+│   ├── build_site.py     # Génération de site/data.js
+│   └── deploy.py         # Mise en ligne du site
 ├── samples/              # Pages de registres d'exemple (images allégées)
 ├── results.json          # Les 130 actes extraits (+ date_iso, annee)
-├── site/                 # Site statique : demo.html, index.html, data.js
-│   └── api/lire.php      # Service optionnel du mode En ligne (PHP 8)
+├── site/                 # Le site : demo.html, banc.html, index.html, mentions.html
+│   ├── banc/             # Pages annotées M-POPP (brutes et prétraitées)
+│   └── api/              # Services PHP 8 : lire.php, pretraite.php, releve.php
 └── requirements.txt
 ```
 
