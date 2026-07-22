@@ -15,7 +15,9 @@
         "nom_pere_mariee": "Francis Albert Julien",
         "profession_pere_mariee": "décédé",
         "nom_mere_mariee": "Clémence Augustine Louise Gazel",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1913-02-04",
+        "annee": 1913
     },
     {
         "date_mariage": "04/02/1913",
@@ -33,7 +35,9 @@
         "nom_pere_mariee": "Charles Léon Havard",
         "profession_pere_mariee": "employé de Tramway",
         "nom_mere_mariee": "Zelmire Rosalie Dangy",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-02-04",
+        "annee": 1913
     },
     {
         "date_mariage": "04/02/1930",
@@ -51,7 +55,9 @@
         "nom_pere_mariee": "Arnold Marie Tursy Le Maire",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Léonarde Angèle Paris",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1930-02-04",
+        "annee": 1930
     },
     {
         "date_mariage": "6 janvier 1912",
@@ -69,7 +75,9 @@
         "nom_pere_mariee": "Décédé",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Euphrasie Berthelemy",
-        "profession_mere_mariee": "journalière"
+        "profession_mere_mariee": "journalière",
+        "date_iso": "1912-01-06",
+        "annee": 1912
     },
     {
         "date_mariage": "9 janvier 1912",
@@ -87,7 +95,9 @@
         "nom_pere_mariee": "Jean Clément Méda",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Jeanne Décida",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-01-09",
+        "annee": 1912
     },
     {
         "date_mariage": "14/10/1913",
@@ -105,7 +115,9 @@
         "nom_pere_mariee": "François Le Hégara",
         "profession_pere_mariee": "retiré",
         "nom_mere_mariee": "Anne Marie Félicie Collon",
-        "profession_mere_mariee": "ménagère"
+        "profession_mere_mariee": "ménagère",
+        "date_iso": "1913-10-14",
+        "annee": 1913
     },
     {
         "date_mariage": "09/11/1913",
@@ -123,7 +135,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-11-09",
+        "annee": 1913
     },
     {
         "date_mariage": "10 janvier 1916",
@@ -141,7 +155,9 @@
         "nom_pere_mariee": "Sidonie Marie Véran",
         "profession_pere_mariee": "inconnu",
         "nom_mere_mariee": "Angelique Miel",
-        "profession_mere_mariee": "inconnu"
+        "profession_mere_mariee": "inconnu",
+        "date_iso": "1916-01-10",
+        "annee": 1916
     },
     {
         "date_mariage": "11 février 1916",
@@ -159,7 +175,9 @@
         "nom_pere_mariee": "Alexis Besson",
         "profession_pere_mariee": "retraité",
         "nom_mere_mariee": "Marie Beardonnet",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1916-02-11",
+        "annee": 1916
     },
     {
         "date_mariage": "1936-02-05",
@@ -177,7 +195,9 @@
         "nom_pere_mariee": "Jean Blane",
         "profession_pere_mariee": "Propriétaire",
         "nom_mere_mariee": "Marie Four",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1936-02-05",
+        "annee": 1936
     },
     {
         "date_mariage": "1936-01-29",
@@ -195,7 +215,9 @@
         "nom_pere_mariee": "Gregoria Lopez",
         "profession_pere_mariee": "Mécanicien",
         "nom_mere_mariee": "Maria Paz Durero",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1936-01-29",
+        "annee": 1936
     },
     {
         "date_mariage": "11 janvier 1913",
@@ -213,7 +235,9 @@
         "nom_pere_mariee": "Castrese Orlando",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Thérèse Bronde",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-11",
+        "annee": 1913
     },
     {
         "date_mariage": "11 janvier 1913",
@@ -231,7 +255,9 @@
         "nom_pere_mariee": "Joseph Angèle Fraisse",
         "profession_pere_mariee": "Marchand aux Halles",
         "nom_mere_mariee": "Décédée",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-11",
+        "annee": 1913
     },
     {
         "date_mariage": "11 janvier 1913",
@@ -249,7 +275,9 @@
         "nom_pere_mariee": "Hilaire Joubert",
         "profession_pere_mariee": "berger",
         "nom_mere_mariee": "Anaise Pauline Radiquet",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1913-01-11",
+        "annee": 1913
     },
     {
         "date_mariage": "11 janvier 1913",
@@ -267,7 +295,9 @@
         "nom_pere_mariee": "Marc Prosper Salmon",
         "profession_pere_mariee": "menuisier (décédé)",
         "nom_mere_mariee": "Marquente Cécalme André",
-        "profession_mere_mariee": "inconnu"
+        "profession_mere_mariee": "inconnu",
+        "date_iso": "1913-01-11",
+        "annee": 1913
     },
     {
         "date_mariage": "14 février 1912",
@@ -285,7 +315,9 @@
         "nom_pere_mariee": "Clément Prégelin",
         "profession_pere_mariee": "carrossier",
         "nom_mere_mariee": "Rose Alphonsine Barre",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-02-14",
+        "annee": 1912
     },
     {
         "date_mariage": "14 février 1912",
@@ -303,7 +335,9 @@
         "nom_pere_mariee": "André Joseph Hubert Vecqueray",
         "profession_pere_mariee": "hôtelier",
         "nom_mere_mariee": "Lucie Loope",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-02-14",
+        "annee": 1912
     },
     {
         "date_mariage": null,
@@ -321,7 +355,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": null,
+        "annee": null
     },
     {
         "date_mariage": "neuf janvier 1913",
@@ -339,7 +375,9 @@
         "nom_pere_mariee": "Gustave Charles Grossetti",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Elizabeth Corbin",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-09",
+        "annee": 1913
     },
     {
         "date_mariage": "11 janvier 1913",
@@ -357,7 +395,9 @@
         "nom_pere_mariee": "Joseph Lefort",
         "profession_pere_mariee": "manœuvre",
         "nom_mere_mariee": "Berthe Alexandrine Barras",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-11",
+        "annee": 1913
     },
     {
         "date_mariage": "19 janvier 1913",
@@ -375,7 +415,9 @@
         "nom_pere_mariee": "Emmanuel Le Roy",
         "profession_pere_mariee": "capitaine",
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-19",
+        "annee": 1913
     },
     {
         "date_mariage": "1913-08-02",
@@ -393,7 +435,9 @@
         "nom_pere_mariee": "Léopold Vabre",
         "profession_pere_mariee": "Marchand de chaussures",
         "nom_mere_mariee": "Marie Léonie Briant",
-        "profession_mere_mariee": "Marchande de chaussures"
+        "profession_mere_mariee": "Marchande de chaussures",
+        "date_iso": "1913-08-02",
+        "annee": 1913
     },
     {
         "date_mariage": "1913-02-18",
@@ -411,7 +455,9 @@
         "nom_pere_mariee": "Servais Léopold Achet",
         "profession_pere_mariee": "Employé de commerce",
         "nom_mere_mariee": "Cécile Euphélie (nièce du père)",
-        "profession_mere_mariee": "Non mentionnée"
+        "profession_mere_mariee": "Non mentionnée",
+        "date_iso": "1913-02-18",
+        "annee": 1913
     },
     {
         "date_mariage": "20/03/1913",
@@ -429,7 +475,9 @@
         "nom_pere_mariee": "Auguste Adéline COURCY",
         "profession_pere_mariee": "Vannier",
         "nom_mere_mariee": "Delphine Constance MESSY",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-03-20",
+        "annee": 1913
     },
     {
         "date_mariage": "28/02/1913",
@@ -447,7 +495,9 @@
         "nom_pere_mariee": "Jean BOUR",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Elisabeth Rahang",
-        "profession_mere_mariee": "Veuve"
+        "profession_mere_mariee": "Veuve",
+        "date_iso": "1913-02-28",
+        "annee": 1913
     },
     {
         "date_mariage": "19 janvier 1908",
@@ -465,7 +515,9 @@
         "nom_pere_mariee": "Jean Marie Lallanithe",
         "profession_pere_mariee": "Commis",
         "nom_mere_mariee": "Marie Rose Renonelt",
-        "profession_mere_mariee": "Fournalière"
+        "profession_mere_mariee": "Fournalière",
+        "date_iso": "1908-01-19",
+        "annee": 1908
     },
     {
         "date_mariage": "19 janvier 1908",
@@ -483,7 +535,9 @@
         "nom_pere_mariee": "Pierre Antoine Cessor",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Catherine Cessor",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1908-01-19",
+        "annee": 1908
     },
     {
         "date_mariage": "18 février 1920",
@@ -501,7 +555,9 @@
         "nom_pere_mariee": "Jean Lazare Gauthey",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Jeanne Baugah",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-02-18",
+        "annee": 1920
     },
     {
         "date_mariage": "18 février 1920",
@@ -519,7 +575,9 @@
         "nom_pere_mariee": "Fernand Camille Léveillé",
         "profession_pere_mariee": "Représentant de commerce",
         "nom_mere_mariee": "Eugénie Constance Marcellet",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-02-18",
+        "annee": 1920
     },
     {
         "date_mariage": "11 mars 1944",
@@ -537,7 +595,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1944-03-11",
+        "annee": 1944
     },
     {
         "date_mariage": "11 mars 1944",
@@ -555,7 +615,9 @@
         "nom_pere_mariee": "non dénommé",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Louise Delphine Supannais",
-        "profession_mere_mariee": "blanchisseuse"
+        "profession_mere_mariee": "blanchisseuse",
+        "date_iso": "1944-03-11",
+        "annee": 1944
     },
     {
         "date_mariage": "21 février 1903",
@@ -573,7 +635,9 @@
         "nom_pere_mariee": "François Eugène Verron",
         "profession_pere_mariee": "horloger",
         "nom_mere_mariee": "Hortense Gremion",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1903-02-21",
+        "annee": 1903
     },
     {
         "date_mariage": "21 février 1903",
@@ -591,7 +655,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1903-02-21",
+        "annee": 1903
     },
     {
         "date_mariage": "23 janvier 1919",
@@ -609,7 +675,9 @@
         "nom_pere_mariee": "Pierre de Vreese",
         "profession_pere_mariee": "sans profession",
         "nom_mere_mariee": "Philomène Joséphine de Vreese",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1919-01-23",
+        "annee": 1919
     },
     {
         "date_mariage": "29 janvier 1919",
@@ -627,7 +695,9 @@
         "nom_pere_mariee": "Nicolas Hippolyte Lebelle",
         "profession_pere_mariee": "décédé",
         "nom_mere_mariee": "Léonie Mélanie Dominguez",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1919-01-29",
+        "annee": 1919
     },
     {
         "date_mariage": "25 janvier 1912",
@@ -645,7 +715,9 @@
         "nom_pere_mariee": "Bertrand Crozan",
         "profession_pere_mariee": "Journalier",
         "nom_mere_mariee": "Virginie Heraptiris",
-        "profession_mere_mariee": "ménagère"
+        "profession_mere_mariee": "ménagère",
+        "date_iso": "1912-01-25",
+        "annee": 1912
     },
     {
         "date_mariage": "25 janvier 1912",
@@ -663,7 +735,9 @@
         "nom_pere_mariee": "Eugène Joseph Auguste Renault",
         "profession_pere_mariee": "employé des ponts",
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-01-25",
+        "annee": 1912
     },
     {
         "date_mariage": "1912-11-21",
@@ -681,7 +755,9 @@
         "nom_pere_mariee": "Pierre Marmit",
         "profession_pere_mariee": "cultivateur",
         "nom_mere_mariee": "Marie Lartigau",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-11-21",
+        "annee": 1912
     },
     {
         "date_mariage": "1912-01-21",
@@ -699,7 +775,9 @@
         "nom_pere_mariee": "Jacques Fey Seyrolle",
         "profession_pere_mariee": "instituteur",
         "nom_mere_mariee": "Catherine Ragraulet",
-        "profession_mere_mariee": "institutrice"
+        "profession_mere_mariee": "institutrice",
+        "date_iso": "1912-01-21",
+        "annee": 1912
     },
     {
         "date_mariage": "25/01/1942",
@@ -717,7 +795,9 @@
         "nom_pere_mariee": "Pierre Esbrat",
         "profession_pere_mariee": "Aubergiste",
         "nom_mere_mariee": "Marie Bourret",
-        "profession_mere_mariee": "Aubergiste"
+        "profession_mere_mariee": "Aubergiste",
+        "date_iso": "1942-01-25",
+        "annee": 1942
     },
     {
         "date_mariage": "30/04/1942",
@@ -735,7 +815,9 @@
         "nom_pere_mariee": "Maxime Théophile Remy",
         "profession_pere_mariee": "Fondeur",
         "nom_mere_mariee": "Berthe Lantier",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1942-04-30",
+        "annee": 1942
     },
     {
         "date_mariage": "29 novembre 1914",
@@ -753,7 +835,9 @@
         "nom_pere_mariee": "Louis Moron",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Adèle Virginie Douarre",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1914-11-29",
+        "annee": 1914
     },
     {
         "date_mariage": "29 janvier 1914",
@@ -771,7 +855,9 @@
         "nom_pere_mariee": "Louis Gabrielle Champroux",
         "profession_pere_mariee": "Propriétaire",
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1914-01-29",
+        "annee": 1914
     },
     {
         "date_mariage": "25 janvier 1902",
@@ -789,7 +875,9 @@
         "nom_pere_mariee": "Nicolas Lager",
         "profession_pere_mariee": "Menuisier",
         "nom_mere_mariee": "Marie Louise Caroline Lager",
-        "profession_mere_mariee": "Ménagère"
+        "profession_mere_mariee": "Ménagère",
+        "date_iso": "1902-01-25",
+        "annee": 1902
     },
     {
         "date_mariage": "29 janvier 1902",
@@ -807,7 +895,9 @@
         "nom_pere_mariee": "",
         "profession_pere_mariee": "",
         "nom_mere_mariee": "",
-        "profession_mere_mariee": ""
+        "profession_mere_mariee": "",
+        "date_iso": "1902-01-29",
+        "annee": 1902
     },
     {
         "date_mariage": "1912-12-25",
@@ -825,7 +915,9 @@
         "nom_pere_mariee": "Jean Mathurin Lucas",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Jeanne Doronneau",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-12-25",
+        "annee": 1912
     },
     {
         "date_mariage": "1912-01-25",
@@ -843,7 +935,9 @@
         "nom_pere_mariee": "Raymond Locris Série",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Romaine Grégoire",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1912-01-25",
+        "annee": 1912
     },
     {
         "date_mariage": "25/01/1913",
@@ -861,7 +955,9 @@
         "nom_pere_mariee": "Jean Louis Édouard Marot",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Catherine Paris Lévisales-Lefalme",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-25",
+        "annee": 1913
     },
     {
         "date_mariage": "27/01/1913",
@@ -879,7 +975,9 @@
         "nom_pere_mariee": "Georges Henri Blocman",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Alexandrine Cadet",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-01-27",
+        "annee": 1913
     },
     {
         "date_mariage": "27 janvier 1911",
@@ -897,7 +995,9 @@
         "nom_pere_mariee": "Camille Ranc",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Joséphine Boyer",
-        "profession_mere_mariee": "rentière"
+        "profession_mere_mariee": "rentière",
+        "date_iso": "1911-01-27",
+        "annee": 1911
     },
     {
         "date_mariage": "27 février 1911",
@@ -915,7 +1015,9 @@
         "nom_pere_mariee": "Joseph Espérand",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Adeline Adélaïde Place",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1911-02-27",
+        "annee": 1911
     },
     {
         "date_mariage": null,
@@ -933,7 +1035,9 @@
         "nom_pere_mariee": "Bernard The Verick Bockenooghe",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Cède Cœ Rose Germaine Lelelles",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": null,
+        "annee": null
     },
     {
         "date_mariage": "neuf avril 1929",
@@ -951,7 +1055,9 @@
         "nom_pere_mariee": "Juste Léon Band",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Victorine Maillet",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1929-04-09",
+        "annee": 1929
     },
     {
         "date_mariage": "1924-12-02",
@@ -969,7 +1075,9 @@
         "nom_pere_mariee": "Andreas Matter",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Kempf",
-        "profession_mere_mariee": "Couturière"
+        "profession_mere_mariee": "Couturière",
+        "date_iso": "1924-12-02",
+        "annee": 1924
     },
     {
         "date_mariage": "1924-03-20",
@@ -987,7 +1095,9 @@
         "nom_pere_mariee": "Mathurin Clechy",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Yvonne Le Baron",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1924-03-20",
+        "annee": 1924
     },
     {
         "date_mariage": "19 avril 1911",
@@ -1005,7 +1115,9 @@
         "nom_pere_mariee": "Charles Louis Grange",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Cécile Louise Aubert",
-        "profession_mere_mariee": "Couturière"
+        "profession_mere_mariee": "Couturière",
+        "date_iso": "1911-04-19",
+        "annee": 1911
     },
     {
         "date_mariage": "28 mai 1911",
@@ -1023,7 +1135,9 @@
         "nom_pere_mariee": "Alfred Léonor Bourget",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Lucie Marie Ernestine Sénécal",
-        "profession_mere_mariee": "Marchande de soieries"
+        "profession_mere_mariee": "Marchande de soieries",
+        "date_iso": "1911-05-28",
+        "annee": 1911
     },
     {
         "date_mariage": "1er février 1906",
@@ -1041,7 +1155,9 @@
         "nom_pere_mariee": "Jean Pierre Artaud",
         "profession_pere_mariee": "cultivateur",
         "nom_mere_mariee": "Marie Terrasse",
-        "profession_mere_mariee": "ménagère"
+        "profession_mere_mariee": "ménagère",
+        "date_iso": "1906-02-01",
+        "annee": 1906
     },
     {
         "date_mariage": "1er février 1906",
@@ -1059,7 +1175,9 @@
         "nom_pere_mariee": "François Perron-Cabus",
         "profession_pere_mariee": "cultivateur",
         "nom_mere_mariee": "Marie Clémentine Furnier",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1906-02-01",
+        "annee": 1906
     },
     {
         "date_mariage": "1920-01-03",
@@ -1077,7 +1195,9 @@
         "nom_pere_mariee": "Étienne Aubert",
         "profession_pere_mariee": "Cultivateur",
         "nom_mere_mariee": "Autoamise Elisa Moucbet",
-        "profession_mere_mariee": "Cultivatrice"
+        "profession_mere_mariee": "Cultivatrice",
+        "date_iso": "1920-01-03",
+        "annee": 1920
     },
     {
         "date_mariage": "03/01/1921",
@@ -1095,7 +1215,9 @@
         "nom_pere_mariee": "Jean Joseph Cassanac",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Lamdy",
-        "profession_mere_mariee": "Commerçante"
+        "profession_mere_mariee": "Commerçante",
+        "date_iso": "1921-01-03",
+        "annee": 1921
     },
     {
         "date_mariage": "03/01/1921",
@@ -1113,7 +1235,9 @@
         "nom_pere_mariee": "Pierre Beyaert",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Elodie Vandermyssey",
-        "profession_mere_mariee": "Ménagère"
+        "profession_mere_mariee": "Ménagère",
+        "date_iso": "1921-01-03",
+        "annee": 1921
     },
     {
         "date_mariage": "03/01/1921",
@@ -1131,7 +1255,9 @@
         "nom_pere_mariee": "Pierre Albert Plançon",
         "profession_pere_mariee": "Garde de nuit",
         "nom_mere_mariee": "Marguerite Cordier",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1921-01-03",
+        "annee": 1921
     },
     {
         "date_mariage": "03/01/1920",
@@ -1149,7 +1275,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Octavie Baulmont",
-        "profession_mere_mariee": "rentière"
+        "profession_mere_mariee": "rentière",
+        "date_iso": "1920-01-03",
+        "annee": 1920
     },
     {
         "date_mariage": "03/01/1920",
@@ -1167,7 +1295,9 @@
         "nom_pere_mariee": "Léon Kokocinski",
         "profession_pere_mariee": "opticien",
         "nom_mere_mariee": "Julie Siemiatkowska",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-03",
+        "annee": 1920
     },
     {
         "date_mariage": "03/01/1920",
@@ -1185,7 +1315,9 @@
         "nom_pere_mariee": "Victor Henri Lallemand",
         "profession_pere_mariee": "rentier",
         "nom_mere_mariee": "Emilie Antoinette Benton",
-        "profession_mere_mariee": "rentière"
+        "profession_mere_mariee": "rentière",
+        "date_iso": "1920-01-03",
+        "annee": 1920
     },
     {
         "date_mariage": "3 janvier 1920",
@@ -1203,7 +1335,9 @@
         "nom_pere_mariee": "André Louis Garoux",
         "profession_pere_mariee": "Notaire",
         "nom_mere_mariee": "Constance Marie Jeanne Eestart",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1920-01-03",
+        "annee": 1920
     },
     {
         "date_mariage": "6 janvier 1920",
@@ -1221,7 +1355,9 @@
         "nom_pere_mariee": "Michel Blum",
         "profession_pere_mariee": "Ciselier",
         "nom_mere_mariee": "Pauline Thomas",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1920-01-06",
+        "annee": 1920
     },
     {
         "date_mariage": "6 janvier 1924",
@@ -1239,7 +1375,9 @@
         "nom_pere_mariee": "Jean Charles Albert Dussaussoy",
         "profession_pere_mariee": "représentant de commerce",
         "nom_mere_mariee": "Charlotte Angéline Emeline Costy",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1924-01-06",
+        "annee": 1924
     },
     {
         "date_mariage": "8 janvier 1921",
@@ -1257,7 +1395,9 @@
         "nom_pere_mariee": "Louis Français Thomas",
         "profession_pere_mariee": "Chef Suspecteur à la Samaritaine",
         "nom_mere_mariee": "Joséphine Foly",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1921-01-08",
+        "annee": 1921
     },
     {
         "date_mariage": "8 janvier 1921",
@@ -1275,7 +1415,9 @@
         "nom_pere_mariee": "Lazare Meyer Owitz",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Pauline Netter",
-        "profession_mere_mariee": "négociante"
+        "profession_mere_mariee": "négociante",
+        "date_iso": "1921-01-08",
+        "annee": 1921
     },
     {
         "date_mariage": "08/01/1920",
@@ -1293,7 +1435,9 @@
         "nom_pere_mariee": "Jean Marie Dominique Jules Béré",
         "profession_pere_mariee": "employé des Pommes de fer",
         "nom_mere_mariee": "Jeanne Madeleine Buisson",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-08",
+        "annee": 1920
     },
     {
         "date_mariage": "08/01/1920",
@@ -1311,7 +1455,9 @@
         "nom_pere_mariee": "Louis Denis Santerre",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Léonitine Boult",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-08",
+        "annee": 1920
     },
     {
         "date_mariage": "08/01/1920",
@@ -1329,7 +1475,9 @@
         "nom_pere_mariee": "Édouard Antoine Maréchal",
         "profession_pere_mariee": "commerçant",
         "nom_mere_mariee": "Adrieme Henriette Delamas",
-        "profession_mere_mariee": "commerçante"
+        "profession_mere_mariee": "commerçante",
+        "date_iso": "1920-01-08",
+        "annee": 1920
     },
     {
         "date_mariage": "1921-01-08",
@@ -1347,7 +1495,9 @@
         "nom_pere_mariee": "Édouard Alphonse Dupuis",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Celina Pronet",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1921-01-08",
+        "annee": 1921
     },
     {
         "date_mariage": "1921-01-08",
@@ -1365,7 +1515,9 @@
         "nom_pere_mariee": "Pierre Daurelle",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Rosalie Rogues",
-        "profession_mere_mariee": "Cultivatrice"
+        "profession_mere_mariee": "Cultivatrice",
+        "date_iso": "1921-01-08",
+        "annee": 1921
     },
     {
         "date_mariage": "1913-11-20",
@@ -1383,7 +1535,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1913-11-20",
+        "annee": 1913
     },
     {
         "date_mariage": "1901-11-29",
@@ -1401,7 +1555,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1901-11-29",
+        "annee": 1901
     },
     {
         "date_mariage": "06/12/1911",
@@ -1419,7 +1575,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1911-12-06",
+        "annee": 1911
     },
     {
         "date_mariage": "09/02/1911",
@@ -1437,7 +1595,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1911-02-09",
+        "annee": 1911
     },
     {
         "date_mariage": "10/01/1920",
@@ -1455,7 +1615,9 @@
         "nom_pere_mariee": "Eugène David Printenet",
         "profession_pere_mariee": "Teipier",
         "nom_mere_mariee": "Pauline Caroline Philippot",
-        "profession_mere_mariee": "Teipier"
+        "profession_mere_mariee": "Teipier",
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1473,7 +1635,9 @@
         "nom_pere_mariee": "Jean Grave",
         "profession_pere_mariee": "hôtelier",
         "nom_mere_mariee": "Marie Eberède Possignol",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1491,7 +1655,9 @@
         "nom_pere_mariee": "René Jolivet",
         "profession_pere_mariee": "hôtelier",
         "nom_mere_mariee": "Marie (dite Antoinette)",
-        "profession_mere_mariee": "hôtelière"
+        "profession_mere_mariee": "hôtelière",
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1509,7 +1675,9 @@
         "nom_pere_mariee": "Jean Ferrier",
         "profession_pere_mariee": "berger",
         "nom_mere_mariee": "Marie Moulergues",
-        "profession_mere_mariee": "ménagère"
+        "profession_mere_mariee": "ménagère",
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1527,7 +1695,9 @@
         "nom_pere_mariee": "Paul Barthelemy Herbin",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Marie Louise Bremand",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1545,7 +1715,9 @@
         "nom_pere_mariee": "Emile Colnot",
         "profession_pere_mariee": "Facteur des Postes",
         "nom_mere_mariee": "Marie Rosine Mengin",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1563,7 +1735,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "10 janvier 1920",
@@ -1581,7 +1755,9 @@
         "nom_pere_mariee": "Valentin Vignalats",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Puyol",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-10",
+        "annee": 1920
     },
     {
         "date_mariage": "12 janvier 1920",
@@ -1599,7 +1775,9 @@
         "nom_pere_mariee": "Charles Debray",
         "profession_pere_mariee": "Boulanger",
         "nom_mere_mariee": "Marie Thomas",
-        "profession_mere_mariee": "Boulangère"
+        "profession_mere_mariee": "Boulangère",
+        "date_iso": "1920-01-12",
+        "annee": 1920
     },
     {
         "date_mariage": "12 janvier 1920",
@@ -1617,7 +1795,9 @@
         "nom_pere_mariee": "Lucien Crozel",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Rey",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-12",
+        "annee": 1920
     },
     {
         "date_mariage": "12 janvier 1920",
@@ -1635,7 +1815,9 @@
         "nom_pere_mariee": "Bewri Emile Lehmann",
         "profession_pere_mariee": "Métallurgiste",
         "nom_mere_mariee": "Jeanne Louise Bonnet",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-12",
+        "annee": 1920
     },
     {
         "date_mariage": "12 février 1920",
@@ -1653,7 +1835,9 @@
         "nom_pere_mariee": "Emile Charles Alfred Chognard",
         "profession_pere_mariee": "Cafetier",
         "nom_mere_mariee": "Germaine Marie Vivier",
-        "profession_mere_mariee": "Cafetière"
+        "profession_mere_mariee": "Cafetière",
+        "date_iso": "1920-02-12",
+        "annee": 1920
     },
     {
         "date_mariage": "13 janvier 1920",
@@ -1671,7 +1855,9 @@
         "nom_pere_mariee": "François Armand Grand Pauline",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Aurélie Defrance",
-        "profession_mere_mariee": "Journalière"
+        "profession_mere_mariee": "Journalière",
+        "date_iso": "1920-01-13",
+        "annee": 1920
     },
     {
         "date_mariage": "13 janvier 1920",
@@ -1689,7 +1875,9 @@
         "nom_pere_mariee": "Denis Chaussé",
         "profession_pere_mariee": "Marchand de petits",
         "nom_mere_mariee": "Marie Bathilde Dorangeon",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-13",
+        "annee": 1920
     },
     {
         "date_mariage": "13 janvier 1920",
@@ -1707,7 +1895,9 @@
         "nom_pere_mariee": "Jean Louis Morel",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Jeanne Eripeau",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-13",
+        "annee": 1920
     },
     {
         "date_mariage": "15/01/1920",
@@ -1725,7 +1915,9 @@
         "nom_pere_mariee": "Elie Azoulay",
         "profession_pere_mariee": "sans profession",
         "nom_mere_mariee": "Messaouda Gorassica",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-15",
+        "annee": 1920
     },
     {
         "date_mariage": "14/01/1920",
@@ -1743,7 +1935,9 @@
         "nom_pere_mariee": "Charles Phelps",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Rowland",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-14",
+        "annee": 1920
     },
     {
         "date_mariage": "15/01/1920",
@@ -1761,7 +1955,9 @@
         "nom_pere_mariee": "Charles Alfred Jollivet",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-15",
+        "annee": 1920
     },
     {
         "date_mariage": "15 janvier 1920",
@@ -1779,7 +1975,9 @@
         "nom_pere_mariee": "Ovadia",
         "profession_pere_mariee": "Inconnue",
         "nom_mere_mariee": "Gonassia Messaouda",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1920-01-15",
+        "annee": 1920
     },
     {
         "date_mariage": "15 janvier 1920",
@@ -1797,7 +1995,9 @@
         "nom_pere_mariee": "Alapetite Gabriel Ferdinand",
         "profession_pere_mariee": "Ambassadeur de France",
         "nom_mere_mariee": "Daligny Etienne Madeleine Camille",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1920-01-15",
+        "annee": 1920
     },
     {
         "date_mariage": "15 janvier 1920",
@@ -1815,7 +2015,9 @@
         "nom_pere_mariee": "Gollivet Charles Alfred",
         "profession_pere_mariee": "Sans profession",
         "nom_mere_mariee": "Jublot Marie Vénétise",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1920-01-15",
+        "annee": 1920
     },
     {
         "date_mariage": "15 décembre 1906",
@@ -1833,7 +2035,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1906-12-15",
+        "annee": 1906
     },
     {
         "date_mariage": "17 juillet 1909",
@@ -1851,7 +2055,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1909-07-17",
+        "annee": 1909
     },
     {
         "date_mariage": "17 janvier 1920",
@@ -1869,7 +2075,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Marie Fromenteau",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-17",
+        "annee": 1920
     },
     {
         "date_mariage": "17 Janvier 1920",
@@ -1887,7 +2095,9 @@
         "nom_pere_mariee": "Ernest Cochet",
         "profession_pere_mariee": "garçon de laboratoire aux arts et métiers",
         "nom_mere_mariee": "Jeanne Marie Le Roy",
-        "profession_mere_mariee": "concierge"
+        "profession_mere_mariee": "concierge",
+        "date_iso": "1920-01-17",
+        "annee": 1920
     },
     {
         "date_mariage": "17 janvier 1920",
@@ -1905,7 +2115,9 @@
         "nom_pere_mariee": "Jean Paul Duflos",
         "profession_pere_mariee": "décédé",
         "nom_mere_mariee": "Mélanie Authay",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-17",
+        "annee": 1920
     },
     {
         "date_mariage": "19 janvier 1920",
@@ -1923,7 +2135,9 @@
         "nom_pere_mariee": "Jean Sézestre",
         "profession_pere_mariee": "maraîcher",
         "nom_mere_mariee": "Marie Julie",
-        "profession_mere_mariee": "décédée"
+        "profession_mere_mariee": "décédée",
+        "date_iso": "1920-01-19",
+        "annee": 1920
     },
     {
         "date_mariage": "19 janvier 1920",
@@ -1941,7 +2155,9 @@
         "nom_pere_mariee": null,
         "profession_pere_mariee": null,
         "nom_mere_mariee": null,
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-19",
+        "annee": 1920
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -1959,7 +2175,9 @@
         "nom_pere_mariee": "Pierre Charles Girol",
         "profession_pere_mariee": "Ajusteur",
         "nom_mere_mariee": "Marie Christine Bischoff",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -1977,7 +2195,9 @@
         "nom_pere_mariee": "Henri Donaz",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Benoîte Morel",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -1995,7 +2215,9 @@
         "nom_pere_mariee": "Henri Heritier",
         "profession_pere_mariee": null,
         "nom_mere_mariee": "Françoise Dester",
-        "profession_mere_mariee": null
+        "profession_mere_mariee": null,
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "20 février 1921",
@@ -2013,7 +2235,9 @@
         "nom_pere_mariee": "Louis Léon Victor Mercier",
         "profession_pere_mariee": "Employé de commerce",
         "nom_mere_mariee": "Amélie Victoire Lemay",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1921-02-20",
+        "annee": 1921
     },
     {
         "date_mariage": "20 janvier 1921",
@@ -2031,7 +2255,9 @@
         "nom_pere_mariee": "Cyrille Louis Abadie",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Marie Henriette Boyon",
-        "profession_mere_mariee": "Sans profession"
+        "profession_mere_mariee": "Sans profession",
+        "date_iso": "1921-01-20",
+        "annee": 1921
     },
     {
         "date_mariage": "20 janvier 1921",
@@ -2049,7 +2275,9 @@
         "nom_pere_mariee": "Louis Eugène Leroy",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Camille Alphonsine Gonjat",
-        "profession_mere_mariee": "Directrice d'établissements"
+        "profession_mere_mariee": "Directrice d'établissements",
+        "date_iso": "1921-01-20",
+        "annee": 1921
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -2067,7 +2295,9 @@
         "nom_pere_mariee": "Jean Monmajou",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Gerina Girouse",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -2085,7 +2315,9 @@
         "nom_pere_mariee": "Jean Celestin Serin",
         "profession_pere_mariee": "Cultivateur",
         "nom_mere_mariee": "Rosalie Quéck",
-        "profession_mere_mariee": "Cultivatrice"
+        "profession_mere_mariee": "Cultivatrice",
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "20 janvier 1920",
@@ -2103,7 +2335,9 @@
         "nom_pere_mariee": "Charles Jacques Hector Joseph Marie Bouyet",
         "profession_pere_mariee": "Décédé",
         "nom_mere_mariee": "Elise Peisse",
-        "profession_mere_mariee": "Décédée"
+        "profession_mere_mariee": "Décédée",
+        "date_iso": "1920-01-20",
+        "annee": 1920
     },
     {
         "date_mariage": "22 janvier 1920",
@@ -2121,7 +2355,9 @@
         "nom_pere_mariee": "Joseph François Fever",
         "profession_pere_mariee": "sans profession",
         "nom_mere_mariee": "Madeleine Lieubard",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-22",
+        "annee": 1920
     },
     {
         "date_mariage": "22 janvier 1920",
@@ -2139,7 +2375,9 @@
         "nom_pere_mariee": "Albert Dreyfus",
         "profession_pere_mariee": "négociant",
         "nom_mere_mariee": "Caroline Baccard",
-        "profession_mere_mariee": "sans profession"
+        "profession_mere_mariee": "sans profession",
+        "date_iso": "1920-01-22",
+        "annee": 1920
     },
     {
         "date_mariage": "22 janvier 1920",
@@ -2157,16 +2395,48 @@
         "nom_pere_mariee": "Jean Pierre Achille Garnon",
         "profession_pere_mariee": "Inconnu (mandataire aux Halles)",
         "nom_mere_mariee": "Marie Joséphine Sébastienne",
-        "profession_mere_mariee": "Inconnue"
+        "profession_mere_mariee": "Inconnue",
+        "date_iso": "1920-01-22",
+        "annee": 1920
     },
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {}
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    },
+    {
+        "date_iso": null,
+        "annee": null
+    }
 ]

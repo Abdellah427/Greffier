@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La machine lit le registre — démonstration en direct</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
+<style>
+  :root {
+    --papier: #efe8d8;
+    --papier-2: #e7dcc4;
+    --regle: #cdbfa0;
+    --encre: #2c2416;
+    --encre-pale: #77684f;
+    --tampon: #8c2f1b;
+    --nuit: #14181f;
+    --nuit-2: #1d232e;
+    --lueur: #b8d2e0;
+    --cyan: #6da3bd;
+    --ok: #557a48;
+    --serif-display: 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
+    --serif-body: Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--papier);
+    color: var(--encre);
+    font-family: var(--serif-body);
+    line-height: 1.5;
+  }
+  a { color: var(--tampon); }
+  :focus-visible { outline: 2px solid var(--tampon); outline-offset: 2px; }
+
+  nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: baseline;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.1rem 1.5rem 0;
+    font-size: .85rem;
+    font-family: var(--mono);
+  }
+  nav .marque {
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin-right: auto;
+    text-decoration: none;
+  }
+  nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav a[aria-current] { color: var(--encre); border-bottom: 2px solid var(--tampon); }
+
+  header {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 2.2rem 1.5rem 1.4rem;
+  }
+  header h1 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: clamp(1.9rem, 4.5vw, 3.1rem);
+    line-height: 1.08;
+    margin: 0 0 .5rem;
+    max-width: 18ch;
+  }
+  header h1 em { color: var(--tampon); font-style: italic; }
+  header .sous-titre {
+    color: var(--encre-pale);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .modes {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: .4rem 1.5rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+  }
+  .modes [role=tab] {
+    font-family: var(--mono);
+    font-size: .82rem;
+    padding: .5rem .85rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+  }
+  .modes [role=tab][aria-selected=true] {
+    background: var(--encre);
+    border-color: var(--encre);
+    color: var(--papier);
+  }
+  .mode-note {
+    flex-basis: 100%;
+    font-size: .85rem;
+    color: var(--encre-pale);
+    margin: .2rem 0 0;
+  }
+  .config {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: .8rem;
+  }
+  .config[hidden] { display: none; }
+  .config label { color: var(--encre-pale); }
+  .config input {
+    font: inherit;
+    padding: .35rem .5rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--encre);
+    width: 15rem;
+    max-width: 100%;
+  }
+  details.aide { flex-basis: 100%; font-size: .82rem; color: var(--encre-pale); }
+  details.aide code {
+    font-family: var(--mono);
+    background: var(--papier-2);
+    padding: .1rem .3rem;
+    border-radius: 2px;
+  }
+
+  .pupitre {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+  @media (max-width: 880px) { .pupitre { grid-template-columns: 1fr; } }
+
+  .panneau-titre {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: .55rem;
+  }
+
+  /* ------ la page (côté papier) ------ */
+  .cote-papier .panneau-titre { color: var(--encre-pale); }
+  .page-cadre {
+    position: relative;
+    border: 1px solid var(--regle);
+    background:
+      linear-gradient(90deg, transparent 2.2rem, rgba(140,47,27,.28) 2.2rem, rgba(140,47,27,.28) calc(2.2rem + 1px), transparent calc(2.2rem + 1px)),
+      repeating-linear-gradient(180deg, var(--papier-2) 0, var(--papier-2) 1px, transparent 1px, transparent 1.6rem),
+      #f4eee0;
+    min-height: 24rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .depot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--encre-pale);
+  }
+  .depot strong { color: var(--encre); font-size: 1.05rem; font-weight: normal; }
+  .depot.survol { background: rgba(140, 47, 27, .06); }
+  .page-cadre img.apercu {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0d0d0d;
+  }
+  .page-legende {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--encre-pale);
+    padding: .45rem .6rem;
+    border-top: 1px solid var(--regle);
+    background: var(--papier);
+    position: relative;
+    z-index: 1;
+    min-height: 1.8rem;
+  }
+  .exemples {
+    display: flex;
+    gap: .6rem;
+    margin-top: .7rem;
+  }
+  .exemples button {
+    flex: 1;
+    border: 1px solid var(--regle);
+    background: #fff;
+    padding: .35rem;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .exemples button img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
+  .exemples button figcaption {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    padding-top: .3rem;
+  }
+  .exemples button[aria-pressed=true] { border-color: var(--tampon); box-shadow: 0 0 0 1px var(--tampon); }
+
+  .actions {
+    display: flex;
+    gap: .6rem;
+    margin-top: .9rem;
+    align-items: center;
+  }
+  .actions button {
+    font-family: var(--mono);
+    font-size: .88rem;
+    padding: .65rem 1.2rem;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--tampon);
+  }
+  #lancer { background: var(--tampon); color: #f6efe4; }
+  #lancer:disabled { opacity: .45; cursor: not-allowed; }
+  #interrompre { background: transparent; color: var(--tampon); }
+  #interrompre[hidden] { display: none; }
+
+  /* ------ la machine (côté nuit) ------ */
+  .cote-machine .panneau-titre { color: var(--cyan); }
+  .machine {
+    background: var(--nuit);
+    border-radius: 4px;
+    min-height: 24rem;
+    display: flex;
+    flex-direction: column;
+    color: var(--lueur);
+    font-family: var(--mono);
+    overflow: hidden;
+  }
+  .etapes {
+    list-style: none;
+    margin: 0;
+    padding: .9rem 1.1rem;
+    border-bottom: 1px solid var(--nuit-2);
+    font-size: .78rem;
+    display: grid;
+    gap: .3rem;
+  }
+  .etapes li { color: #5a6878; transition: color .3s; }
+  .etapes li::before { content: '· '; }
+  .etapes li.active { color: var(--lueur); }
+  .etapes li.active::before { content: '▸ '; color: var(--cyan); }
+  .etapes li.faite { color: #7d9276; }
+  .etapes li.faite::before { content: '✓ '; color: var(--ok); }
+  .flux {
+    flex: 1;
+    margin: 0;
+    padding: 1rem 1.1rem;
+    font-size: .8rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-y: auto;
+    max-height: 24rem;
+  }
+  .flux .invite { color: #5a6878; }
+  .flux .erreur { color: #d98d7b; }
+  .flux .curseur {
+    display: inline-block;
+    width: .55em;
+    height: 1.1em;
+    background: var(--cyan);
+    vertical-align: text-bottom;
+    animation: battre 1s steps(2) infinite;
+  }
+  @keyframes battre { 50% { opacity: 0; } }
+
+  /* ------ la fiche (signature) ------ */
+  .fiche-section {
+    max-width: 1180px;
+    margin: 1.6rem auto 0;
+    padding: 0 1.5rem 4rem;
+  }
+  .fiche {
+    position: relative;
+    border: 1px solid var(--regle);
+    background:
+      repeating-linear-gradient(180deg, transparent 0, transparent calc(2.1rem - 1px), var(--papier-2) calc(2.1rem - 1px), var(--papier-2) 2.1rem),
+      #f6f0e2;
+    padding: 1.6rem 2rem 2rem;
+  }
+  .fiche h2 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: 1.5rem;
+    letter-spacing: .04em;
+    margin: 0 0 .2rem;
+    text-align: center;
+  }
+  .fiche .fiche-sous {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin: 0 0 1.4rem;
+  }
+  .tampon-rond {
+    position: absolute;
+    top: 1.1rem;
+    right: 1.4rem;
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--tampon);
+    border: 2px solid var(--tampon);
+    border-radius: 50%;
+    width: 5.2rem;
+    height: 5.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transform: rotate(-9deg);
+    opacity: .28;
+    padding: .4rem;
+  }
+  .colonnes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 2.5rem;
+  }
+  @media (max-width: 720px) { .colonnes { grid-template-columns: 1fr; } }
+  .groupe { margin-bottom: .4rem; }
+  .groupe h3 {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tampon);
+    font-weight: normal;
+    margin: 1.2rem 0 .2rem;
+  }
+  .champ {
+    display: flex;
+    gap: .6rem;
+    align-items: baseline;
+    line-height: 2.1rem;
+    font-size: .92rem;
+  }
+  .champ .etiquette {
+    flex: 0 0 7.5rem;
+    color: var(--encre-pale);
+    font-size: .8rem;
+  }
+  .champ .valeur {
+    flex: 1;
+    border-bottom: 1px dotted var(--regle);
+    min-height: 1.4rem;
+    color: var(--encre);
+  }
+  .champ .valeur.ecrit { animation: encrer .8s ease-out; }
+  .champ .valeur .vide { color: var(--regle); }
+  @keyframes encrer {
+    from { opacity: 0; filter: blur(2px); }
+    to { opacity: 1; filter: blur(0); }
+  }
+  .fiche-pied {
+    margin-top: 1.6rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  #telecharger {
+    font-family: var(--mono);
+    font-size: .82rem;
+    padding: .55rem 1rem;
+    border: 1px solid var(--encre);
+    background: transparent;
+    color: var(--encre);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  #telecharger:disabled { opacity: .4; cursor: not-allowed; }
+  .fiche-pied .mention { font-size: .78rem; color: var(--encre-pale); font-family: var(--mono); }
+
+  footer {
+    border-top: 1px solid var(--regle);
+    color: var(--encre-pale);
+    font-size: .82rem;
+    text-align: center;
+    padding: 1.4rem;
+    font-family: var(--mono);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .flux .curseur { animation: none; }
+    .champ .valeur.ecrit { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="marque" href="index.html">Actes de mariage · Paris 1913–1920</a>
+  <a href="demo.html" aria-current="page">Démonstration</a>
+  <a href="index.html">Les 130 actes</a>
+  <a href="https://github.com/Abdellah427/IA-Application">Code source</a>
+</nav>
+
+<header>
+  <h1>La machine lit <em>le registre</em>.</h1>
+  <p class="sous-titre">Déposez la photographie d'une page d'acte de mariage — ou choisissez
+     un feuillet de 1913 — et regardez le modèle la transcrire puis en établir
+     la fiche, en direct. Tout se passe ici : aucun envoi vers un serveur,
+     aucune clé, aucun compte.</p>
+</header>
+
+<div class="modes" role="tablist" aria-label="Mode de lecture">
+  <button role="tab" aria-selected="true" data-mode="replay">Replay</button>
+  <button role="tab" aria-selected="false" data-mode="navigateur">Navigateur (WebGPU)</button>
+  <button role="tab" aria-selected="false" data-mode="ollama">Ollama local</button>
+  <p class="mode-note" id="mode-note">Rejoue, telle qu'elle a été enregistrée, l'extraction réelle
+     d'un des feuillets d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.</p>
+
+  <div class="config" id="config-ollama" hidden>
+    <label for="ollama-hote">Serveur</label>
+    <input id="ollama-hote" value="http://localhost:11434" spellcheck="false">
+    <label for="ollama-modele">Modèle</label>
+    <input id="ollama-modele" value="qwen2.5vl:7b" spellcheck="false">
+    <details class="aide">
+      <summary>Préparer Ollama (une seule fois)</summary>
+      <p>Installez <a href="https://ollama.com">Ollama</a>, récupérez le modèle puis autorisez
+         cette page à lui parler :</p>
+      <p><code>ollama pull qwen2.5vl:7b</code><br>
+         <code>OLLAMA_ORIGINS="*" ollama serve</code></p>
+      <p>Le traitement reste entièrement sur votre machine.</p>
+    </details>
+  </div>
+  <div class="config" id="config-navigateur" hidden>
+    <details class="aide" open>
+      <summary>Comment ça marche</summary>
+      <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 1,2 Go,
+         mis en cache) puis exécuté <em>dans votre navigateur</em> grâce à WebGPU — rien ne quitte
+         votre machine. Expérimental : il faut un navigateur récent et un peu de patience ;
+         la lecture des manuscrits est moins fiable qu'avec le modèle 7B d'Ollama.</p>
+    </details>
+  </div>
+</div>
+
+<main class="pupitre">
+  <section class="cote-papier" aria-label="La page">
+    <h2 class="panneau-titre">La page</h2>
+    <div class="page-cadre" id="cadre">
+      <button class="depot" id="depot" type="button">
+        <strong>Déposez une page de registre ici</strong>
+        <span>ou cliquez pour choisir une image (JPG, PNG)</span>
+      </button>
+      <img class="apercu" id="apercu" alt="" hidden>
+      <div class="page-legende" id="legende">Aucune page chargée.</div>
+    </div>
+    <input type="file" id="fichier" accept="image/jpeg,image/png,image/webp" hidden>
+    <div class="exemples" id="exemples" aria-label="Feuillets d'exemple"></div>
+    <div class="actions">
+      <button id="lancer" disabled>Lancer la lecture</button>
+      <button id="interrompre" hidden>Interrompre</button>
+    </div>
+  </section>
+
+  <section class="cote-machine" aria-label="La machine">
+    <h2 class="panneau-titre">La machine</h2>
+    <div class="machine">
+      <ol class="etapes" id="etapes">
+        <li>Page reçue</li>
+        <li>Image préparée</li>
+        <li>Le modèle lit</li>
+        <li>Réponse analysée</li>
+        <li>Fiche établie</li>
+      </ol>
+      <pre class="flux" id="flux" aria-live="polite"><span class="invite">La machine attend une page.
+Choisissez un feuillet d'exemple, ou déposez votre propre image
+et passez en mode Navigateur ou Ollama.</span></pre>
+    </div>
+  </section>
+</main>
+
+<section class="fiche-section" aria-label="Fiche extraite">
+  <div class="fiche">
+    <div class="tampon-rond">extrait par la machine</div>
+    <h2>Fiche de mariage</h2>
+    <p class="fiche-sous">établie automatiquement d'après le registre</p>
+    <div class="champ"><span class="etiquette">Date</span><span class="valeur" data-champ="date_mariage"><span class="vide">— — —</span></span></div>
+    <div class="champ"><span class="etiquette">Lieu</span><span class="valeur" data-champ="lieu_mariage"><span class="vide">— — —</span></span></div>
+    <div class="colonnes">
+      <div class="groupe">
+        <h3>L'époux</h3>
+        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_marie"><span class="vide">— — —</span></span></div>
+        <h3>Ses parents</h3>
+        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_marie"><span class="vide">— — —</span></span></div>
+      </div>
+      <div class="groupe">
+        <h3>L'épouse</h3>
+        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_mariee"><span class="vide">— — —</span></span></div>
+        <h3>Ses parents</h3>
+        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_mariee"><span class="vide">— — —</span></span></div>
+      </div>
+    </div>
+    <div class="fiche-pied">
+      <button id="telecharger" disabled>Télécharger le JSON</button>
+      <span class="mention" id="mention-source"></span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Archives de Paris, registres AD075EC (1913 &amp; 1920) ·
+  <a href="https://github.com/Abdellah427/IA-Application">projet libre sur GitHub</a>
+</footer>
+
+<script src="data.js"></script>
+<script>
+'use strict';
+
+const CHAMPS = [
+  'date_mariage', 'lieu_mariage',
+  'nom_prenom_marie', 'profession_marie', 'adresse_marie',
+  'nom_prenom_mariee', 'profession_mariee', 'adresse_mariee',
+  'nom_pere_marie', 'profession_pere_marie',
+  'nom_mere_marie', 'profession_mere_marie',
+  'nom_pere_mariee', 'profession_pere_mariee',
+  'nom_mere_mariee', 'profession_mere_mariee',
+];
+
+const PROMPT = `Tu es un expert en paléographie et en état civil français.
+Cette image est une page d'un registre d'actes de mariage parisien (début XXe siècle),
+rédigée à la main. Transcris l'acte puis extrais les informations suivantes.
+
+Réponds UNIQUEMENT avec un objet JSON (sans texte autour) contenant exactement ces clés :
+${JSON.stringify(CHAMPS, null, 2)}
+
+Si une information est absente ou illisible, mets null. N'invente rien.`;
+
+const reduitMouvement = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const el = id => document.getElementById(id);
+const flux = el('flux'), etapes = el('etapes'), legende = el('legende');
+const apercu = el('apercu'), depot = el('depot'), fichier = el('fichier');
+const lancer = el('lancer'), interrompre = el('interrompre');
+const telecharger = el('telecharger'), mentionSource = el('mention-source');
+
+const etat = {
+  mode: 'replay',
+  replayChoisi: null,   // index dans REPLAYS
+  image: null,          // { dataUrl, base64, nom } pour les modes réels
+  enCours: false,
+  abandon: null,        // AbortController
+  resultat: null,
+  tampon: '',           // texte reçu du modèle
+  remplis: new Set(),
+};
+
+/* ---------- modes ---------- */
+
+const NOTES = {
+  replay: "Rejoue, telle qu'elle a été enregistrée, l'extraction réelle d'un des feuillets " +
+          "d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.",
+  navigateur: "Le modèle tourne dans votre navigateur, sans rien installer. Déposez votre propre " +
+              "image ou choisissez un feuillet d'exemple.",
+  ollama: "La page dialogue avec l'Ollama de votre machine : la meilleure qualité de lecture, " +
+          "entièrement locale et libre.",
+};
+
+document.querySelectorAll('.modes [role=tab]').forEach(bouton => {
+  bouton.addEventListener('click', () => {
+    if (etat.enCours) return;
+    etat.mode = bouton.dataset.mode;
+    document.querySelectorAll('.modes [role=tab]').forEach(b =>
+      b.setAttribute('aria-selected', b === bouton ? 'true' : 'false'));
+    el('config-ollama').hidden = etat.mode !== 'ollama';
+    el('config-navigateur').hidden = etat.mode !== 'navigateur';
+    el('mode-note').textContent = NOTES[etat.mode];
+    majLancer();
+  });
+});
+
+/* ---------- chargement de la page (image) ---------- */
+
+const exemples = el('exemples');
+window.REPLAYS.forEach((replay, i) => {
+  const bouton = document.createElement('button');
+  bouton.type = 'button';
+  bouton.setAttribute('aria-pressed', 'false');
+  bouton.innerHTML = `<img src="${replay.image}" alt="${replay.titre}">` +
+                     `<figcaption>${replay.titre}</figcaption>`;
+  bouton.addEventListener('click', () => choisirExemple(i));
+  exemples.appendChild(bouton);
+});
+
+function choisirExemple(i) {
+  if (etat.enCours) return;
+  etat.replayChoisi = i;
+  etat.image = null;
+  exemples.querySelectorAll('button').forEach((b, j) =>
+    b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
+  const replay = window.REPLAYS[i];
+  apercu.src = replay.image;
+  apercu.alt = replay.titre;
+  apercu.hidden = false;
+  depot.hidden = true;
+  legende.textContent = `${replay.titre} — ${replay.cote}`;
+  majLancer();
+}
+
+depot.addEventListener('click', () => fichier.click());
+fichier.addEventListener('change', () => {
+  if (fichier.files[0]) chargerFichier(fichier.files[0]);
+});
+const cadre = el('cadre');
+['dragover', 'dragenter'].forEach(evt => cadre.addEventListener(evt, e => {
+  e.preventDefault();
+  depot.classList.add('survol');
+}));
+['dragleave', 'drop'].forEach(evt => cadre.addEventListener(evt, e => {
+  e.preventDefault();
+  depot.classList.remove('survol');
+}));
+cadre.addEventListener('drop', e => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) chargerFichier(f);
+});
+
+function chargerFichier(f) {
+  if (etat.enCours) return;
+  if (!/^image\/(jpeg|png|webp)$/.test(f.type)) {
+    legende.textContent = 'Format non pris en charge — utilisez une image JPG, PNG ou WebP.';
+    return;
+  }
+  const lecteur = new FileReader();
+  lecteur.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      // Réduction côté client : limite le poids envoyé au modèle.
+      const MAX = 1600;
+      const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      etat.image = { dataUrl, base64: dataUrl.split(',')[1], nom: f.name };
+      etat.replayChoisi = null;
+      exemples.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      apercu.src = dataUrl;
+      apercu.alt = `Page téléversée : ${f.name}`;
+      apercu.hidden = false;
+      depot.hidden = true;
+      legende.textContent = etat.mode === 'replay'
+        ? `${f.name} — le replay ne rejoue que les feuillets d'exemple : passez en mode Navigateur ou Ollama pour lire cette page.`
+        : `${f.name} — prête à être lue.`;
+      majLancer();
+    };
+    img.src = lecteur.result;
+  };
+  lecteur.readAsDataURL(f);
+}
+
+function majLancer() {
+  const prete = etat.mode === 'replay' ? etat.replayChoisi !== null
+                                       : etat.replayChoisi !== null || etat.image !== null;
+  lancer.disabled = etat.enCours || !prete;
+}
+
+/* ---------- affichage du traitement ---------- */
+
+function fixeEtape(n) {   // n étapes faites, l'étape n en cours
+  [...etapes.children].forEach((li, i) => {
+    li.classList.toggle('faite', i < n);
+    li.classList.toggle('active', i === n);
+  });
+}
+
+let curseur = null;
+function fluxInit() {
+  flux.textContent = '';
+  curseur = document.createElement('span');
+  curseur.className = 'curseur';
+  flux.appendChild(curseur);
+}
+function fluxEcrit(texte, classe) {
+  const morceau = document.createElement('span');
+  if (classe) morceau.className = classe;
+  morceau.textContent = texte;
+  flux.insertBefore(morceau, curseur);
+  flux.scrollTop = flux.scrollHeight;
+}
+function fluxFin() {
+  if (curseur) curseur.remove();
+  curseur = null;
+}
+
+function videFiche() {
+  etat.remplis.clear();
+  etat.resultat = null;
+  telecharger.disabled = true;
+  mentionSource.textContent = '';
+  document.querySelectorAll('.fiche .valeur').forEach(v => {
+    v.classList.remove('ecrit');
+    v.innerHTML = '<span class="vide">— — —</span>';
+  });
+}
+
+function ecritChamp(champ, valeur) {
+  if (etat.remplis.has(champ)) return;
+  etat.remplis.add(champ);
+  const cible = document.querySelector(`.fiche .valeur[data-champ="${champ}"]`);
+  if (!cible) return;
+  if (valeur === null || valeur === undefined || valeur === '') {
+    cible.innerHTML = '<span class="vide">illisible ou absent</span>';
+  } else {
+    cible.textContent = valeur;
+  }
+  cible.classList.add('ecrit');
+}
+
+// Analyse incrémentale : dès qu'une paire "clé": valeur est complète dans le
+// flux, la fiche s'écrit — c'est le même chemin pour le replay et les vrais modèles.
+function analyseEnDirect() {
+  for (const champ of CHAMPS) {
+    if (etat.remplis.has(champ)) continue;
+    const re = new RegExp(`"${champ}"\\s*:\\s*(null|"(?:[^"\\\\]|\\\\.)*")`);
+    const m = etat.tampon.match(re);
+    if (m) {
+      try { ecritChamp(champ, JSON.parse(m[1])); } catch { /* paire incomplète */ }
+    }
+  }
+}
+
+function recoit(texte) {
+  etat.tampon += texte;
+  fluxEcrit(texte);
+  analyseEnDirect();
+}
+
+function terminer(nomSource) {
+  const m = etat.tampon.match(/\{[\s\S]*\}/);
+  if (m) {
+    try {
+      const objet = JSON.parse(m[0]);
+      CHAMPS.forEach(c => ecritChamp(c, objet[c]));
+      etat.resultat = Object.fromEntries(CHAMPS.map(c => [c, objet[c] ?? null]));
+      etat.resultat._source_image = nomSource;
+      telecharger.disabled = false;
+      mentionSource.textContent = `Source : ${nomSource}`;
+      fixeEtape(5);
+      fluxEcrit('\n\n— lecture terminée —', 'invite');
+    } catch (e) {
+      erreur(`La réponse du modèle n'est pas un JSON valide (${e.message}).`);
+      return;
+    }
+  } else {
+    erreur("Le modèle n'a pas renvoyé de JSON — relancez la lecture.");
+    return;
+  }
+  finDeCourse();
+}
+
+function erreur(message, aide) {
+  fluxEcrit('\n\n' + message, 'erreur');
+  if (aide) fluxEcrit('\n' + aide, 'invite');
+  finDeCourse();
+}
+
+function finDeCourse() {
+  fluxFin();
+  etat.enCours = false;
+  etat.abandon = null;
+  interrompre.hidden = true;
+  majLancer();
+}
+
+telecharger.addEventListener('click', () => {
+  if (!etat.resultat) return;
+  const blob = new Blob([JSON.stringify([etat.resultat], null, 4)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'acte_extrait.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+/* ---------- lancement ---------- */
+
+lancer.addEventListener('click', () => {
+  if (etat.enCours) return;
+  etat.enCours = true;
+  etat.tampon = '';
+  videFiche();
+  fluxInit();
+  interrompre.hidden = false;
+  majLancer();
+  etat.abandon = new AbortController();
+  const partant = { replay: lireReplay, ollama: lireOllama, navigateur: lireNavigateur }[etat.mode]();
+  partant.catch(e => {
+    if (e.name === 'AbortError') { fluxEcrit('\n\n— lecture interrompue —', 'invite'); finDeCourse(); }
+    else erreur(`Incident pendant la lecture : ${e.message}`);
+  });
+});
+
+interrompre.addEventListener('click', () => {
+  if (etat.abandon) etat.abandon.abort();
+});
+
+const pause = (ms, signal) => new Promise((res, rej) => {
+  const t = setTimeout(res, ms);
+  signal.addEventListener('abort', () => { clearTimeout(t); rej(new DOMException('', 'AbortError')); },
+                          { once: true });
+});
+
+/* ---------- mode replay ---------- */
+
+async function lireReplay() {
+  const signal = etat.abandon.signal;
+  const replay = window.REPLAYS[etat.replayChoisi];
+  fixeEtape(0);
+  fluxEcrit(`$ python src/extract.py ${replay.image}\n`, 'invite');
+  await pause(reduitMouvement ? 0 : 500, signal);
+  fixeEtape(1);
+  fluxEcrit(`image encodée (${replay.cote})\n`, 'invite');
+  await pause(reduitMouvement ? 0 : 600, signal);
+  fixeEtape(2);
+  fluxEcrit('le modèle lit le manuscrit…\n\n', 'invite');
+  await pause(reduitMouvement ? 0 : 900, signal);
+
+  const texte = JSON.stringify(replay.entree, null, 2);
+  if (reduitMouvement) {
+    recoit(texte);
+  } else {
+    let i = 0;
+    while (i < texte.length) {
+      const pas = 1 + Math.floor(Math.random() * 3);
+      recoit(texte.slice(i, i + pas));
+      i += pas;
+      await pause(8 + Math.random() * 26, signal);
+    }
+  }
+  fixeEtape(4);
+  await pause(reduitMouvement ? 0 : 400, signal);
+  terminer(replay.image.split('/').pop());
+}
+
+/* ---------- mode ollama ---------- */
+
+async function lireOllama() {
+  const signal = etat.abandon.signal;
+  const hote = el('ollama-hote').value.trim().replace(/\/$/, '');
+  const modele = el('ollama-modele').value.trim();
+  localStorage.setItem('ollama-hote', hote);
+  localStorage.setItem('ollama-modele', modele);
+
+  const base64 = await imagePourLecture(signal);
+  fixeEtape(2);
+  fluxEcrit(`envoi à ${hote} (${modele})…\n\n`, 'invite');
+
+  let reponse;
+  try {
+    reponse = await fetch(`${hote}/api/generate`, {
+      method: 'POST',
+      signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: modele, prompt: PROMPT, images: [base64],
+                             format: 'json', stream: true }),
+    });
+  } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    erreur(`Impossible de joindre Ollama sur ${hote}.`,
+           `Vérifiez qu'Ollama tourne, puis relancez-le en autorisant cette page :\n` +
+           `OLLAMA_ORIGINS="*" ollama serve`);
+    return;
+  }
+  if (!reponse.ok) {
+    const detail = await reponse.text().catch(() => '');
+    erreur(`Ollama a répondu ${reponse.status}. ${detail.slice(0, 300)}`,
+           modele ? `Le modèle est-il installé ? ollama pull ${modele}` : '');
+    return;
+  }
+
+  const lecteur = reponse.body.getReader();
+  const decodeur = new TextDecoder();
+  let reste = '';
+  for (;;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    reste += decodeur.decode(value, { stream: true });
+    const lignes = reste.split('\n');
+    reste = lignes.pop();
+    for (const ligne of lignes) {
+      if (!ligne.trim()) continue;
+      const morceau = JSON.parse(ligne);
+      if (morceau.response) recoit(morceau.response);
+      if (morceau.error) { erreur(`Ollama : ${morceau.error}`); return; }
+    }
+  }
+  fixeEtape(4);
+  terminer(nomSourceCourant());
+}
+
+/* ---------- mode navigateur (WebGPU) ---------- */
+
+let moteurNavigateur = null;  // { processor, model } mis en cache après le premier chargement
+
+async function lireNavigateur() {
+  const signal = etat.abandon.signal;
+  if (!navigator.gpu) {
+    erreur('WebGPU n\'est pas disponible dans ce navigateur.',
+           'Essayez un Chrome, Edge ou Firefox récent — ou utilisez le mode Replay ou Ollama.');
+    return;
+  }
+  const dataUrl = await dataUrlPourLecture(signal);
+
+  fixeEtape(2);
+  if (!moteurNavigateur) {
+    fluxEcrit('téléchargement du modèle (une seule fois, ≈ 1,2 Go)…\n', 'invite');
+    const progres = {};
+    let t;
+    try {
+      t = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.1');
+    } catch {
+      erreur("Impossible de charger la bibliothèque d'inférence (êtes-vous hors ligne ?).",
+             'Le mode Replay et le mode Ollama fonctionnent sans connexion au CDN.');
+      return;
+    }
+    const idModele = 'onnx-community/Qwen2-VL-2B-Instruct';
+    const suitProgres = p => {
+      if (p.status === 'progress' && p.file) {
+        progres[p.file] = p.progress || 0;
+        const fichiers = Object.values(progres);
+        const moyen = fichiers.reduce((a, b) => a + b, 0) / fichiers.length;
+        legende.textContent = `Téléchargement du modèle : ${moyen.toFixed(0)} %`;
+      }
+    };
+    const processor = await t.AutoProcessor.from_pretrained(idModele,
+                        { progress_callback: suitProgres });
+    const model = await t.Qwen2VLForConditionalGeneration.from_pretrained(idModele,
+                        { dtype: 'q4', device: 'webgpu', progress_callback: suitProgres });
+    moteurNavigateur = { t, processor, model };
+    legende.textContent = 'Modèle prêt.';
+    fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
+  } else {
+    fluxEcrit('lecture en cours…\n\n', 'invite');
+  }
+  if (signal.aborted) throw new DOMException('', 'AbortError');
+
+  const { t, processor, model } = moteurNavigateur;
+  const image = await t.RawImage.fromURL(dataUrl);
+  const conversation = [{ role: 'user',
+    content: [{ type: 'image' }, { type: 'text', text: PROMPT }] }];
+  const texte = processor.apply_chat_template(conversation, { add_generation_prompt: true });
+  const entrees = await processor(texte, image);
+  const streamer = new t.TextStreamer(processor.tokenizer, {
+    skip_prompt: true,
+    skip_special_tokens: true,
+    callback_function: morceau => { if (!signal.aborted) recoit(morceau); },
+  });
+  await model.generate({ ...entrees, max_new_tokens: 512, streamer });
+  if (signal.aborted) throw new DOMException('', 'AbortError');
+  fixeEtape(4);
+  terminer(nomSourceCourant());
+}
+
+/* ---------- image courante pour les modes réels ---------- */
+
+function nomSourceCourant() {
+  if (etat.image) return etat.image.nom;
+  return window.REPLAYS[etat.replayChoisi].image.split('/').pop();
+}
+
+async function dataUrlPourLecture(signal) {
+  fixeEtape(0);
+  await pause(reduitMouvement ? 0 : 250, signal);
+  fixeEtape(1);
+  if (etat.image) return etat.image.dataUrl;
+  // Feuillet d'exemple : on le charge depuis le site.
+  const reponse = await fetch(window.REPLAYS[etat.replayChoisi].image, { signal });
+  const blob = await reponse.blob();
+  return await new Promise(res => {
+    const lecteur = new FileReader();
+    lecteur.onload = () => res(lecteur.result);
+    lecteur.readAsDataURL(blob);
+  });
+}
+
+async function imagePourLecture(signal) {
+  const dataUrl = await dataUrlPourLecture(signal);
+  return dataUrl.split(',')[1];
+}
+
+/* ---------- restauration des préférences ---------- */
+
+if (localStorage.getItem('ollama-hote')) el('ollama-hote').value = localStorage.getItem('ollama-hote');
+if (localStorage.getItem('ollama-modele')) el('ollama-modele').value = localStorage.getItem('ollama-modele');
+</script>
+</body>
+</html>
