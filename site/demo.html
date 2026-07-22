@@ -296,6 +296,10 @@
     border-color: var(--tampon);
     color: #f6efe4;
   }
+  .pretraitement button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
   .note-pretraite {
     font-family: var(--mono);
     font-size: .68rem;
@@ -509,6 +513,26 @@
   }
   .flux .invite { color: #8494a6; }
   .flux .erreur { color: #d98d7b; }
+  .chrono {
+    margin: 0 0 .5rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: #8494a6;
+  }
+  .chrono::before {
+    content: '';
+    display: inline-block;
+    width: .5em;
+    height: .5em;
+    margin-right: .5em;
+    border-radius: 50%;
+    background: #8494a6;
+    animation: chrono-pouls 1.2s ease-in-out infinite;
+  }
+  @keyframes chrono-pouls { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .chrono::before { animation: none; }
+  }
   .flux .curseur {
     display: inline-block;
     width: .55em;
@@ -684,6 +708,12 @@
   <p class="mode-note" id="mode-note">Rejoue, telle qu'elle a été enregistrée, l'extraction réelle
      d'un des feuillets d'exemple. Aucune installation : choisissez une page ci-dessous et lancez la lecture.</p>
 
+  <div class="pretraitement">
+    <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
+    <span class="note-pretraite" id="note-pretraite">Recadrage, redressement, fond aplani,
+      contraste, netteté : la chaîne maison, exécutée par le serveur avant la lecture.</span>
+  </div>
+
   <div class="config" id="config-ollama" hidden>
     <label for="ollama-hote">Serveur</label>
     <input id="ollama-hote" value="http://localhost:11434" spellcheck="false">
@@ -706,16 +736,12 @@
       <p>Si vous ouvrez cette page en local (<code>http://localhost</code>), aucune variable
          n'est nécessaire : Ollama autorise localhost par défaut. Évitez
          <code>OLLAMA_ORIGINS="*"</code>, qui ouvrirait votre Ollama à n'importe quel site.</p>
-      <p>Le traitement reste entièrement sur votre machine.</p>
+      <p>Le traitement reste entièrement sur votre machine (une seule exception :
+         l'étape optionnelle de prétraitement, exécutée par le serveur du site).</p>
     </details>
   </div>
   <div class="config" id="config-enligne" hidden>
     <div class="modeles-enligne" id="modeles-enligne" role="group" aria-label="Modèle de lecture"></div>
-    <div class="pretraitement">
-      <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
-      <span class="note-pretraite">Recadrage, redressement, fond aplani, contraste,
-        netteté : la chaîne maison, exécutée par le serveur avant la lecture.</span>
-    </div>
     <details class="aide">
       <summary>Comment ça marche</summary>
       <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
@@ -793,6 +819,7 @@
         <div class="piste"><div class="barre" id="telechargement-barre"></div></div>
         <span id="telechargement-texte">Téléchargement du modèle…</span>
       </div>
+      <p class="chrono" id="chrono" hidden></p>
       <pre class="flux" id="flux"><span class="invite">La machine attend une page.
 Choisissez un feuillet d'exemple, ou déposez votre propre image
 et passez en mode En ligne, Navigateur ou Ollama.</span></pre>
@@ -914,6 +941,7 @@ document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
     el('config-navigateur').hidden = etat.mode !== 'navigateur';
     el('mode-note').textContent = NOTES[etat.mode];
     if (etat.mode === 'navigateur') afficheMateriel();
+    majPretraitement();
     restaureApercu();
     majLancer();
   });
@@ -960,11 +988,30 @@ el('bascule-pretraite').addEventListener('click', () => {
   if (!pretraitementActif) restaureApercu();
 });
 
+// L'interrupteur suit le mode : sans objet en replay (la lecture rejouée a
+// été enregistrée sur la page brute), il précise ailleurs où passe l'image.
+const NOTES_PRETRAITE = {
+  replay: 'Indisponible en replay : la lecture rejouée a été enregistrée sur la page brute.',
+  enligne: 'Recadrage, redressement, fond aplani, contraste, netteté : la chaîne maison, '
+    + 'exécutée par le serveur avant la lecture.',
+  navigateur: 'Recadrage, redressement, fond aplani, contraste, netteté : seule cette étape '
+    + 'passe par le serveur du site, la lecture reste dans votre navigateur.',
+  ollama: 'Recadrage, redressement, fond aplani, contraste, netteté : seule cette étape '
+    + 'passe par le serveur du site, la lecture reste sur votre Ollama.',
+};
+
+function majPretraitement() {
+  el('bascule-pretraite').disabled = etat.mode === 'replay';
+  el('note-pretraite').textContent = NOTES_PRETRAITE[etat.mode];
+}
+majPretraitement();
+
 // Envoie la page au service de prétraitement du site (la même chaîne que
 // src/pretraite.py, portée en PHP) et affiche l'avant/après. En cas de
 // souci, la lecture continue simplement sur la page brute.
 async function pretraiteEnLigne(base64, signal) {
   fluxEcrit('prétraitement de la page (chaîne maison, sur le serveur)…\n', 'invite');
+  chronoDemarre('prétraitement en cours');
   try {
     const reponse = await fetch('api/pretraite.php', {
       method: 'POST',
@@ -976,12 +1023,15 @@ async function pretraiteEnLigne(base64, signal) {
     if (!reponse.ok || !corps.image) {
       throw new Error(corps.erreur || `réponse ${reponse.status}`);
     }
+    const duree = chronoArrete();
     const avant = apercu.src;
     apercu.src = 'data:image/jpeg;base64,' + corps.image;
     montreAvantApres(avant);
-    fluxEcrit('page recadrée, redressée, fond aplani, contraste et netteté ajustés.\n\n', 'invite');
+    fluxEcrit('page recadrée, redressée, fond aplani, contraste et netteté ajustés '
+      + `(${formatDuree(duree)}).\n\n`, 'invite');
     return corps.image;
   } catch (e) {
+    chronoArrete();
     if (e.name === 'AbortError') throw e;
     fluxEcrit(`prétraitement indisponible (${e.message}) : la page brute est envoyée.\n\n`, 'invite');
     return base64;
@@ -1244,6 +1294,51 @@ function terminer(nomSource) {
   finDeCourse();
 }
 
+/* ---------- chronomètre des étapes lentes ----------
+   Les modèles locaux peuvent mettre plusieurs minutes avant le premier
+   caractère : ce compteur montre que la machine travaille, et depuis
+   combien de temps. */
+
+let chronoTimer = null;
+let chronoDebut = 0;
+let chronoLibelle = '';
+
+function formatDuree(secondes) {
+  return secondes < 60
+    ? `${secondes} s`
+    : `${Math.floor(secondes / 60)} min ${String(secondes % 60).padStart(2, '0')} s`;
+}
+
+function chronoAffiche() {
+  const secondes = Math.floor((Date.now() - chronoDebut) / 1000);
+  el('chrono').textContent = `${chronoLibelle} · ${formatDuree(secondes)}`;
+}
+
+function chronoDemarre(libelle) {
+  chronoArrete();
+  chronoDebut = Date.now();
+  chronoLibelle = libelle;
+  el('chrono').hidden = false;
+  chronoAffiche();
+  chronoTimer = setInterval(chronoAffiche, 1000);
+}
+
+// Change le libellé sans remettre le compteur à zéro (temps cumulé).
+function chronoChange(libelle) {
+  if (chronoTimer) {
+    chronoLibelle = libelle;
+    chronoAffiche();
+  }
+}
+
+function chronoArrete() {
+  if (!chronoTimer) return 0;
+  clearInterval(chronoTimer);
+  chronoTimer = null;
+  el('chrono').hidden = true;
+  return Math.round((Date.now() - chronoDebut) / 1000);
+}
+
 function erreur(message, aide) {
   fluxEcrit('\n\n' + message, 'erreur');
   if (aide) fluxEcrit('\n' + aide, 'invite');
@@ -1252,6 +1347,7 @@ function erreur(message, aide) {
 }
 
 function finDeCourse() {
+  chronoArrete();
   fluxFin();
   etat.enCours = false;
   etat.abandon = null;
@@ -1404,13 +1500,20 @@ async function lireEnLigne() {
     return;
   }
 
+  chronoDemarre('le modèle lit la page');
   const lecteur = reponse.body.getReader();
   const decodeur = new TextDecoder();
+  let premierMorceau = true;
   for (;;) {
     const { done, value } = await lecteur.read();
     if (done) break;
+    if (premierMorceau) {
+      premierMorceau = false;
+      chronoChange("la fiche s'écrit");
+    }
     recoit(decodeur.decode(value, { stream: true }));
   }
+  fluxEcrit(`\n\nlecture terminée en ${formatDuree(chronoArrete())}.`, 'invite');
   fixeEtape(4);
   terminer(nomSourceCourant());
   fetch('api/lire.php?fournisseurs=1').then(r => r.json())
@@ -1426,7 +1529,8 @@ async function lireOllama() {
   localStorage.setItem('ollama-hote', hote);
   localStorage.setItem('ollama-modele', modele);
 
-  const base64 = await imagePourLecture(signal);
+  let base64 = await imagePourLecture(signal);
+  if (pretraitementActif) base64 = await pretraiteEnLigne(base64, signal);
   fixeEtape(2);
   fluxEcrit(`envoi à ${hote} (${modele})…\n\n`, 'invite');
 
@@ -1454,9 +1558,11 @@ async function lireOllama() {
     return;
   }
 
+  chronoDemarre('le modèle déchiffre la page, cela peut durer plusieurs minutes sur un processeur');
   const lecteur = reponse.body.getReader();
   const decodeur = new TextDecoder();
   let reste = '';
+  let premierMorceau = true;
   for (;;) {
     const { done, value } = await lecteur.read();
     if (done) break;
@@ -1466,10 +1572,17 @@ async function lireOllama() {
     for (const ligne of lignes) {
       if (!ligne.trim()) continue;
       const morceau = JSON.parse(ligne);
-      if (morceau.response) recoit(morceau.response);
+      if (morceau.response) {
+        if (premierMorceau) {
+          premierMorceau = false;
+          chronoChange("la fiche s'écrit");
+        }
+        recoit(morceau.response);
+      }
       if (morceau.error) { erreur(`Ollama : ${morceau.error}`); return; }
     }
   }
+  fluxEcrit(`\n\nlecture terminée en ${formatDuree(chronoArrete())}.`, 'invite');
   fixeEtape(4);
   terminer(nomSourceCourant());
 }
@@ -1606,7 +1719,11 @@ async function lireNavigateur() {
     return;
   }
 
-  const dataUrl = await dataUrlPourLecture(signal);
+  let dataUrl = await dataUrlPourLecture(signal);
+  if (pretraitementActif) {
+    const traite = await pretraiteEnLigne(dataUrl.split(',')[1], signal);
+    dataUrl = 'data:image/jpeg;base64,' + traite;
+  }
   fixeEtape(2);
   fluxEcrit(modelePret ? 'lecture en cours…\n\n'
                        : 'téléchargement du modèle (une seule fois, ≈ 2,7 Go)…\n', 'invite');
@@ -1658,8 +1775,12 @@ async function lireNavigateur() {
         texteBarre.textContent = 'Modèle prêt (conservé en cache pour les prochaines lectures).';
         setTimeout(() => { zone.hidden = true; }, 4000);
         fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
+        chronoChange('le modèle déchiffre la page dans votre navigateur');
       } else if (message.type === 'morceau') {
-        if (!signal.aborted) recoit(message.texte);
+        if (!signal.aborted) {
+          chronoChange("la fiche s'écrit");
+          recoit(message.texte);
+        }
       } else if (message.type === 'fini') {
         signal.removeEventListener('abort', abandonne);
         if (signal.aborted || message.interrompu) {
@@ -1672,9 +1793,12 @@ async function lireNavigateur() {
         rejeter(new Error(message.message));
       }
     };
+    chronoDemarre(modelePret ? 'le modèle déchiffre la page dans votre navigateur'
+                             : 'préparation du modèle dans votre navigateur');
     moteur.postMessage({ type: 'lit', dataUrl });
   });
 
+  fluxEcrit(`\n\nlecture terminée en ${formatDuree(chronoArrete())}.`, 'invite');
   fixeEtape(4);
   terminer(nomSourceCourant());
 }
