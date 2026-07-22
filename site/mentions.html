@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greffier : mentions légales</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
+<style>
+  :root {
+    --papier: #efe8d8;
+    --papier-2: #e7dcc4;
+    --regle: #cdbfa0;
+    --encre: #2c2416;
+    --encre-pale: #77684f;
+    --tampon: #8c2f1b;
+    --carte: #f6f0e2;
+    --serif-display: 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
+    --serif-body: Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--serif-body);
+    background: var(--papier);
+    color: var(--encre);
+    line-height: 1.55;
+  }
+  a { color: var(--tampon); }
+  :focus-visible { outline: 2px solid var(--tampon); outline-offset: 2px; }
+  nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: baseline;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.1rem 1.5rem 0;
+    font-size: .85rem;
+    font-family: var(--mono);
+    flex-wrap: wrap;
+  }
+  nav .marque {
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin-right: auto;
+    text-decoration: none;
+  }
+  nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.2rem 1.5rem 4rem;
+  }
+  h1 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 0 0 1.6rem;
+  }
+  h1 em { color: var(--tampon); font-style: italic; }
+  section {
+    background: var(--carte);
+    border: 1px solid var(--regle);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tampon);
+    font-weight: normal;
+    margin: 0 0 .6rem;
+  }
+  p { margin: 0 0 .6rem; }
+  p:last-child { margin-bottom: 0; }
+  .hebergeur {
+    display: flex;
+    gap: 1.2rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .drapeau {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border: 1px solid var(--tampon);
+    color: var(--tampon);
+    border-radius: 3px;
+    padding: .2rem .6rem;
+    white-space: nowrap;
+  }
+  footer {
+    border-top: 1px solid var(--regle);
+    color: var(--encre-pale);
+    font-size: .8rem;
+    text-align: center;
+    padding: 1.4rem;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="marque" href="index.html">Greffier · Registres de Paris 1913-1920</a>
+  <a href="demo.html">Démonstration</a>
+  <a href="banc.html">Banc d'essai</a>
+  <a href="index.html">Les 130 actes</a>
+</nav>
+
+<main>
+  <h1>Mentions <em>légales</em></h1>
+
+  <section>
+    <h2>Éditeur du site</h2>
+    <p>Ce site est édité à titre personnel par Abdellah Hassani, qui en est le
+       directeur de la publication.</p>
+    <p>Contact : <a href="mailto:abdellah.hassani2002@gmail.com">abdellah.hassani2002@gmail.com</a></p>
+  </section>
+
+  <section>
+    <h2>Hébergement</h2>
+    <div class="hebergeur">
+      <span class="drapeau">Hébergé en France</span>
+      <p>OVH SAS, 2 rue Kellermann, 59100 Roubaix, France<br>
+         RCS Lille Métropole 424 761 419 00045<br>
+         Téléphone : 1007 (depuis la France) ·
+         <a href="https://www.ovhcloud.com">www.ovhcloud.com</a></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Données personnelles</h2>
+    <p>Ce site ne dépose aucun cookie, n'utilise aucun traceur et ne collecte
+       aucune donnée personnelle. Aucun compte n'est demandé.</p>
+    <p>Les seuls compteurs techniques (limitation du nombre de lectures par
+       jour) reposent sur une empreinte anonymisée de l'adresse IP, effacée
+       chaque jour. Le registre public du banc d'essai ne consigne que des
+       scores anonymes.</p>
+    <p>Dans le mode « En ligne » de la démonstration, l'image que vous
+       choisissez est transmise au fournisseur du modèle sélectionné
+       (Google, OpenRouter ou Mistral) le temps de la lecture ; ce site
+       n'en conserve aucune copie. Les modes « Navigateur » et « Ollama »
+       fonctionnent entièrement sur votre machine : rien n'est transmis.</p>
+  </section>
+
+  <section>
+    <h2>Propriété intellectuelle et sources</h2>
+    <p>Le code source de ce site et de son pipeline est publié sur
+       <a href="https://github.com/Abdellah427/Greffier">GitHub</a>.</p>
+    <p>Les photographies de registres de 1913 et 1920 proviennent des
+       <a href="https://archives.paris.fr">Archives de Paris</a> (cote
+       AD075EC) et sont reproduites ici en petit nombre, à titre
+       d'illustration et de démonstration scientifique.</p>
+    <p>Les pages annotées et transcriptions de référence du banc d'essai
+       proviennent du jeu de données
+       <a href="https://zenodo.org/records/10980636">M-POPP</a> (projet
+       EXO-POPP), publié sous licence CC-BY 4.0.</p>
+  </section>
+
+  <section>
+    <h2>Responsabilité</h2>
+    <p>Les fiches présentées sont produites automatiquement par des modèles
+       de vision à partir de documents manuscrits anciens : malgré les
+       vérifications, elles peuvent contenir des erreurs de lecture et ne
+       constituent pas des copies authentiques d'actes d'état civil. Pour
+       toute recherche officielle, reportez-vous aux Archives de Paris.</p>
+  </section>
+</main>
+
+<footer>
+  Greffier · registres manuscrits lus par les modèles de vision Gemini Flash &amp; Qwen-VL ·
+  <a href="index.html">retour au site</a>
+</footer>
+
+</body>
+</html>
