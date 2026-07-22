@@ -19,6 +19,7 @@ Un champ est compté :
 """
 
 import argparse
+import difflib
 import json
 import re
 import sys
@@ -59,7 +60,18 @@ def compare(extrait, reference, champ=None):
     a, b = normalise(extrait), normalise(reference)
     if a == b:
         return "exact"
-    if a and b and (a in b or b in a):
+    if not a or not b:
+        return "faux"
+    if a in b or b in a:
+        return "proche"
+    # Quasi-succès : « Marie Hélène Chauveau » face à « Marie Héloïse
+    # Chauveau » est proche, pas faux.
+    if difflib.SequenceMatcher(None, a, b).ratio() >= 0.75:
+        return "proche"
+    # Mêmes mots dans le désordre (adresses recomposées) : proche aussi.
+    mots_a, mots_b = a.split(), set(b.split())
+    communs = sum(1 for mot in mots_a if mot in mots_b)
+    if communs >= 3 and communs / max(len(mots_a), len(mots_b)) >= 0.6:
         return "proche"
     return "faux"
 

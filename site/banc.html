@@ -416,6 +416,14 @@
     text-transform: none;
     color: var(--encre);
   }
+  .comparaison th .taux-proche {
+    display: block;
+    font-family: var(--mono);
+    font-size: .64rem;
+    letter-spacing: .04em;
+    text-transform: none;
+    color: var(--proche);
+  }
   .comparaison th .meilleur {
     display: inline-block;
     border: 1px solid var(--exact);
@@ -928,6 +936,25 @@ function dateVersIso(brut) {
   return null;
 }
 
+// Similarité de Dice sur les bigrammes de caractères : « Marie Hélène
+// Chauveau » et « Marie Héloïse Chauveau » se ressemblent à 80 %.
+function similarite(a, b) {
+  if (a === b) return 1;
+  if (a.length < 2 || b.length < 2) return 0;
+  const bigrammes = texte => {
+    const sac = new Map();
+    for (let i = 0; i < texte.length - 1; i++) {
+      const g = texte.slice(i, i + 2);
+      sac.set(g, (sac.get(g) || 0) + 1);
+    }
+    return sac;
+  };
+  const sa = bigrammes(a), sb = bigrammes(b);
+  let communs = 0;
+  for (const [g, n] of sa) communs += Math.min(n, sb.get(g) || 0);
+  return 2 * communs / (a.length - 1 + b.length - 1);
+}
+
 function verdictDe(modele, reference, champ) {
   if (champ === 'date_mariage') {
     const da = dateVersIso(modele), db = dateVersIso(reference);
@@ -935,7 +962,13 @@ function verdictDe(modele, reference, champ) {
   }
   const a = normalise(modele), b = normalise(reference);
   if (a === b) return 'exact';
-  if (a && b && (a.includes(b) || b.includes(a))) return 'proche';
+  if (!a || !b) return 'faux';
+  if (a.includes(b) || b.includes(a)) return 'proche';
+  if (similarite(a, b) >= 0.75) return 'proche';
+  // Mêmes mots dans le désordre (adresses recomposées) : proche aussi.
+  const motsA = a.split(' '), motsB = new Set(b.split(' '));
+  const communs = motsA.filter(mot => motsB.has(mot)).length;
+  if (communs >= 3 && communs / Math.max(motsA.length, motsB.size) >= 0.6) return 'proche';
   return 'faux';
 }
 
@@ -1012,10 +1045,11 @@ function palmares(resultats, reference) {
       else if (verdict === 'proche') proches++;
       else faux++;
     }
-    scores[nom] = exacts;
+    scores[nom] = { exacts, proches };
     deposeReleve(nom, { exacts, proches, faux });
   }
-  const meilleur = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+  const meilleur = Object.entries(scores).sort((a, b) =>
+    (b[1].exacts - a[1].exacts) || (b[1].proches - a[1].proches))[0];
 
   const tete = el('palmares-tete');
   tete.innerHTML = '';
@@ -1024,7 +1058,8 @@ function palmares(resultats, reference) {
     noms.map(nom => {
       const score = scores[nom];
       const taux = score === undefined ? 'indisponible'
-                 : `${Math.round(100 * score / CHAMPS.length)} % exact`;
+                 : `${Math.round(100 * score.exacts / CHAMPS.length)} % exact` +
+                   `<span class="taux-proche">${Math.round(100 * (score.exacts + score.proches) / CHAMPS.length)} % avec les proches</span>`;
       const laurier = meilleur && nom === meilleur[0] && score !== undefined
         ? ' <span class="meilleur">meilleure lecture</span>' : '';
       const infobulle = idsModeles[nom] ? ` title="${esc(idsModeles[nom])}"` : '';
