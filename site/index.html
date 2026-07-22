@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Actes de mariage — Paris 1913 &amp; 1920 · Extraction par IA</title>
+<title>Actes de mariage, Paris 1913 &amp; 1920 · Extraction par IA</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
 <style>
   :root {
@@ -137,7 +137,7 @@
 </head>
 <body>
 <nav>
-  <a class="marque" href="index.html">Actes de mariage · Paris 1913–1920</a>
+  <a class="marque" href="index.html">Actes de mariage · Paris 1913-1920</a>
   <a href="demo.html">Démonstration</a>
   <a href="index.html" aria-current="page">Les 130 actes</a>
   <a href="https://github.com/Abdellah427/IA-Application">Code source</a>
@@ -168,7 +168,7 @@
 <main id="list"></main>
 
 <footer>
-  Projet d'extraction de données historiques par IA —
+  Projet d'extraction de données historiques par IA :
   <a href="https://github.com/Abdellah427/IA-Application">code source sur GitHub</a>
 </footer>
 
@@ -207,7 +207,7 @@
 
   function card(a) {
     return `<article class="acte">
-      <h2>${a.nom_prenom_marie || '—'} <span class="et">&amp;</span> ${a.nom_prenom_mariee || '—'}</h2>
+      <h2>${a.nom_prenom_marie || '. . .'} <span class="et">&amp;</span> ${a.nom_prenom_mariee || '. . .'}</h2>
       <div class="meta">${a.date_mariage || 'date inconnue'} · ${a.lieu_mariage || ''}</div>
       <dl>
         ${field('Profession (lui)', a.profession_marie)}
@@ -234,7 +234,7 @@
     });
     list.innerHTML = shown.length
       ? shown.map(card).join('')
-      : '<p class="vide-message">Aucun acte ne correspond — élargissez la recherche.</p>';
+      : '<p class="vide-message">Aucun acte ne correspond : élargissez la recherche.</p>';
     count.textContent = `${shown.length} acte${shown.length > 1 ? 's' : ''} / ${ACTES.length}`;
   }
 

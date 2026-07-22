@@ -1,4 +1,4 @@
-# IA-Application — Extraction d'actes de mariage manuscrits par IA
+# IA-Application : extraction d'actes de mariage manuscrits par IA
 
 Extraction automatique de données structurées à partir de **registres d'actes de
 mariage parisiens manuscrits de 1913 et 1920** (Archives de Paris, cote AD075EC),
@@ -14,23 +14,23 @@ modèles libres : voir [« Deux backends, zéro coût »](#deux-backends-zéro-c
 
 ## Le site de démonstration
 
-Le dossier [`site/`](site/) est un site **100 % statique** — il se déploie en
+Le dossier [`site/`](site/) est un site **100 % statique** : il se déploie en
 copiant simplement le dossier sur n'importe quel hébergement web, sans backend.
 
-- **`demo.html` — la machine lit le registre, en direct.** On dépose la
+- **`demo.html`, la machine qui lit le registre en direct.** On dépose la
   photographie d'une page (ou on choisit un feuillet d'exemple) et on regarde
   le modèle la transcrire en streaming, pendant que la fiche de mariage
   s'écrit champ par champ. Trois modes, aucun ne demande de clé ni de compte :
-  - **Replay** : rejoue une extraction réelle enregistrée — fonctionne
-    instantanément pour n'importe quel visiteur ;
+  - **Replay** : rejoue une extraction réelle enregistrée.
+    Fonctionne instantanément pour n'importe quel visiteur ;
   - **Navigateur (WebGPU)** : un modèle vision ouvert (Qwen2-VL 2B, ≈ 1,2 Go
     téléchargés une fois puis mis en cache) tourne *dans* le navigateur du
-    visiteur — rien ne quitte sa machine ;
+    visiteur, rien ne quitte sa machine ;
   - **Ollama local** : la page dialogue avec l'Ollama du visiteur
-    (`qwen2.5vl:7b`) — la meilleure qualité de lecture, entièrement locale
+    (`qwen2.5vl:7b`). La meilleure qualité de lecture, entièrement locale
     et libre. Une seule préparation :
     `ollama pull qwen2.5vl:7b` puis `OLLAMA_ORIGINS="*" ollama serve`.
-- **`index.html` — l'explorateur.** Les 130 actes extraits, avec recherche
+- **`index.html`, l'explorateur.** Les 130 actes extraits, avec recherche
   plein texte insensible aux accents et filtres par champ et par année.
 
 Pour l'essayer en local : `python -m http.server -d site` puis ouvrir

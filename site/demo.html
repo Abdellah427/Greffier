@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>La machine lit le registre — démonstration en direct</title>
+<title>La machine lit le registre : démonstration en direct</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
 <style>
   :root {
@@ -424,7 +424,7 @@
 <body>
 
 <nav>
-  <a class="marque" href="index.html">Actes de mariage · Paris 1913–1920</a>
+  <a class="marque" href="index.html">Actes de mariage · Paris 1913-1920</a>
   <a href="demo.html" aria-current="page">Démonstration</a>
   <a href="index.html">Les 130 actes</a>
   <a href="https://github.com/Abdellah427/IA-Application">Code source</a>
@@ -432,8 +432,8 @@
 
 <header>
   <h1>La machine lit <em>le registre</em>.</h1>
-  <p class="sous-titre">Déposez la photographie d'une page d'acte de mariage — ou choisissez
-     un feuillet de 1913 — et regardez le modèle la transcrire puis en établir
+  <p class="sous-titre">Déposez la photographie d'une page d'acte de mariage (ou choisissez
+     un feuillet de 1913) et regardez le modèle la transcrire puis en établir
      la fiche, en direct. Tout se passe ici : aucun envoi vers un serveur,
      aucune clé, aucun compte.</p>
 </header>
@@ -463,7 +463,7 @@
     <details class="aide" open>
       <summary>Comment ça marche</summary>
       <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 1,2 Go,
-         mis en cache) puis exécuté <em>dans votre navigateur</em> grâce à WebGPU — rien ne quitte
+         mis en cache) puis exécuté <em>dans votre navigateur</em> grâce à WebGPU : rien ne quitte
          votre machine. Expérimental : il faut un navigateur récent et un peu de patience ;
          la lecture des manuscrits est moins fiable qu'avec le modèle 7B d'Ollama.</p>
     </details>
@@ -511,30 +511,30 @@ et passez en mode Navigateur ou Ollama.</span></pre>
     <div class="tampon-rond">extrait par la machine</div>
     <h2>Fiche de mariage</h2>
     <p class="fiche-sous">établie automatiquement d'après le registre</p>
-    <div class="champ"><span class="etiquette">Date</span><span class="valeur" data-champ="date_mariage"><span class="vide">— — —</span></span></div>
-    <div class="champ"><span class="etiquette">Lieu</span><span class="valeur" data-champ="lieu_mariage"><span class="vide">— — —</span></span></div>
+    <div class="champ"><span class="etiquette">Date</span><span class="valeur" data-champ="date_mariage"><span class="vide">. . .</span></span></div>
+    <div class="champ"><span class="etiquette">Lieu</span><span class="valeur" data-champ="lieu_mariage"><span class="vide">. . .</span></span></div>
     <div class="colonnes">
       <div class="groupe">
         <h3>L'époux</h3>
-        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_marie"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_marie"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_marie"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_marie"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_marie"><span class="vide">. . .</span></span></div>
         <h3>Ses parents</h3>
-        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_marie"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_marie"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_marie"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_marie"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_marie"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_marie"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_marie"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_marie"><span class="vide">. . .</span></span></div>
       </div>
       <div class="groupe">
         <h3>L'épouse</h3>
-        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_mariee"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mariee"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Nom</span><span class="valeur" data-champ="nom_prenom_mariee"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mariee"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Domicile</span><span class="valeur" data-champ="adresse_mariee"><span class="vide">. . .</span></span></div>
         <h3>Ses parents</h3>
-        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_mariee"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_mariee"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_mariee"><span class="vide">— — —</span></span></div>
-        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_mariee"><span class="vide">— — —</span></span></div>
+        <div class="champ"><span class="etiquette">Père</span><span class="valeur" data-champ="nom_pere_mariee"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_pere_mariee"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Mère</span><span class="valeur" data-champ="nom_mere_mariee"><span class="vide">. . .</span></span></div>
+        <div class="champ"><span class="etiquette">Profession</span><span class="valeur" data-champ="profession_mere_mariee"><span class="vide">. . .</span></span></div>
       </div>
     </div>
     <div class="fiche-pied">
@@ -639,7 +639,7 @@ function choisirExemple(i) {
   apercu.alt = replay.titre;
   apercu.hidden = false;
   depot.hidden = true;
-  legende.textContent = `${replay.titre} — ${replay.cote}`;
+  legende.textContent = `${replay.titre} (${replay.cote})`;
   majLancer();
 }
 
@@ -664,7 +664,7 @@ cadre.addEventListener('drop', e => {
 function chargerFichier(f) {
   if (etat.enCours) return;
   if (!/^image\/(jpeg|png|webp)$/.test(f.type)) {
-    legende.textContent = 'Format non pris en charge — utilisez une image JPG, PNG ou WebP.';
+    legende.textContent = 'Format non pris en charge : utilisez une image JPG, PNG ou WebP.';
     return;
   }
   const lecteur = new FileReader();
@@ -687,8 +687,8 @@ function chargerFichier(f) {
       apercu.hidden = false;
       depot.hidden = true;
       legende.textContent = etat.mode === 'replay'
-        ? `${f.name} — le replay ne rejoue que les feuillets d'exemple : passez en mode Navigateur ou Ollama pour lire cette page.`
-        : `${f.name} — prête à être lue.`;
+        ? `${f.name} : le replay ne rejoue que les feuillets d'exemple, passez en mode Navigateur ou Ollama pour lire cette page.`
+        : `${f.name}, prête à être lue.`;
       majLancer();
     };
     img.src = lecteur.result;
@@ -737,7 +737,7 @@ function videFiche() {
   mentionSource.textContent = '';
   document.querySelectorAll('.fiche .valeur').forEach(v => {
     v.classList.remove('ecrit');
-    v.innerHTML = '<span class="vide">— — —</span>';
+    v.innerHTML = '<span class="vide">. . .</span>';
   });
 }
 
@@ -755,7 +755,7 @@ function ecritChamp(champ, valeur) {
 }
 
 // Analyse incrémentale : dès qu'une paire "clé": valeur est complète dans le
-// flux, la fiche s'écrit — c'est le même chemin pour le replay et les vrais modèles.
+// flux, la fiche s'écrit ; même chemin pour le replay et les vrais modèles.
 function analyseEnDirect() {
   for (const champ of CHAMPS) {
     if (etat.remplis.has(champ)) continue;
@@ -784,13 +784,13 @@ function terminer(nomSource) {
       telecharger.disabled = false;
       mentionSource.textContent = `Source : ${nomSource}`;
       fixeEtape(5);
-      fluxEcrit('\n\n— lecture terminée —', 'invite');
+      fluxEcrit('\n\n-- lecture terminée --', 'invite');
     } catch (e) {
       erreur(`La réponse du modèle n'est pas un JSON valide (${e.message}).`);
       return;
     }
   } else {
-    erreur("Le modèle n'a pas renvoyé de JSON — relancez la lecture.");
+    erreur("Le modèle n'a pas renvoyé de JSON : relancez la lecture.");
     return;
   }
   finDeCourse();
@@ -833,7 +833,7 @@ lancer.addEventListener('click', () => {
   etat.abandon = new AbortController();
   const partant = { replay: lireReplay, ollama: lireOllama, navigateur: lireNavigateur }[etat.mode]();
   partant.catch(e => {
-    if (e.name === 'AbortError') { fluxEcrit('\n\n— lecture interrompue —', 'invite'); finDeCourse(); }
+    if (e.name === 'AbortError') { fluxEcrit('\n\n-- lecture interrompue --', 'invite'); finDeCourse(); }
     else erreur(`Incident pendant la lecture : ${e.message}`);
   });
 });
@@ -944,7 +944,7 @@ async function lireNavigateur() {
   const signal = etat.abandon.signal;
   if (!navigator.gpu) {
     erreur('WebGPU n\'est pas disponible dans ce navigateur.',
-           'Essayez un Chrome, Edge ou Firefox récent — ou utilisez le mode Replay ou Ollama.');
+           'Essayez un Chrome, Edge ou Firefox récent, ou utilisez le mode Replay ou Ollama.');
     return;
   }
   const dataUrl = await dataUrlPourLecture(signal);

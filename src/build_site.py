@@ -53,7 +53,7 @@ def main():
         })
 
     contenu = (
-        "// Fichier généré par src/build_site.py — ne pas éditer à la main.\n"
+        "// Fichier généré par src/build_site.py, ne pas éditer à la main.\n"
         f"window.ACTES = {json.dumps(actes, ensure_ascii=False)};\n"
         f"window.REPLAYS = {json.dumps(replays, ensure_ascii=False)};\n"
     )
