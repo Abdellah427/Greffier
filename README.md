@@ -55,14 +55,17 @@ autres modes restent disponibles.
 
 ### Déployer sur son hébergement
 
-Le script [`src/deploy.py`](src/deploy.py) envoie `site/` par FTP (FTPS par
-défaut), sans aucune dépendance à installer :
+Le script [`src/deploy.py`](src/deploy.py) envoie `site/` sur le serveur :
 
 1. copier `deploy.config.sample.json` vers `deploy.config.json` à la racine
    et y renseigner l'hôte, l'identifiant, le mot de passe et le dossier
    cible (par exemple `www/greffier`). Ce fichier est ignoré par git : les
    identifiants ne sont jamais versionnés ;
 2. lancer `python src/deploy.py` (ou `--liste` pour voir ce qui partirait).
+
+Trois protocoles via le champ `"protocole"` : `sftp` (recommandé, chiffré,
+port 22, demande `pip install paramiko`), `ftps` (bibliothèque standard,
+retombe en FTP simple si le serveur ne le propose pas) ou `ftp`.
 
 Le script crée l'arborescence distante au besoin et ne touche jamais au
 `config.php` du serveur : celui-ci se dépose une seule fois, à la main.
