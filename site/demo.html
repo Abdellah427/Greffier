@@ -548,10 +548,10 @@
 <header>
   <h1>La machine lit <em>le registre</em>.</h1>
   <p class="sous-titre">Déposez la photographie d'une page d'acte de mariage (ou choisissez
-     un feuillet de 1913 ou 1920) et regardez le modèle la transcrire puis en établir
-     la fiche, en direct. Aucune clé, aucun compte : le mode En ligne utilise
-     le service du site, les modes Navigateur et Ollama ne quittent jamais
-     votre machine.</p>
+     un feuillet de 1913 ou 1920 des Archives de Paris) et regardez le modèle la
+     transcrire puis en établir la fiche, en direct. Aucune clé, aucun compte :
+     le mode En ligne utilise le service du site ; avec les modes Navigateur et
+     Ollama, rien ne quitte jamais votre machine.</p>
   <p class="jauge-quota" id="jauge-quota" hidden></p>
 </header>
 
@@ -585,7 +585,7 @@
     <details class="aide">
       <summary>Comment ça marche</summary>
       <p>Votre image est envoyée au service de lecture hébergé avec ce site, qui interroge
-         un modèle vision-langage et renvoie sa réponse en direct. Rien à installer, aucune
+         un modèle de vision et renvoie sa réponse en direct. Rien à installer, aucune
          clé à saisir. Le service est gratuit et partagé : chaque visiteur dispose d'un
          quota de lectures par jour.</p>
     </details>
@@ -593,7 +593,7 @@
   <div class="config" id="config-navigateur" hidden>
     <details class="aide" open>
       <summary>Comment ça marche, et ce qu'il faut savoir</summary>
-      <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 2,7 Go,
+      <p>Un modèle de vision open weight (Qwen2-VL 2B) est téléchargé une seule fois (≈ 2,7 Go,
          mis en cache sur votre disque) puis exécuté <em>dans votre navigateur</em> grâce à
          WebGPU : rien ne quitte votre machine.</p>
       <p>Attention : pendant la lecture, votre processeur graphique et 3 à 4 Go de mémoire
@@ -613,7 +613,7 @@
     <div class="page-cadre" id="cadre">
       <button class="depot" id="depot" type="button">
         <strong>Déposez une page de registre ici</strong>
-        <span>ou cliquez pour choisir une image (JPG, PNG)</span>
+        <span>ou cliquez pour choisir une image (JPG, PNG, WebP)</span>
       </button>
       <img class="apercu" id="apercu" alt="" hidden>
       <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
@@ -747,8 +747,8 @@ const NOTES = {
            "site la fait lire et la réponse arrive en direct. Quota gratuit journalier.",
   navigateur: "Le modèle tourne dans votre navigateur, sans rien installer. Déposez votre propre " +
               "image ou choisissez un feuillet d'exemple.",
-  ollama: "La page dialogue avec l'Ollama de votre machine : la meilleure qualité de lecture, " +
-          "entièrement locale et libre.",
+  ollama: "La page dialogue avec l'Ollama de votre machine : la meilleure qualité de lecture " +
+          "locale, avec un modèle open weight.",
 };
 
 document.querySelectorAll('.modes > button[data-mode]').forEach(bouton => {
@@ -1109,6 +1109,7 @@ async function lireReplay() {
 
 let fournisseurEnLigne = 'gemini';
 const NOMS_FOURNISSEURS = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
+const LIBELLES_ENLIGNE = {};
 
 function majJauge(quota) {
   if (!quota) return;
@@ -1136,7 +1137,8 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
     const bouton = document.createElement('button');
     bouton.type = 'button';
     bouton.setAttribute('aria-pressed', nom === fournisseurEnLigne ? 'true' : 'false');
-    bouton.append(fournisseurs[nom].libelle || NOMS_FOURNISSEURS[nom] || nom);
+    LIBELLES_ENLIGNE[nom] = fournisseurs[nom].libelle || NOMS_FOURNISSEURS[nom] || nom;
+    bouton.append(LIBELLES_ENLIGNE[nom]);
     if (fournisseurs[nom].modele) bouton.title = fournisseurs[nom].modele;
     bouton.addEventListener('click', () => {
       if (etat.enCours) return;
@@ -1152,7 +1154,7 @@ async function lireEnLigne() {
   const signal = etat.abandon.signal;
   const base64 = await imagePourLecture(signal);
   fixeEtape(2);
-  fluxEcrit(`envoi au service de lecture du site (${NOMS_FOURNISSEURS[fournisseurEnLigne] || fournisseurEnLigne})…\n\n`, 'invite');
+  fluxEcrit(`envoi au service de lecture du site (${LIBELLES_ENLIGNE[fournisseurEnLigne] || NOMS_FOURNISSEURS[fournisseurEnLigne] || fournisseurEnLigne})…\n\n`, 'invite');
 
   let reponse;
   try {
