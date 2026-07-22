@@ -172,6 +172,20 @@
     opacity: .4;
     cursor: not-allowed;
   }
+  .modeles .id-modele {
+    display: block;
+    font-size: .6rem;
+    opacity: .7;
+    margin-top: .15rem;
+  }
+  .comparaison th .id-col {
+    display: block;
+    text-transform: none;
+    letter-spacing: .02em;
+    font-size: .62rem;
+    color: var(--encre-pale);
+    margin-top: .1rem;
+  }
   .actions { display: flex; gap: .6rem; margin-top: .9rem; align-items: center; flex-wrap: wrap; }
   #comparer {
     background: transparent;
@@ -356,9 +370,12 @@
     </div>
     <div class="exemples" id="exemples" aria-label="Pages annotées"></div>
     <div class="modeles" id="modeles" role="group" aria-label="Modèle de lecture">
-      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini Flash</button>
-      <button type="button" data-fournisseur="openrouter" aria-pressed="false">Gemma · OpenRouter</button>
-      <button type="button" data-fournisseur="mistral" aria-pressed="false">Mistral</button>
+      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini Flash
+        <span class="id-modele"></span></button>
+      <button type="button" data-fournisseur="openrouter" aria-pressed="false">Gemma · OpenRouter
+        <span class="id-modele"></span></button>
+      <button type="button" data-fournisseur="mistral" aria-pressed="false">Mistral
+        <span class="id-modele"></span></button>
     </div>
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
@@ -555,6 +572,7 @@ boutonsModeles.forEach(bouton => bouton.addEventListener('click', () => {
 }));
 
 // Grise les modèles absents de la configuration du serveur.
+const idsModeles = {};
 fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
   boutonsModeles.forEach(bouton => {
     const modele = fournisseurs[bouton.dataset.fournisseur];
@@ -562,8 +580,10 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs })
       bouton.disabled = true;
       bouton.title = 'Non configuré sur ce site';
       bouton.setAttribute('aria-pressed', 'false');
+      bouton.querySelector('.id-modele').textContent = 'non configuré';
     } else if (modele) {
-      bouton.title = modele;
+      idsModeles[bouton.dataset.fournisseur] = modele;
+      bouton.querySelector('.id-modele').textContent = modele;
     }
   });
   const actifs = boutonsModeles.filter(b => !b.disabled);
@@ -753,7 +773,8 @@ function palmares(resultats, reference) {
                  : `${Math.round(100 * score / CHAMPS.length)} % exact`;
       const laurier = meilleur && nom === meilleur[0] && score !== undefined
         ? ' <span class="meilleur">meilleure lecture</span>' : '';
-      return `<th>${esc(NOMS_MODELES[nom])}<span class="taux">${taux}</span>${laurier}</th>`;
+      const id = idsModeles[nom] ? `<span class="id-col">${esc(idsModeles[nom])}</span>` : '';
+      return `<th>${esc(NOMS_MODELES[nom])}${id}<span class="taux">${taux}</span>${laurier}</th>`;
     }).join('');
   tete.appendChild(ligneTete);
 
