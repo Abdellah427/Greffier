@@ -17,3 +17,9 @@ __pycache__/
 
 # Notebooks
 .ipynb_checkpoints/
+
+# Données M-POPP (téléchargées et régénérées par src/mpopp.py)
+mpopp_data/
+pages_mpopp/
+reference_mpopp.json
+extraction_mpopp.json

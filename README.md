@@ -110,6 +110,32 @@ le même dossier sans créer de doublons. Plus le corpus grandit, plus la
 recherche par nom de famille de l'explorateur devient intéressante pour les
 visiteurs.
 
+Autre gisement prêt à l'emploi : le jeu de recherche
+[M-POPP](https://zenodo.org/records/10980636) (licence CC-BY 4.0), plus de
+300 pages manuscrites d'actes de mariage de Paris et sa banlieue
+(1880-1940). `python src/mpopp.py --pages pages_mpopp/` télécharge le jeu
+et prépare les images pour le pipeline.
+
+### Mesurer la précision du pipeline
+
+M-POPP fournit aussi la transcription de référence de chaque acte, réalisée
+par des chercheurs. On peut donc mesurer objectivement la qualité de
+l'extraction, champ par champ :
+
+```bash
+python src/mpopp.py --pages pages_mpopp/ --reference reference_mpopp.json
+python src/extract.py pages_mpopp/ -o extraction_mpopp.json
+python src/evalue.py extraction_mpopp.json reference_mpopp.json
+```
+
+`src/evalue.py` apparie les actes par image, normalise les valeurs
+(minuscules, accents, ponctuation) et classe chaque champ en exact, proche
+(l'une des valeurs contient l'autre) ou faux, avec un tableau par champ et
+un score global. L'option `--details` liste chaque désaccord.
+
+Données M-POPP : projet EXO-POPP, université de Rouen Normandie et
+partenaires, sous licence CC-BY 4.0.
+
 ## Deux backends pour le pipeline
 
 | Backend | Coût | Libre ? | Prérequis |

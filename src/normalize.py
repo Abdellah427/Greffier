@@ -41,13 +41,23 @@ def _sans_accents(texte):
                    if unicodedata.category(c) != "Mn").lower()
 
 
+IGNORES = {"et", "le", "du", "lundi", "mardi", "mercredi", "jeudi",
+           "vendredi", "samedi", "dimanche"}
+
+
 def _mots_vers_nombre(mots):
     """Convertit une suite de mots français en nombre (0-99). None si échec."""
     total = 0
-    for mot in mots:
-        if mot in ("et",):
-            continue
-        if mot in UNITES:
+    i = 0
+    while i < len(mots):
+        mot = mots[i]
+        suivant = mots[i + 1] if i + 1 < len(mots) else ""
+        if mot in IGNORES:
+            pass
+        elif mot == "quatre" and suivant in ("vingt", "vingts"):
+            total += 80          # quatre-vingt(s), écrit avec ou sans trait d'union
+            i += 1
+        elif mot in UNITES:
             total += UNITES[mot]
         elif mot in DIZAINES:
             total += DIZAINES[mot]
@@ -59,19 +69,22 @@ def _mots_vers_nombre(mots):
             total += 19
         else:
             return None
+        i += 1
     return total or None
 
 
 def _annee_en_lettres(texte):
-    """Repère "mil(le) neuf cent(s) [vingt(-)...]" et renvoie l'année."""
-    match = re.search(r"\bmil(?:le)?\s+neuf\s+cents?\b\s*((?:[a-z-]+\s*){0,4})", texte)
+    """Repère "mil(le) huit/neuf cent(s) [vingt(-)...]" et renvoie l'année."""
+    match = re.search(
+        r"\bmil(?:le)?\s+(huit|neuf)\s+cents?\b\s*((?:[a-z-]+\s*){0,4})", texte)
     if not match:
         return None
-    reste = [m for m in re.split(r"[\s-]+", match.group(1).strip()) if m]
+    base = 1800 if match.group(1) == "huit" else 1900
+    reste = [m for m in re.split(r"[\s-]+", match.group(2).strip()) if m]
     if not reste:
-        return 1900
+        return base
     complement = _mots_vers_nombre(reste)
-    return 1900 + complement if complement else 1900
+    return base + complement if complement else base
 
 
 def _iso_valide(annee, mois, jour):
