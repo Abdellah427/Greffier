@@ -166,7 +166,7 @@
     display: flex;
     gap: .7rem;
     align-items: center;
-    margin-top: .7rem;
+    margin-top: .8rem;
     flex-wrap: wrap;
   }
   .pretraitement button {
@@ -179,6 +179,22 @@
     color: var(--encre);
     cursor: pointer;
     white-space: nowrap;
+  }
+  .modeles .badge-meilleur {
+    display: inline-block;
+    margin-left: .35rem;
+    border: 1px solid var(--exact);
+    color: var(--exact);
+    border-radius: 3px;
+    font-size: .58rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 0 .25rem;
+    vertical-align: middle;
+  }
+  .modeles button[aria-pressed=true] .badge-meilleur {
+    border-color: var(--papier);
+    color: var(--papier);
   }
   .pretraitement button[aria-pressed=true] {
     background: var(--tampon);
@@ -480,16 +496,16 @@
       <div class="loupe" id="loupe" hidden aria-hidden="true"></div>
     </div>
     <div class="exemples" id="exemples" aria-label="Pages annotées"></div>
-    <div class="pretraitement">
-      <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
-      <span class="note-pretraite">Recadrage, redressement, fond aplani, contraste,
-        netteté : la chaîne maison, appliquée avant lecture.</span>
-    </div>
   </section>
 
   <section class="colonne-commande" aria-label="La commande">
     <h2 class="panneau-titre">Le lecteur</h2>
     <div class="modeles" id="modeles" role="group" aria-label="Modèles de lecture"></div>
+    <div class="pretraitement">
+      <button type="button" id="bascule-pretraite" aria-pressed="false">Prétraitement : désactivé</button>
+      <span class="note-pretraite">Recadrage, redressement, fond aplani, contraste,
+        netteté : la chaîne maison, appliquée avant lecture.</span>
+    </div>
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
     </div>
@@ -775,6 +791,7 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs, q
     boutonsModeles[0].setAttribute('aria-pressed', 'true');
   }
   majLancer();
+  majMeilleurModele();
 }).catch(() => {
   el('modeles').textContent = 'Le service en ligne du site est injoignable.';
 });
@@ -1022,14 +1039,34 @@ function compare(objet, reference, fournisseur) {
 /* ---------- le registre public : la base se construit avec les visiteurs ---------- */
 
 // Chaque lecture est consignée dans le registre du serveur (api/releve.php) :
-// la base de mesures se construit en coulisse, sans encombrer l'affichage.
+// la base de mesures se construit en coulisse. Le modèle à la meilleure
+// moyenne du registre porte un petit badge, remis en jeu à chaque lecture.
+function majMeilleurModele() {
+  fetch('api/releve.php').then(r => r.json()).then(({ releves }) => {
+    const classement = Object.entries(releves || {})
+      .filter(([nom]) => boutonsModeles.some(b => b.dataset.fournisseur === nom))
+      .sort((a, b) => (b[1].exact_pourcent - a[1].exact_pourcent)
+                   || (b[1].lectures - a[1].lectures));
+    boutonsModeles.forEach(b => b.querySelector('.badge-meilleur')?.remove());
+    if (!classement.length) return;
+    const [nom, bilan] = classement[0];
+    const bouton = boutonsModeles.find(b => b.dataset.fournisseur === nom);
+    const badge = document.createElement('span');
+    badge.className = 'badge-meilleur';
+    badge.textContent = 'meilleur';
+    badge.title = `Meilleure moyenne du registre public : ${bilan.exact_pourcent} % exact `
+                + `sur ${bilan.lectures} lecture${bilan.lectures > 1 ? 's' : ''}`;
+    bouton.appendChild(badge);
+  }).catch(() => { /* silencieux */ });
+}
+
 function deposeReleve(fournisseur, comptes) {
   fetch('api/releve.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ page: window.BANC[choisi].image, fournisseur,
                            pretraitement: pretraitementActif, ...comptes }),
-  }).catch(() => { /* le registre est un bonus, jamais bloquant */ });
+  }).then(majMeilleurModele).catch(() => { /* le registre est un bonus, jamais bloquant */ });
 }
 
 // Palmarès : les lectures des modèles côte à côte, face à la référence.
