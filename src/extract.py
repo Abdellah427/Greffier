@@ -106,7 +106,7 @@ def extract_gemini(image_path, model="gemini-3.6-flash"):
     return parse_json_response(text)
 
 
-def extract_openrouter(image_path, model="google/gemma-4-31b-it:free"):
+def extract_openrouter(image_path, model="google/gemma-4-26b-a4b-it:free"):
     """Palier gratuit d'OpenRouter (environ 50 lectures par jour).
 
     Clé gratuite sur https://openrouter.ai/keys, à coller dans le fichier

@@ -13,7 +13,7 @@ return [
         // Clé gratuite : https://openrouter.ai/keys
         'openrouter' => [
             'cle' => '',
-            'modele' => 'google/gemma-4-31b-it:free',
+            'modele' => 'google/gemma-4-26b-a4b-it:free',
         ],
         // Clé (palier découverte) : https://console.mistral.ai
         'mistral' => [
