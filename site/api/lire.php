@@ -54,7 +54,9 @@ if (isset($_GET['diagnostic'])) {
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    refuse(405, 'Méthode non autorisée.');
+    refuse(405, "Ce service s'utilise depuis la page demo.html (mode En ligne), "
+              . "qui lui envoie l'image à lire. Pour vérifier l'installation, "
+              . "ouvrez api/lire.php?diagnostic=1");
 }
 
 // Quotas journaliers : un compteur par visiteur et un compteur global,
