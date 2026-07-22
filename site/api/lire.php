@@ -44,7 +44,8 @@ if (!$fournisseurs) {
 if (isset($_GET['fournisseurs'])) {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['fournisseurs' => array_map(
-        fn($f) => $f['modele'] ?? '', $fournisseurs)], JSON_UNESCAPED_UNICODE);
+        fn($f) => ['modele' => $f['modele'] ?? '', 'libelle' => $f['nom'] ?? ''],
+        $fournisseurs)], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -69,14 +70,15 @@ if (isset($_GET['diagnostic'])) {
     ];
     $tout_va = true;
     foreach ($fournisseurs as $nom => $fournisseur) {
+        $type = $fournisseur['type'] ?? $nom;
         $bilan = ['modele' => $fournisseur['modele'] ?? ''];
-        if (!isset($verifications[$nom])) {
+        if (!isset($verifications[$type])) {
             $bilan['etat'] = 'fournisseur inconnu du diagnostic';
             $etat['fournisseurs'][$nom] = $bilan;
             $tout_va = false;
             continue;
         }
-        [$url, $entetes] = $verifications[$nom]($fournisseur['cle']);
+        [$url, $entetes] = $verifications[$type]($fournisseur['cle']);
         $curl = curl_init($url);
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
@@ -150,6 +152,7 @@ if (!isset($fournisseurs[$nom_fournisseur])) {
     refuse(400, "Le modèle demandé ($nom_fournisseur) n'est pas configuré sur ce site.");
 }
 $fournisseur = $fournisseurs[$nom_fournisseur];
+$type_fournisseur = $fournisseur['type'] ?? $nom_fournisseur;
 
 $champs = ['date_mariage', 'lieu_mariage',
     'nom_prenom_marie', 'profession_marie', 'adresse_marie',
@@ -168,7 +171,7 @@ $prompt = "Tu es un expert en paléographie et en état civil français.\n"
 
 // Prépare la requête selon le fournisseur : Gemini a son API propre, les
 // autres suivent le format de chat compatible OpenAI.
-if ($nom_fournisseur === 'gemini') {
+if ($type_fournisseur === 'gemini') {
     $modele = $fournisseur['modele'] ?? 'gemini-3.6-flash';
     $url = "https://generativelanguage.googleapis.com/v1beta/models/$modele:streamGenerateContent?alt=sse";
     $entetes = ['Content-Type: application/json',
@@ -184,7 +187,7 @@ if ($nom_fournisseur === 'gemini') {
 } else {
     $bases = ['openrouter' => 'https://openrouter.ai/api/v1',
               'mistral' => 'https://api.mistral.ai/v1'];
-    $url = ($fournisseur['base'] ?? $bases[$nom_fournisseur] ?? '') . '/chat/completions';
+    $url = ($fournisseur['base'] ?? $bases[$type_fournisseur] ?? '') . '/chat/completions';
     if ($url === '/chat/completions') {
         refuse(400, "Fournisseur inconnu : $nom_fournisseur.");
     }
@@ -222,7 +225,7 @@ curl_setopt_array($curl, [
     CURLOPT_TIMEOUT => 170,
     // Relaye chaque fragment SSE au navigateur dès son arrivée.
     CURLOPT_WRITEFUNCTION => function ($curl, string $fragment)
-            use (&$tampon, &$brut, &$envoye, $nom_fournisseur): int {
+            use (&$tampon, &$brut, &$envoye, $type_fournisseur): int {
         if (strlen($brut) < 8192) {
             $brut .= $fragment;   // conservé pour le détail d'une éventuelle erreur
         }
@@ -234,7 +237,7 @@ curl_setopt_array($curl, [
                 continue;
             }
             $donnees = json_decode(substr($ligne, 6), true);
-            if ($nom_fournisseur === 'gemini') {
+            if ($type_fournisseur === 'gemini') {
                 foreach ($donnees['candidates'][0]['content']['parts'] ?? [] as $part) {
                     if (isset($part['text'])) {
                         echo $part['text'];

@@ -8,7 +8,11 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
 $fichier = __DIR__ . '/releves.jsonl';
-$FOURNISSEURS = ['gemini', 'openrouter', 'mistral'];
+$config_service = @include __DIR__ . '/config.php';
+$FOURNISSEURS = array_keys($config_service['fournisseurs'] ?? []);
+if (!$FOURNISSEURS && !empty($config_service['gemini_api_key'])) {
+    $FOURNISSEURS = ['gemini'];
+}
 
 function refuse(int $code, string $message): void
 {
@@ -74,8 +78,7 @@ if (!in_array($fournisseur, $FOURNISSEURS, true)
     refuse(400, 'Relevé invalide.');
 }
 
-$config = @include __DIR__ . '/config.php';
-$modele = $config['fournisseurs'][$fournisseur]['modele'] ?? '';
+$modele = $config_service['fournisseurs'][$fournisseur]['modele'] ?? '';
 
 $releve = [
     'date' => date('c'),

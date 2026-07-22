@@ -1112,10 +1112,10 @@ fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs })
     const bouton = document.createElement('button');
     bouton.type = 'button';
     bouton.setAttribute('aria-pressed', nom === fournisseurEnLigne ? 'true' : 'false');
-    bouton.append(NOMS_FOURNISSEURS[nom] || nom);
+    bouton.append(fournisseurs[nom].libelle || NOMS_FOURNISSEURS[nom] || nom);
     const id = document.createElement('span');
     id.className = 'id-modele';
-    id.textContent = fournisseurs[nom];
+    id.textContent = fournisseurs[nom].modele || '';
     bouton.appendChild(id);
     bouton.addEventListener('click', () => {
       if (etat.enCours) return;

@@ -171,8 +171,14 @@
   .exemples button[aria-pressed=true] { border-color: var(--tampon); box-shadow: 0 0 0 1px var(--tampon); }
   .modeles {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
     gap: .5rem;
+  }
+  .modeles:empty::after {
+    content: 'Modèles en cours de chargement…';
+    font-family: var(--mono);
+    font-size: .74rem;
+    color: var(--encre-pale);
   }
   .modeles button {
     font-family: var(--mono);
@@ -408,14 +414,7 @@
 
   <section class="colonne-commande" aria-label="La commande">
     <h2 class="panneau-titre">Le lecteur</h2>
-    <div class="modeles" id="modeles" role="group" aria-label="Modèle de lecture">
-      <button type="button" data-fournisseur="gemini" aria-pressed="true">Gemini
-        <span class="id-modele"></span></button>
-      <button type="button" data-fournisseur="openrouter" aria-pressed="false">OpenRouter
-        <span class="id-modele"></span></button>
-      <button type="button" data-fournisseur="mistral" aria-pressed="false">Mistral
-        <span class="id-modele"></span></button>
-    </div>
+    <div class="modeles" id="modeles" role="group" aria-label="Modèles de lecture"></div>
     <div class="actions">
       <button id="lancer">Lancer la lecture</button>
     </div>
@@ -598,54 +597,60 @@ function extraitObjet(tampon) {
   return null;
 }
 
-const NOMS_MODELES = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
-const boutonsModeles = [...document.querySelectorAll('#modeles button')];
-const fournisseursChoisis = new Set(['gemini']);
+const NOMS_CONNUS = { gemini: 'Gemini', openrouter: 'OpenRouter', mistral: 'Mistral' };
+const LIBELLES = {};
+const idsModeles = {};
+let boutonsModeles = [];
+const fournisseursChoisis = new Set();
+
+function jolieNom(nom) {
+  return LIBELLES[nom] || NOMS_CONNUS[nom] || nom.charAt(0).toUpperCase() + nom.slice(1);
+}
 
 function majLancer() {
   const n = fournisseursChoisis.size;
   lancer.disabled = enCours || n === 0;
   lancer.textContent = n > 1 ? `Lancer la lecture (${n} modèles)` : 'Lancer la lecture';
 }
+majLancer();
 
-boutonsModeles.forEach(bouton => bouton.addEventListener('click', () => {
-  if (enCours || bouton.disabled) return;
-  const nom = bouton.dataset.fournisseur;
-  if (fournisseursChoisis.has(nom)) {
-    fournisseursChoisis.delete(nom);
-  } else {
-    fournisseursChoisis.add(nom);
-  }
-  bouton.setAttribute('aria-pressed', fournisseursChoisis.has(nom) ? 'true' : 'false');
-  majLancer();
-}));
-
-// Grise les modèles absents de la configuration du serveur.
-const idsModeles = {};
+// Les modèles configurés sur le serveur deviennent des boutons à cocher :
+// ajoutez-en dans config.php, ils apparaissent ici sans toucher au code.
 fetch('api/lire.php?fournisseurs=1').then(r => r.json()).then(({ fournisseurs }) => {
-  boutonsModeles.forEach(bouton => {
-    const nom = bouton.dataset.fournisseur;
-    const modele = fournisseurs[nom];
-    if (modele === undefined) {
-      bouton.disabled = true;
-      bouton.title = 'Non configuré sur ce site';
-      bouton.setAttribute('aria-pressed', 'false');
-      fournisseursChoisis.delete(nom);
-      bouton.querySelector('.id-modele').textContent = 'non configuré';
-    } else if (modele) {
-      idsModeles[nom] = modele;
-      bouton.querySelector('.id-modele').textContent = modele;
-    }
-  });
-  if (!fournisseursChoisis.size) {
-    const premier = boutonsModeles.find(b => !b.disabled);
-    if (premier) {
-      fournisseursChoisis.add(premier.dataset.fournisseur);
-      premier.setAttribute('aria-pressed', 'true');
-    }
+  const zone = el('modeles');
+  for (const [nom, infos] of Object.entries(fournisseurs || {})) {
+    idsModeles[nom] = infos.modele || '';
+    if (infos.libelle) LIBELLES[nom] = infos.libelle;
+    const bouton = document.createElement('button');
+    bouton.type = 'button';
+    bouton.dataset.fournisseur = nom;
+    bouton.setAttribute('aria-pressed', 'false');
+    bouton.append(jolieNom(nom));
+    const id = document.createElement('span');
+    id.className = 'id-modele';
+    id.textContent = infos.modele || '';
+    bouton.appendChild(id);
+    bouton.addEventListener('click', () => {
+      if (enCours) return;
+      if (fournisseursChoisis.has(nom)) {
+        fournisseursChoisis.delete(nom);
+      } else {
+        fournisseursChoisis.add(nom);
+      }
+      bouton.setAttribute('aria-pressed', fournisseursChoisis.has(nom) ? 'true' : 'false');
+      majLancer();
+    });
+    zone.appendChild(bouton);
+  }
+  boutonsModeles = [...zone.children];
+  if (boutonsModeles.length) {
+    fournisseursChoisis.add(boutonsModeles[0].dataset.fournisseur);
+    boutonsModeles[0].setAttribute('aria-pressed', 'true');
   }
   majLancer();
-}).catch(() => { /* le service dira lui-même ce qui manque */ });
+}).catch(() => {
+  el('modeles').textContent = 'Le service en ligne du site est injoignable.';
+});
 
 async function imageChoisieBase64() {
   const blob = await (await fetch(window.BANC[choisi].image)).blob();
@@ -703,20 +708,20 @@ lancer.addEventListener('click', async () => {
   if (enCours || !fournisseursChoisis.size) return;
   const page = window.BANC[choisi];
   const choisis = boutonsModeles
-    .filter(b => !b.disabled && fournisseursChoisis.has(b.dataset.fournisseur))
+    .filter(b => fournisseursChoisis.has(b.dataset.fournisseur))
     .map(b => b.dataset.fournisseur);
   commence();
   try {
     const base64 = await imageChoisieBase64();
     if (choisis.length === 1) {
-      fluxEcrit(`lecture de « ${page.titre} » par ${NOMS_MODELES[choisis[0]]}…\n\n`, 'invite');
+      fluxEcrit(`lecture de « ${page.titre} » par ${jolieNom(choisis[0])}…\n\n`, 'invite');
       const objet = await lecture(choisis[0], base64);
       fluxEcrit('\n\n-- lecture terminée, comparaison ci-dessous --', 'invite');
       compare(objet, page.reference, choisis[0]);
     } else {
       const resultats = {};
       for (const fournisseur of choisis) {
-        fluxEcrit(`\n== ${NOMS_MODELES[fournisseur]} ==\n`, 'invite');
+        fluxEcrit(`\n== ${jolieNom(fournisseur)} ==\n`, 'invite');
         try {
           resultats[fournisseur] = { objet: await lecture(fournisseur, base64) };
         } catch (e) {
@@ -809,7 +814,7 @@ function chargeRegistre() {
     if (!noms.length) return;
     const total = noms.reduce((a, n) => a + releves[n].lectures, 0);
     const parties = noms.map(n =>
-      `<b>${esc(NOMS_MODELES[n] || n)}</b> ${releves[n].exact_pourcent} % exact ` +
+      `<b>${esc(jolieNom(n))}</b> ${releves[n].exact_pourcent} % exact ` +
       `(${releves[n].lectures} lecture${releves[n].lectures > 1 ? 's' : ''})`);
     const zone = el('registre-public');
     zone.innerHTML = `Registre public du banc d'essai, construit par les visiteurs : ` +
@@ -849,7 +854,7 @@ function palmares(resultats, reference) {
       const laurier = meilleur && nom === meilleur[0] && score !== undefined
         ? ' <span class="meilleur">meilleure lecture</span>' : '';
       const id = idsModeles[nom] ? `<span class="id-col">${esc(idsModeles[nom])}</span>` : '';
-      return `<th>${esc(NOMS_MODELES[nom])}${id}<span class="taux">${taux}</span>${laurier}</th>`;
+      return `<th>${esc(jolieNom(nom))}${id}<span class="taux">${taux}</span>${laurier}</th>`;
     }).join('');
   tete.appendChild(ligneTete);
 
