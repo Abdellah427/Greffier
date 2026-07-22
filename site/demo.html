@@ -132,6 +132,16 @@
     padding: .1rem .3rem;
     border-radius: 2px;
   }
+  details.aide button {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--encre);
+    background: transparent;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    padding: .25rem .6rem;
+    cursor: pointer;
+  }
 
   .pupitre {
     max-width: 1180px;
@@ -516,11 +526,17 @@
   </div>
   <div class="config" id="config-navigateur" hidden>
     <details class="aide" open>
-      <summary>Comment ça marche</summary>
+      <summary>Comment ça marche, et ce qu'il faut savoir</summary>
       <p>Un modèle vision ouvert (Qwen2-VL 2B) est téléchargé une seule fois (≈ 2,7 Go,
-         mis en cache) puis exécuté <em>dans votre navigateur</em> grâce à WebGPU : rien ne quitte
-         votre machine. Expérimental : il faut un navigateur récent et un peu de patience ;
-         la lecture des manuscrits est moins fiable qu'avec le modèle 7B d'Ollama.</p>
+         mis en cache sur votre disque) puis exécuté <em>dans votre navigateur</em> grâce à
+         WebGPU : rien ne quitte votre machine.</p>
+      <p>Attention : pendant la lecture, votre processeur graphique et 3 à 4 Go de mémoire
+         sont fortement sollicités, plusieurs minutes sur une machine modeste. La page
+         vérifie votre matériel avant de démarrer et vous demande une confirmation ;
+         le bouton Interrompre reste utilisable à tout moment. Pour un test sans effort,
+         préférez le mode En ligne.</p>
+      <p><button type="button" id="vider-cache">Supprimer le modèle téléchargé</button>
+         <span id="note-cache"></span></p>
     </details>
   </div>
 </div>
@@ -1078,94 +1094,128 @@ async function lireOllama() {
   terminer(nomSourceCourant());
 }
 
-/* ---------- mode navigateur (WebGPU) ---------- */
+/* ---------- mode navigateur (WebGPU, dans un Web Worker) ---------- */
 
-let moteurNavigateur = null;  // { processor, model } mis en cache après le premier chargement
+let moteurNavigateur = null;      // Worker conservé entre les lectures
+let modelePret = false;
+let confirmationNavigateur = false;
+
+el('vider-cache').addEventListener('click', async () => {
+  if (moteurNavigateur) {
+    moteurNavigateur.terminate();
+    moteurNavigateur = null;
+    modelePret = false;
+  }
+  let libere = false;
+  for (const cle of await caches.keys()) {
+    if (cle.includes('transformers')) {
+      await caches.delete(cle);
+      libere = true;
+    }
+  }
+  el('note-cache').textContent = libere
+    ? 'Modèle supprimé : le prochain lancement le retéléchargera.'
+    : 'Aucun modèle en cache sur ce navigateur.';
+});
 
 async function lireNavigateur() {
   const signal = etat.abandon.signal;
+
+  // Vérifications préalables : ce mode sollicite fortement la machine.
   if (!navigator.gpu) {
-    erreur('WebGPU n\'est pas disponible dans ce navigateur.',
-           'Essayez un Chrome, Edge ou Firefox récent, ou utilisez le mode Replay ou Ollama.');
+    erreur("WebGPU n'est pas disponible dans ce navigateur.",
+           'Essayez un Chrome, Edge ou Firefox récent, ou utilisez le mode En ligne.');
     return;
   }
-  const dataUrl = await dataUrlPourLecture(signal);
+  const adaptateur = await navigator.gpu.requestAdapter().catch(() => null);
+  if (!adaptateur) {
+    erreur('Aucun processeur graphique utilisable par WebGPU sur cette machine.',
+           'Utilisez le mode En ligne : la lecture se fait alors côté serveur.');
+    return;
+  }
+  const memoire = navigator.deviceMemory;
+  if (memoire && memoire < 8) {
+    erreur(`Ce mode demande au moins 8 Go de mémoire (détecté : environ ${memoire} Go).`,
+           'Utilisez le mode En ligne : la lecture se fait alors côté serveur.');
+    return;
+  }
+  if (!confirmationNavigateur) {
+    confirmationNavigateur = true;
+    erreur('Avant de continuer : ce mode télécharge 2,7 Go (une seule fois) puis sollicite ' +
+           'fortement votre machine pendant plusieurs minutes.',
+           'Cliquez à nouveau sur Lancer la lecture pour confirmer, ou passez en mode En ligne.');
+    return;
+  }
 
+  const dataUrl = await dataUrlPourLecture(signal);
   fixeEtape(2);
+  fluxEcrit(modelePret ? 'lecture en cours…\n\n'
+                       : 'téléchargement du modèle (une seule fois, ≈ 2,7 Go)…\n', 'invite');
+
   if (!moteurNavigateur) {
-    fluxEcrit('téléchargement du modèle (une seule fois, ≈ 2,7 Go)…\n', 'invite');
-    let t;
     try {
-      t = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.1');
+      moteurNavigateur = new Worker('moteur.js', { type: 'module' });
     } catch {
-      erreur("Impossible de charger la bibliothèque d'inférence (êtes-vous hors ligne ?).",
-             'Le mode Replay et le mode Ollama fonctionnent sans connexion au CDN.');
+      erreur('Impossible de démarrer le moteur de lecture.',
+             'Utilisez le mode En ligne ou Ollama.');
       return;
     }
-    const idModele = 'onnx-community/Qwen2-VL-2B-Instruct';
+  }
+  const moteur = moteurNavigateur;
 
-    // Barre de progression du téléchargement, en octets cumulés sur
-    // l'ensemble des fichiers du modèle.
-    const zone = el('telechargement');
-    const barre = el('telechargement-barre');
-    const texteBarre = el('telechargement-texte');
-    zone.hidden = false;
-    const progres = {};
-    const enGo = octets => (octets / 1e9).toFixed(2).replace('.', ',');
-    const suitProgres = p => {
-      if (p.status === 'progress' && p.file && p.total) {
-        progres[p.file] = { recu: p.loaded || 0, total: p.total };
+  // Barre de progression du téléchargement, en octets cumulés.
+  const zone = el('telechargement');
+  const barre = el('telechargement-barre');
+  const texteBarre = el('telechargement-texte');
+  const progres = {};
+  const enGo = octets => (octets / 1e9).toFixed(2).replace('.', ',');
+
+  await new Promise((resoudre, rejeter) => {
+    // Interrompre arrête net le Worker : la page redevient libre tout de
+    // suite, les fichiers déjà téléchargés restent en cache.
+    const abandonne = () => {
+      moteur.terminate();
+      moteurNavigateur = null;
+      modelePret = false;
+      zone.hidden = true;
+      rejeter(new DOMException('', 'AbortError'));
+    };
+    signal.addEventListener('abort', abandonne, { once: true });
+
+    moteur.onmessage = evenement => {
+      const message = evenement.data;
+      if (message.type === 'progres') {
+        zone.hidden = false;
+        progres[message.fichier] = { recu: message.recu, total: message.total };
         const recu = Object.values(progres).reduce((a, f) => a + f.recu, 0);
         const total = Object.values(progres).reduce((a, f) => a + f.total, 0);
         const pourcent = Math.min(100, Math.round(100 * recu / total));
         barre.style.width = pourcent + '%';
         texteBarre.textContent =
           `Téléchargement du modèle : ${pourcent} % (${enGo(recu)} / ${enGo(total)} Go)`;
+      } else if (message.type === 'pret') {
+        modelePret = true;
+        barre.style.width = '100%';
+        texteBarre.textContent = 'Modèle prêt (conservé en cache pour les prochaines lectures).';
+        setTimeout(() => { zone.hidden = true; }, 4000);
+        fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
+      } else if (message.type === 'morceau') {
+        if (!signal.aborted) recoit(message.texte);
+      } else if (message.type === 'fini') {
+        signal.removeEventListener('abort', abandonne);
+        if (signal.aborted || message.interrompu) {
+          rejeter(new DOMException('', 'AbortError'));
+        } else {
+          resoudre();
+        }
+      } else if (message.type === 'erreur') {
+        signal.removeEventListener('abort', abandonne);
+        rejeter(new Error(message.message));
       }
     };
-    const processor = await t.AutoProcessor.from_pretrained(idModele,
-                        { progress_callback: suitProgres });
-    if (signal.aborted) throw new DOMException('', 'AbortError');
-    // fp16 pour la vision et les embeddings, q4f16 pour le décodeur : la
-    // quantification q4 uniforme dégrade l'encodeur vision de Qwen2-VL.
-    const model = await t.Qwen2VLForConditionalGeneration.from_pretrained(idModele,
-                        { dtype: { embed_tokens: 'fp16', vision_encoder: 'fp16',
-                                   decoder_model_merged: 'q4f16' },
-                          device: 'webgpu', progress_callback: suitProgres });
-    moteurNavigateur = { t, processor, model };
-    barre.style.width = '100%';
-    texteBarre.textContent = 'Modèle prêt (conservé en cache pour les prochaines lectures).';
-    setTimeout(() => { zone.hidden = true; }, 4000);
-    fluxEcrit('modèle chargé, lecture en cours…\n\n', 'invite');
-  } else {
-    fluxEcrit('lecture en cours…\n\n', 'invite');
-  }
-  if (signal.aborted) throw new DOMException('', 'AbortError');
-
-  const { t, processor, model } = moteurNavigateur;
-  let image = await t.RawImage.fromURL(dataUrl);
-  // Qwen2-VL est à résolution dynamique : sans borne, un feuillet de 1600 px
-  // produit environ 2500 tokens visuels. On limite le grand côté à 784 px
-  // (multiple de 28) pour contenir la mémoire GPU et la latence.
-  const COTE_MAX = 784;
-  const ratio = COTE_MAX / Math.max(image.width, image.height);
-  if (ratio < 1) {
-    image = await image.resize(Math.round(image.width * ratio),
-                               Math.round(image.height * ratio));
-  }
-  const conversation = [{ role: 'user',
-    content: [{ type: 'image' }, { type: 'text', text: PROMPT }] }];
-  const texte = processor.apply_chat_template(conversation, { add_generation_prompt: true });
-  const entrees = await processor(texte, image);
-  const streamer = new t.TextStreamer(processor.tokenizer, {
-    skip_prompt: true,
-    skip_special_tokens: true,
-    callback_function: morceau => { if (!signal.aborted) recoit(morceau); },
+    moteur.postMessage({ type: 'lit', dataUrl });
   });
-  const arret = new t.InterruptableStoppingCriteria();
-  signal.addEventListener('abort', () => arret.interrupt(), { once: true });
-  await model.generate({ ...entrees, max_new_tokens: 512, streamer, stopping_criteria: arret });
-  if (signal.aborted) throw new DOMException('', 'AbortError');
+
   fixeEtape(4);
   terminer(nomSourceCourant());
 }
