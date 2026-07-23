@@ -22,7 +22,8 @@ personnes: [
   { id: "abdallah", prenom: "Bernard Joseph", nom: "Martinez",
     detail: "devenu Abdallah Benabderrahmane en 1965 · 1886-1967 · Aïn Témouchent puis Marnia",
     vivant: false, generation: 1,
-    sources: ["decret-1965", "acte-mariage-1940", "livret-famille-mariage",
+    sources: ["decret-1965", "jo-1965-decret", "loi-1963",
+              "acte-mariage-1940", "livret-famille-mariage",
               "carte-combattant-1936", "fascicule-mobilisation",
               "carte-ouvrier-1947", "carnet-finances-1963"] },
   { id: "zahra", prenom: "Zahra", nom: "Morsli",
@@ -125,6 +126,72 @@ reportée en marge de son acte de mariage.`,
 grand-père change officiellement de nom et de nationalité. La mention
 marginale de la copie française du même acte écrit « Abdellah » ; celle-ci
 écrit « Abdallah ». Les deux orthographes de mon prénom viennent de là.` },
+
+  { id: "jo-1965-decret",
+    image: "origines/jo-1965-decret.jpg",
+    titre: "Le Journal officiel du 12 mars 1965",
+    date: "12 mars 1965",
+    lieu: "Journal officiel de la République algérienne, n° 21, page 232",
+    transcription:
+`Décrets du 27 février 1965 portant acquisition de la nationalité
+algérienne. Par décrets en date du 27 février 1965 sont naturalisés
+algériens et jouissent de tous les droits attachés à la qualité
+d'Algérien, dans les conditions de l'article 13 de la loi n° 63-96 du
+27 mars 1963 portant code de la nationalité algérienne : [...]
+Martinez Bernard Joseph, né le 27 mai 1886 à Aïn-Temouchent (Oran),
+qui s'appellera désormais, Benabderrahmane Abdallah, [...]`,
+    releve: [
+      { champ: "Publication", valeur: "JORA n° 21 du vendredi 12 mars 1965, page 232", personnes: ["abdallah"] },
+      { champ: "Décision", valeur: "naturalisé algérien, s'appellera désormais Benabderrahmane Abdallah", personnes: ["abdallah"] },
+    ],
+    contexte:
+`La version imprimée du décret dont la famille ne connaissait que la
+mention manuscrite : la liste des naturalisés du 27 février 1965,
+publiée deux semaines plus tard au Journal officiel. Autour de son nom,
+d'autres Européens restés en Algérie font le même choix ce jour-là :
+un Amblard devenu Abderrahmane, une Yvelin devenue Malika, une
+Georgette, une Blanche, une Léa. Les archives du Journal officiel
+algérien sont consultables en ligne sur joradp.dz.`,
+    commentaire:
+`Retrouver ce nom dans le journal imprimé de l'État, soixante ans
+après, a été le moment le plus fort de cette enquête : la mention
+manuscrite du livret et la page officielle disent exactement la même
+chose, chacune de son côté de la Méditerranée.` },
+
+  { id: "loi-1963",
+    image: "origines/loi-1963.jpg",
+    titre: "La loi qui a permis le choix",
+    date: "27 mars 1963",
+    lieu: "Journal officiel de la République algérienne, n° 18 du 2 avril 1963, page 307",
+    transcription:
+`Loi n° 63-96 du 27 mars 1963 portant code de la nationalité algérienne.
+Art. 13. L'étranger qui en formule la demande peut acquérir la
+nationalité algérienne à condition : 1° d'avoir sa résidence en Algérie
+depuis 5 ans au moins au jour de la demande ; 2° d'avoir sa résidence
+en Algérie au moment de la signature du décret accordant la
+naturalisation ; 3° d'être majeur ; 4° d'être de bonne vie et mœurs et
+de n'avoir fait l'objet d'aucune condamnation infamante ; 5° de
+justifier de moyens d'existence suffisants ; 6° d'être sain de corps
+et d'esprit. [...]
+Art. 15. La naturalisation est accordée par décret. L'acte de
+naturalisation pourra, à la demande de l'intéressé, modifier ses nom
+et prénoms. Sur simple production de l'acte de naturalisation,
+l'officier d'état civil rectifie sur ses registres toutes les mentions
+relatives à la naturalisation et éventuellement aux nom et prénoms.`,
+    releve: [
+      { champ: "Article 13", valeur: "les conditions de la naturalisation, celles remplies par l'aïeul", personnes: ["abdallah"] },
+      { champ: "Article 15", valeur: "le changement de nom se fait à la demande de l'intéressé", personnes: ["abdallah"] },
+    ],
+    contexte:
+`Le texte fondateur cité par le décret. Son article 15 précise que la
+modification du nom se fait « à la demande de l'intéressé » : devenir
+Abdallah n'était pas une obligation de la loi, c'était sa demande. Et
+la rectification portée à la main sur le registre de Marnia, celle que
+la famille conserve, est exactement la procédure que cet article
+décrit.`,
+    commentaire:
+`L'article 15 change la lecture de toute l'histoire : le prénom que je
+porte n'a pas été imposé à mon aïeul, il l'a choisi.` },
 
   { id: "acte-mariage-1940",
     image: "origines/acte-mariage-1940.jpg",
