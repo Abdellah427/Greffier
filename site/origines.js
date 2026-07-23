@@ -7,10 +7,10 @@ personnes: [
   // Génération des aïeux nés sous le Second Empire et la IIIe République
   { id: "martinez-pere", prenom: "Bernard", nom: "Martinez",
     detail: "décédé avant 1940", vivant: false, generation: 0,
-    sources: ["acte-mariage-1940"] },
+    sources: ["acte-mariage-1940", "decret-ampliation"] },
   { id: "montesinos-maria", prenom: "Maria", nom: "Montesinos",
     detail: "décédée avant 1940", vivant: false, generation: 0,
-    sources: ["acte-mariage-1940"] },
+    sources: ["acte-mariage-1940", "decret-ampliation"] },
   { id: "bensalah", prenom: "Bensalah", nom: "",
     detail: "décédé avant 1940", vivant: false, generation: 0,
     sources: ["acte-mariage-1940"] },
@@ -23,7 +23,8 @@ personnes: [
     detail: "devenu Abdallah Benabderrahmane en 1965 · 1886-1967 · Aïn Témouchent puis Marnia",
     vivant: false, generation: 1,
     sources: ["acte-naissance-1886", "matricule-1907", "matricule-campagnes",
-              "decret-1965", "jo-1965-decret", "loi-1963",
+              "decret-1965", "decret-ampliation", "decret-lettre",
+              "jo-1965-decret", "loi-1963",
               "acte-mariage-1940", "livret-famille-mariage",
               "carte-combattant-1936", "fascicule-mobilisation",
               "carte-ouvrier-1947", "carnet-finances-1963"] },
@@ -277,6 +278,88 @@ reportée en marge de son acte de mariage.`,
 grand-père change officiellement de nom et de nationalité. La mention
 marginale de la copie française du même acte écrit « Abdellah » ; celle-ci
 écrit « Abdallah ». Les deux orthographes de mon prénom viennent de là.` },
+
+  { id: "decret-ampliation",
+    image: "origines/decret-ampliation.jpg",
+    titre: "Le décret n° 4171, la pièce elle-même",
+    date: "27 février 1965",
+    lieu: "Alger, ministère de la Justice",
+    transcription:
+`République Algérienne Démocratique et Populaire. Ministère de la
+Justice, direction des Affaires judiciaires, bureau de la Nationalité.
+N° 4171/B.N. Décret de naturalisation. Le Président de la République,
+Président du Conseil, sur le rapport du Ministre de la Justice, Garde
+des Sceaux, vu la loi n° 63-96 du 27 mars 1963, portant Code de la
+Nationalité Algérienne, notamment l'article 13, vu la demande formulée
+par Monsieur MARTINEZ Bernard Joseph, décrète.
+Article 1er : Est naturalisé algérien, dans les conditions de
+l'article 13 du Code de la Nationalité Algérienne sus-visé, Monsieur
+MARTINEZ Bernard Joseph, né le 27 mai 1886 à Aïn-Témouchent (Oran),
+fils de MARTINEZ Bernard et de Maria MONTESINO, exerçant la profession
+de maçon, demeurant à Maghnia, 33 rue de Martimprey.
+Article 2 : M. MARTINEZ Bernard Joseph s'appellera désormais :
+BENABDERRAHMANE Abd[a/e]llah.
+Article 3 : Le Ministre de la Justice, Garde des Sceaux, est chargé de
+l'exécution du présent décret, qui sera publié au Journal officiel de
+la République Algérienne Démocratique et Populaire.
+Fait à Alger, le 27 février 1965. Signé : A. Ben Bella. Pour
+ampliation, le directeur des Affaires judiciaires, A. Derradji.`,
+    releve: [
+      { champ: "Nom d'origine", valeur: "Martinez Bernard Joseph, né le 27 mai 1886 à Aïn Témouchent", personnes: ["abdallah"] },
+      { champ: "Filiation", valeur: "fils de Martinez Bernard et de Maria Montesino", personnes: ["martinez-pere", "montesinos-maria"] },
+      { champ: "Profession et domicile", valeur: "maçon, 33 rue de Martimprey à Maghnia", personnes: ["abdallah"] },
+      { champ: "Nouveau nom", valeur: "Benabderrahmane Abdallah, la voyelle du prénom étant disputée (voir la pièce suivante)", personnes: ["abdallah"] },
+      { champ: "Signature", valeur: "Ahmed Ben Bella, président de la République", personnes: [] },
+    ],
+    contexte:
+`Voici le décret lui-même, dont le registre de Marnia et le Journal
+officiel ne donnaient que l'écho : l'ampliation, c'est-à-dire la copie
+officielle délivrée à l'intéressé, conservée depuis par la famille. Il
+porte la signature d'Ahmed Ben Bella, premier président de la
+République algérienne, qui sera renversé quatre mois plus tard, le
+19 juin 1965. La rue de Martimprey, du nom d'un général du Second
+Empire, ancre l'adresse dans le Maghnia d'alors, où les noms de rues
+français étaient encore en usage.`,
+    commentaire:
+`La pièce mère de toute la première partie de cette page : c'est elle
+que le greffier de Marnia recopie en marge du registre, elle que le
+Journal officiel du 12 mars 1965 imprime page 232. Et c'est sur elle
+que la voyelle de mon prénom devient illisible.` },
+
+  { id: "decret-lettre",
+    image: "origines/decret-lettre.jpg",
+    titre: "La lettre disputée : a ou e ?",
+    date: "27 février 1965",
+    lieu: "décret n° 4171, article 2",
+    transcription:
+`« M. MARTINEZ Bernard Joseph s'appellera désormais :
+BENABDERRAHMANE Abd?llah. » Sur l'ampliation dactylographiée, la
+voyelle centrale du prénom est un pâté d'encre : la frappe est trop
+chargée pour trancher à l'œil entre Abdallah et Abdellah.`,
+    releve: [
+      { champ: "Lecture du Journal officiel (1965)", valeur: "Abdallah, en caractères d'imprimerie", personnes: ["abdallah"] },
+      { champ: "Lecture de la copie de Nantes (2013)", valeur: "Abdellah, à la main, en marge de l'acte de 1940", personnes: ["abdallah"] },
+      { champ: "Corrélation avec les a du décret", valeur: "0,95 avec le a final du même mot", personnes: [] },
+      { champ: "Corrélation avec les e du décret", valeur: "0,79 au mieux", personnes: [] },
+      { champ: "Verdict", valeur: "a probable, environ trois chances sur quatre", personnes: ["abdallah", "moi"] },
+    ],
+    contexte:
+`Pour départager les deux lectures, la lettre en cause a été comparée
+pixel par pixel aux autres lettres frappées par la même machine sur le
+même décret : les glyphes sont binarisés, recadrés, ramenés à la même
+taille, puis corrélés. Le pâté s'apparie à 0,95 avec le a final du même
+mot, frappé dans les mêmes conditions d'encrage, contre 0,79 pour le
+meilleur e du document : environ trois chances sur quatre pour le a. Le
+Journal officiel, composé en imprimerie par un typographe qui avait le
+décret sous les yeux, a lu Abdallah ; l'officier d'état civil de Nantes
+qui recopiait la mention en 2013 a lu Abdellah. L'ambiguïté ne date pas
+de moi : elle est dans la frappe d'origine.`,
+    commentaire:
+`Toute cette page est née d'une hésitation entre deux voyelles, et la
+pièce fondatrice hésite elle-même : la machine à écrire du ministère a
+frappé une lettre que personne ne peut lire avec certitude. Abdallah à
+l'imprimerie d'Alger, Abdellah à l'état civil de Nantes, et moi entre
+les deux.` },
 
   { id: "jo-1965-decret",
     image: "origines/jo-1965-decret.jpg",
