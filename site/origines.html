@@ -359,20 +359,6 @@
     cursor: pointer;
     pointer-events: stroke;
   }
-  .arbre-legende {
-    display: flex;
-    gap: 1.3rem;
-    flex-wrap: wrap;
-    align-items: center;
-    margin: .1rem 0 .9rem;
-    font-family: var(--mono);
-    font-size: .68rem;
-    color: var(--encre-pale);
-  }
-  .arbre-legende span { display: inline-flex; align-items: center; gap: .4rem; }
-  .arbre-legende .ex { width: 1.6rem; height: 0; display: inline-block; }
-  .arbre-legende .ex-mariage { border-top: 2.2px solid var(--tampon); opacity: .75; }
-  .arbre-legende .ex-filiation { border-top: 1.5px solid var(--encre-pale); }
 
   /* ---------- petit écran ---------- */
   @media (max-width: 640px) {
@@ -867,10 +853,6 @@
     <button type="button" class="atelier-lien" id="atelier-lien">Atelier des portraits</button>
   </div>
   <input type="file" id="portrait-fichier" accept="image/jpeg,image/png,image/webp" hidden>
-  <div class="arbre-legende">
-    <span><span class="ex ex-mariage"></span> trait horizontal : mariage (cliquable si l'acte existe)</span>
-    <span><span class="ex ex-filiation"></span> trait vertical : parents et enfants</span>
-  </div>
   <div class="arbre-zone">
     <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
     <aside id="docs-personne" aria-live="polite"></aside>
