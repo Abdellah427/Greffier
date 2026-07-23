@@ -196,6 +196,28 @@
     line-height: 1.5;
   }
 
+  /* La photo à la banderole : pleine largeur sous le chapitre. */
+  .piece-banderole {
+    grid-column: 1 / -1;
+    margin: 1.6rem auto 0;
+    max-width: 46rem;
+    text-align: center;
+  }
+  .piece-banderole img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--regle);
+    box-shadow: 0 3px 14px rgba(43, 33, 24, .18);
+  }
+  .piece-banderole figcaption {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    margin-top: .45rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
   /* Le portrait crayonné de l'auteur : posé sur le papier, sans cadre. */
   .portrait-signature { margin: 0; }
   .portrait-signature img {
@@ -915,10 +937,17 @@
   <div class="planche">
     <figure class="portrait-signature">
       <img src="origines/moi-crayon.png" alt="Abdellah Hassani, portrait au crayon" loading="lazy">
-      <figcaption>Abdellah Souleyman Hassani, en manifestation contre les crimes racistes,
-        Paris. Un siècle après l'affiche de la famille, le même refus, au crayon.</figcaption>
+      <figcaption>Moi-même, le 11 mai 2025 à Paris, en marche contre les violences
+        policières et les crimes racistes, dans le sillage des affaires Adama Traoré et
+        Ibrahim Ali. Un siècle après l'affiche de la famille, le même refus.</figcaption>
     </figure>
   </div>
+  <figure class="piece-banderole">
+    <img src="origines/moi-banderole.jpg" alt="Abdellah Hassani en tête de cortège, portant une banderole" loading="lazy">
+    <figcaption>La banderole que je portais ce jour-là : « Ibrahim Ali et Brahim Bouarram,
+      1995. Il y a trente ans, crimes racistes... aujourd'hui. Aboubakar Cissé. » La même
+      liasse, cent ans plus tard, sur une place de Paris.</figcaption>
+  </figure>
 </section>
 
 <section class="chapitre" id="section-arbre">
