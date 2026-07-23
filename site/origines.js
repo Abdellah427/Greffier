@@ -599,30 +599,44 @@ est mort. On ment. La famille en est malade. J'appelle avec le Comité de
 défense des droits et de la vie des immigrés, tous ceux qui veulent
 m'aider, au rassemblement de tous les habitants de France, Français et
 immigrés épris de justice. Ancienne gare de la Bastille, dimanche
-17 décembre de 14 h à 19 heures. » Texte bilingue français-arabe.`,
+17 décembre de 14 h à 19 heures. » Texte bilingue français-arabe ;
+la partie en arabe, qui reprend l'appel, a été lue avec un modèle en
+ligne, l'atelier du site ne lisant pour l'instant que le français.`,
     releve: [
       { champ: "Mémoire familiale", valeur: "Mohamed Diab serait un parent de l'arrière-grand-mère Khadoudja, par la famille Diab de Marnia", personnes: ["diab-fatma", "khadoudja"] },
     ],
     contexte:
-`Mohamed Diab, chauffeur-livreur algérien de trente-deux ans, père de
-quatre enfants, meurt le 29 novembre 1972 au commissariat de
-Versailles, atteint de trois balles tirées par un sous-brigadier,
-après une interpellation à l'hôpital où sa mère était soignée. Sa
-famille refuse le silence : sa veuve Zara Diab témoigne au journal
-télévisé, sa sœur Fatna lance l'appel reproduit ici. Une « semaine de
-deuil et d'action » culmine les 16 et 17 décembre 1972, soutenue par
-cent trente-sept personnalités, dont Sartre, Foucault, Genet et Simone
-de Beauvoir. Après sept ans de procédure, le policier bénéficie d'un
+`Mohamed Diab, chauffeur-livreur algérien, père de quatre enfants,
+installé à Versailles, est interpellé le 29 novembre 1972 à l'hôpital
+où sa mère est soignée, parce qu'il refuse de quitter sa chambre.
+Conduit au commissariat de la caserne de Noailles, il y est abattu par
+le brigadier René Marquet, qui invoque la légitime défense ; les
+récits divergent jusque sur l'arme, trois balles selon les uns, une
+rafale de pistolet-mitrailleur selon la contre-enquête. Sa famille
+refuse le silence : sa veuve Zara Diab témoigne au journal télévisé,
+sa sœur Fatna lance l'appel reproduit ici, et le Comité de défense de
+la vie et des droits des travailleurs immigrés publie sa
+contre-enquête dès 1973. Une « semaine de deuil et d'action » culmine
+les 16 et 17 décembre 1972 : la marche du 16, interdite, part quand
+même de Bonne-Nouvelle vers Barbès ; Michel Foucault, Jean Genet et
+Claude Mauriac y sont interpellés, et cent trente-sept personnalités,
+dont Sartre et Simone de Beauvoir, signent l'appel. Le 30 mai 1980,
+après sept ans et demi de procédure, le policier bénéficie d'un
 non-lieu. Une affiche jumelle de celle-ci est conservée au Musée
-national de l'histoire de l'immigration (cote 2009.14.01), et
-l'historien Philippe Artières a consacré un livre à l'affaire en 2024,
-« À bout portant. Versailles 1972 ».`,
+national de l'histoire de l'immigration (cote 2009.14.01), la
+contre-enquête de 1973 a été rééditée en 2017, et l'historien Philippe
+Artières a consacré un livre à l'affaire en 2024, « À bout portant.
+Versailles 1972 » (Gallimard).`,
     liens: [
       { titre: "Les images de 1972 et le témoignage de Zara Diab (INA)",
         url: "https://www.ina.fr/ina-eclaire-actu/video/s985812_001/racisme-dans-la-police-des-accusations-repetees-depuis-le-debut-des-annees-70" },
       { titre: "L'affiche de la semaine de deuil au Musée de l'histoire de l'immigration",
         url: "https://www.histoire-immigration.fr/collections/semaine-de-deuil-et-d-action" },
-      { titre: "Philippe Artières, À bout portant. Versailles 1972",
+      { titre: "L'affaire Mohamed Diab racontée par le Musée (Google Arts et Culture)",
+        url: "https://artsandculture.google.com/asset/l-affaire-mohamed-diab/0QE3JMr5wggSqA" },
+      { titre: "La contre-enquête de 1973, « Vérité et justice pour Mohamed Diab », rééditée en 2017",
+        url: "https://quartierslibres.wordpress.com/2017/04/08/le-livre-du-samedi-verite-et-justice-pour-mohamed-diab/" },
+      { titre: "Philippe Artières, À bout portant. Versailles 1972 (Gallimard, 2024)",
         url: "https://books.google.fr/books/about/%C3%80_bout_portant_Versailles_1972.html?id=h74WEQAAQBAJ" },
     ],
     commentaire:
