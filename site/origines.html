@@ -111,7 +111,12 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 3.5rem;
-      align-items: center;
+      align-items: start;
+    }
+    /* Trois documents : le principal en grand, les deux autres dessous. */
+    .planche > figure.piece:first-child:nth-last-child(3) {
+      grid-column: 1 / -1;
+      max-width: 460px;
     }
     section.chapitre:nth-of-type(even):not(#section-arbre):not(.epilogue-section) .texte { order: 2; }
     .chapitre .texte:last-child { grid-column: 1 / -1; }
