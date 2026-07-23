@@ -771,8 +771,9 @@
 </section>
 
 <section class="chapitre" id="section-arbre">
-  <h2><span class="folio">L'arbre</span>Cinq générations, document par document</h2>
+  <h2><span class="folio">L'arbre</span>Ma lignée directe, document par document</h2>
   <div class="arbre-outils">
+    <label><input type="checkbox" id="parente-complete"> Afficher toute la parenté</label>
     <label><input type="checkbox" id="masque-vivants"> Masquer les personnes vivantes</label>
     <span>Cliquez sur une personne pour voir ses documents ; sur un document pour lire sa transcription.</span>
     <button type="button" class="atelier-lien" id="atelier-lien">Atelier des portraits</button>
@@ -993,6 +994,18 @@ const NOMS_GENERATIONS = [
   "Maghnia et Tolga", "Mes parents", "Ma génération",
 ];
 
+// Ma lignée directe : moi et mes ascendants, de génération en génération.
+// Le reste de la parenté (frères, soeurs, oncles, autres épouses) reste dans
+// les données et les documents, mais n'apparaît dans l'arbre que sur demande.
+const LIGNEE_DIRECTE = new Set([
+  "moi",
+  "amina", "hassani-mohammed",
+  "hassiba", "soltani-mohamed",
+  "khadoudja", "arfa-abdelkader",
+  "abdallah", "zahra",
+  "martinez-pere", "montesinos-maria", "bensalah", "diab-fatma",
+]);
+
 function construitArbre() {
   const arbre = el("arbre");
   arbre.querySelectorAll(".generation").forEach(g => g.remove());
@@ -1013,6 +1026,7 @@ function construitArbre() {
       carte.className = "personne" + (p.id === "moi" ? " moi" : "");
       carte.dataset.id = p.id;
       carte.dataset.vivant = p.vivant ? "1" : "0";
+      carte.dataset.directe = LIGNEE_DIRECTE.has(p.id) ? "1" : "0";
       carte.setAttribute("role", "button");
       carte.tabIndex = 0;
       const nomComplet = `${p.prenom} ${p.nom}`.trim();
@@ -1043,8 +1057,17 @@ function construitArbre() {
 
 function appliqueMasque() {
   const masque = el("masque-vivants").checked;
+  const complet = el("parente-complete").checked;
   document.querySelectorAll(".personne").forEach(carte => {
-    carte.style.display = masque && carte.dataset.vivant === "1" ? "none" : "";
+    const cacheVivant = masque && carte.dataset.vivant === "1";
+    const cacheCollateral = !complet && carte.dataset.directe !== "1";
+    carte.style.display = (cacheVivant || cacheCollateral) ? "none" : "";
+  });
+  // Les rangées vidées par le filtre ne doivent pas laisser d'étiquette flottante.
+  document.querySelectorAll(".generation").forEach(rangee => {
+    const reste = [...rangee.querySelectorAll(".personne")]
+      .some(c => c.style.display !== "none");
+    rangee.style.display = reste ? "" : "none";
   });
   requestAnimationFrame(traceLiens);
 }
@@ -1151,6 +1174,7 @@ function montrePersonne(pid) {
 }
 
 el("masque-vivants").addEventListener("change", appliqueMasque);
+el("parente-complete").addEventListener("change", appliqueMasque);
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
 window.addEventListener("load", traceLiens);
