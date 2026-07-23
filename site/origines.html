@@ -352,7 +352,12 @@
     stroke-linejoin: round;
     opacity: .8;
   }
-  .noeud-union { fill: var(--tampon); opacity: .8; }
+  .anneau-union {
+    fill: none;
+    stroke: var(--tampon);
+    stroke-width: 1.5;
+    opacity: .85;
+  }
   .arbre-legende {
     display: flex;
     gap: 1.3rem;
@@ -436,7 +441,18 @@
   }
   .personne:hover { border-color: var(--tampon); }
   .personne.actif { border-color: var(--tampon); box-shadow: 0 0 0 2px rgba(140, 47, 27, .25); }
-  .personne .p-nom { font-size: .92rem; }
+  .personne .p-sexe {
+    position: absolute;
+    top: .4rem;
+    right: .5rem;
+    font-size: .78rem;
+    line-height: 1;
+    color: var(--regle);
+    pointer-events: none;
+  }
+  .personne[data-sexe="f"] .p-sexe { color: #b06a4e; }
+  .personne[data-sexe="h"] .p-sexe { color: #8a9a7b; }
+  .personne .p-nom { font-size: .92rem; padding-right: 1rem; }
   .personne .p-detail {
     font-family: var(--mono);
     font-size: .64rem;
@@ -1027,10 +1043,18 @@ function construitArbre() {
       carte.dataset.id = p.id;
       carte.dataset.vivant = p.vivant ? "1" : "0";
       carte.dataset.directe = LIGNEE_DIRECTE.has(p.id) ? "1" : "0";
+      carte.dataset.sexe = p.sexe || "";
       carte.setAttribute("role", "button");
       carte.tabIndex = 0;
       const nomComplet = `${p.prenom} ${p.nom}`.trim();
       carte.innerHTML = "";
+      if (p.sexe) {
+        const sexe = document.createElement("span");
+        sexe.className = "p-sexe";
+        sexe.textContent = p.sexe === "f" ? "♀" : "♂";
+        sexe.setAttribute("aria-hidden", "true");
+        carte.appendChild(sexe);
+      }
       const nom = document.createElement("div");
       nom.className = "p-nom";
       nom.textContent = nomComplet;
@@ -1092,11 +1116,14 @@ function traitSVG(svg, d, classe) {
   p.setAttribute("class", classe);
   svg.appendChild(p);
 }
-function noeudSVG(svg, x, y) {
-  const c = document.createElementNS(SVGNS, "circle");
-  c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 3);
-  c.setAttribute("class", "noeud-union");
-  svg.appendChild(c);
+function anneauxSVG(svg, x, y) {
+  // Deux anneaux entrelacés : le symbole du mariage.
+  for (const dx of [-3, 3]) {
+    const c = document.createElementNS(SVGNS, "circle");
+    c.setAttribute("cx", x + dx); c.setAttribute("cy", y); c.setAttribute("r", 4);
+    c.setAttribute("class", "anneau-union");
+    svg.appendChild(c);
+  }
 }
 
 function traceLiens() {
@@ -1109,6 +1136,9 @@ function traceLiens() {
     const carte = arbre.querySelector(`.personne[data-id="${id}"]`);
     return carte && carte.style.display !== "none" ? carte : null;
   };
+  // Combien de mariages déjà tracés pour chaque personne, afin d'étager les
+  // unions multiples (Bernard et ses trois femmes) sur des niveaux distincts.
+  const nbMariages = {};
   for (const union of window.ORIGINES.unions) {
     const p1 = visible(union.parents[0]);
     const p2 = visible(union.parents[1]);
@@ -1120,13 +1150,17 @@ function traceLiens() {
     if (p1 && p2) {
       const [x1, y1] = centreBas(p1, arbre);
       const [x2, y2] = centreBas(p2, arbre);
-      // On décale la barre de mariage vers le bas selon l'écart, pour que les
-      // unions multiples d'une même personne ne se superposent pas.
-      const yBarre = Math.max(y1, y2) + 9 + Math.abs(x1 - x2) * 0.03;
+      // Chaque mariage supplémentaire d'une même personne descend d'un cran,
+      // pour que les barres ne se chevauchent jamais et restent lisibles.
+      const etage = Math.max(nbMariages[union.parents[0]] || 0,
+                             nbMariages[union.parents[1]] || 0);
+      nbMariages[union.parents[0]] = (nbMariages[union.parents[0]] || 0) + 1;
+      nbMariages[union.parents[1]] = (nbMariages[union.parents[1]] || 0) + 1;
+      const yBarre = Math.max(y1, y2) + 11 + etage * 11;
       traitSVG(svg, `M ${x1} ${y1} V ${yBarre} H ${x2} V ${y2}`, "lien-mariage");
       origineX = (x1 + x2) / 2;
       origineY = yBarre;
-      noeudSVG(svg, origineX, yBarre);
+      anneauxSVG(svg, origineX, yBarre);
     } else {
       const seul = p1 || p2;
       const [x, y] = centreBas(seul, arbre);
