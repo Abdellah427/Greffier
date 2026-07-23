@@ -227,6 +227,12 @@
     padding: .9rem 1rem;
     margin: .6rem 0 0;
   }
+  .liens-externes {
+    margin: 0 0 1rem;
+    padding-left: 1.1rem;
+    font-size: .85rem;
+  }
+  .liens-externes li { margin: .2rem 0; }
   .pli-transcription { margin: .4rem 0 1rem; }
   .pli-transcription summary {
     font-family: var(--mono);
@@ -584,7 +590,10 @@
        Zahra ; la mémoire familiale dit que Mohamed Diab était un cousin ou un oncle de
        mon arrière-grand-mère. Aucun acte ne l'établit pour l'instant : je reproduis
        l'affiche comme un document d'histoire, et comme la prochaine piste à vérifier,
-       registre en main.</p>
+       registre en main. L'affaire, elle, est bien documentée : la veuve de Mohamed
+       Diab a témoigné au journal télévisé de l'époque, ces images sont conservées
+       par l'INA, et une affiche jumelle de la nôtre est entrée dans les collections
+       du Musée national de l'histoire de l'immigration.</p>
   </div>
   <div class="planche">
     <figure class="piece" data-doc="affiche-diab"></figure>
@@ -646,6 +655,8 @@
       <p class="datation" id="v-etiquette-contexte">Éclairage historique</p>
       <p class="contexte" id="v-contexte"></p>
       <p class="commentaire" id="v-commentaire"></p>
+      <p class="datation" id="v-etiquette-liens" hidden>Pour aller plus loin</p>
+      <ul class="liens-externes" id="v-liens" hidden></ul>
       <details class="pli-transcription" id="v-pli-transcription">
         <summary>Voir la transcription</summary>
         <pre class="transcription" id="v-transcription"></pre>
@@ -710,6 +721,20 @@ function ouvreDocument(id) {
   el("v-transcription").textContent = doc.transcription || "";
   el("v-pli-transcription").hidden = !doc.transcription;
   el("v-pli-transcription").open = false;
+  const liens = el("v-liens");
+  liens.textContent = "";
+  for (const lien of doc.liens || []) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = lien.url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = lien.titre;
+    li.appendChild(a);
+    liens.appendChild(li);
+  }
+  liens.hidden = !(doc.liens || []).length;
+  el("v-etiquette-liens").hidden = !(doc.liens || []).length;
   el("v-contexte").textContent = (doc.contexte || "").replace(/\n/g, " ");
   el("v-contexte").hidden = !doc.contexte;
   el("v-etiquette-contexte").hidden = !doc.contexte;

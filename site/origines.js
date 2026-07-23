@@ -604,12 +604,27 @@ immigrés épris de justice. Ancienne gare de la Bastille, dimanche
       { champ: "Mémoire familiale", valeur: "Mohamed Diab serait un parent de l'arrière-grand-mère Khadoudja, par la famille Diab de Marnia", personnes: ["diab-fatma", "khadoudja"] },
     ],
     contexte:
-`Mohamed Diab meurt le 29 novembre 1972 au commissariat de
-Versailles ; un brigadier sera renvoyé devant les assises. L'affaire
-mobilise les comités de défense de la vie et des droits des immigrés et
-marque les années 1970 : le rassemblement de la Bastille annoncé par
-cette affiche en fait partie. Le texte est bilingue, pour être lu des
-deux côtés de l'immigration.`,
+`Mohamed Diab, chauffeur-livreur algérien de trente-deux ans, père de
+quatre enfants, meurt le 29 novembre 1972 au commissariat de
+Versailles, atteint de trois balles tirées par un sous-brigadier,
+après une interpellation à l'hôpital où sa mère était soignée. Sa
+famille refuse le silence : sa veuve Zara Diab témoigne au journal
+télévisé, sa sœur Fatna lance l'appel reproduit ici. Une « semaine de
+deuil et d'action » culmine les 16 et 17 décembre 1972, soutenue par
+cent trente-sept personnalités, dont Sartre, Foucault, Genet et Simone
+de Beauvoir. Après sept ans de procédure, le policier bénéficie d'un
+non-lieu. Une affiche jumelle de celle-ci est conservée au Musée
+national de l'histoire de l'immigration (cote 2009.14.01), et
+l'historien Philippe Artières a consacré un livre à l'affaire en 2024,
+« À bout portant. Versailles 1972 ».`,
+    liens: [
+      { titre: "Les images de 1972 et le témoignage de Zara Diab (INA)",
+        url: "https://www.ina.fr/ina-eclaire-actu/video/s985812_001/racisme-dans-la-police-des-accusations-repetees-depuis-le-debut-des-annees-70" },
+      { titre: "L'affiche de la semaine de deuil au Musée de l'histoire de l'immigration",
+        url: "https://www.histoire-immigration.fr/collections/semaine-de-deuil-et-d-action" },
+      { titre: "Philippe Artières, À bout portant. Versailles 1972",
+        url: "https://books.google.fr/books/about/%C3%80_bout_portant_Versailles_1972.html?id=h74WEQAAQBAJ" },
+    ],
     commentaire:
 `Ce document historique des luttes de l'immigration (Mohamed Diab est
 mort au commissariat de Versailles le 29 novembre 1972) a été conservé
