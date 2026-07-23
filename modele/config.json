@@ -23,9 +23,9 @@
     "Qwen/Qwen2-VL-2B-Instruct"
   ],
   "huggingface": {
-    "compte": "A_DEFINIR",
-    "repo_modele": "greffier-actes",
-    "repo_dataset": "greffier-actes-harmonise"
+    "compte": "Abdellah427",
+    "repo_modele": "Abdellah427/greffier-actes",
+    "repo_dataset": "Abdellah427/greffier-actes-harmonise"
   },
   "chemins": {
     "travail": "/content/greffier",
