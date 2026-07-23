@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greffier : origines, une enquête dans les registres de ma famille</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
+<style>
+  :root {
+    --papier: #efe8d8;
+    --papier-2: #e7dcc4;
+    --regle: #cdbfa0;
+    --encre: #2c2416;
+    --encre-pale: #77684f;
+    --tampon: #8c2f1b;
+    --carte: #f6f0e2;
+    --exact: #557a48;
+    --serif-display: 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
+    --serif-body: Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--papier);
+    color: var(--encre);
+    font-family: var(--serif-body);
+    line-height: 1.6;
+  }
+  nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: baseline;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.1rem 1.5rem 0;
+    font-family: var(--mono);
+    font-size: .85rem;
+    flex-wrap: wrap;
+  }
+  nav .marque {
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    text-decoration: none;
+    margin-right: auto;
+  }
+  nav a { color: var(--tampon); text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav a[aria-current] { color: var(--encre); border-bottom: 2px solid var(--tampon); }
+  a { color: var(--tampon); }
+  :focus-visible { outline: 2px solid var(--tampon); outline-offset: 2px; }
+
+  header {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.4rem 1.5rem 0;
+  }
+  header h1 {
+    font-family: var(--serif-display);
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    font-weight: normal;
+    margin: 0 0 .6rem;
+  }
+  header h1 em { color: var(--tampon); font-style: italic; }
+  header .sous-titre { color: var(--encre-pale); margin: 0; }
+
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.6rem 1.5rem 4rem;
+  }
+  .chapitre {
+    border-top: 1px solid var(--regle);
+    padding-top: 1.6rem;
+    margin-top: 1.8rem;
+  }
+  .chapitre h2 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: 1.4rem;
+    margin: 0 0 .8rem;
+  }
+  .chapitre h2 .folio {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    display: block;
+    margin-bottom: .3rem;
+  }
+  .chapitre p { text-align: justify; hyphens: auto; max-width: 72ch; }
+  .planche {
+    display: flex;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+    margin: 1.2rem 0 .4rem;
+  }
+  figure.piece {
+    margin: 0;
+    width: 340px;
+    max-width: 100%;
+    cursor: zoom-in;
+  }
+  figure.piece img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--regle);
+    box-shadow: 0 3px 14px rgba(43, 33, 24, .18);
+    background: white;
+  }
+  figure.piece figcaption {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    margin-top: .45rem;
+  }
+  figure.piece:hover img { box-shadow: 0 5px 20px rgba(140, 47, 27, .3); }
+
+  /* ---------- la visionneuse ---------- */
+  .visionneuse {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 20, 14, .82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 30;
+  }
+  .visionneuse[hidden] { display: none; }
+  .visionneuse-cadre {
+    background: var(--papier);
+    border: 1px solid var(--regle);
+    max-width: min(1360px, 96vw);
+    max-height: 92vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 0;
+    overflow: hidden;
+  }
+  @media (max-width: 880px) { .visionneuse-cadre { grid-template-columns: 1fr; overflow-y: auto; } }
+  .visionneuse-image {
+    background: #171310;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 14rem;
+  }
+  .visionneuse-image img { max-width: 100%; max-height: 92vh; object-fit: contain; }
+  .visionneuse-texte {
+    padding: 1.4rem 1.6rem;
+    overflow-y: auto;
+    max-height: 92vh;
+  }
+  .visionneuse-texte h3 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    margin: 0 0 .2rem;
+    font-size: 1.25rem;
+  }
+  .visionneuse-texte .datation {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin: 0 0 1rem;
+  }
+  .transcription {
+    font-family: var(--mono);
+    font-size: .78rem;
+    white-space: pre-wrap;
+    background: rgba(255, 253, 246, .8);
+    border: 1px solid var(--regle);
+    border-left: 3px solid var(--tampon);
+    padding: .9rem 1rem;
+    margin: 0 0 1rem;
+  }
+  .releve { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  .releve td {
+    border-top: 1px dotted var(--regle);
+    padding: .35rem .4rem .35rem 0;
+    font-size: .88rem;
+    vertical-align: top;
+  }
+  .releve td:first-child {
+    font-family: var(--mono);
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--encre-pale);
+    white-space: nowrap;
+    padding-right: .9rem;
+  }
+  .commentaire { color: var(--encre-pale); font-style: italic; }
+  .personnes-liees { margin-top: .6rem; }
+  .personnes-liees button {
+    font-family: var(--mono);
+    font-size: .7rem;
+    border: 1px solid var(--regle);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--encre);
+    padding: .25rem .7rem;
+    margin: 0 .35rem .35rem 0;
+    cursor: pointer;
+  }
+  .personnes-liees button:hover { border-color: var(--tampon); color: var(--tampon); }
+  .fermer {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    background: var(--papier);
+    border: 1px solid var(--regle);
+    padding: .3rem .7rem;
+    cursor: pointer;
+    color: var(--encre);
+    z-index: 31;
+  }
+
+  /* ---------- l'arbre ---------- */
+  .arbre-outils {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: .8rem 0 1rem;
+    font-family: var(--mono);
+    font-size: .76rem;
+    color: var(--encre-pale);
+  }
+  .arbre-outils label { cursor: pointer; }
+  .arbre-outils input { accent-color: var(--tampon); }
+  .arbre {
+    position: relative;
+    border: 1px solid var(--regle);
+    background: rgba(255, 253, 246, .55);
+    padding: 1.4rem 1rem 1.6rem;
+    overflow-x: auto;
+  }
+  .arbre svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .generation {
+    position: relative;
+    display: flex;
+    gap: .8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.6rem;
+  }
+  .generation:last-child { margin-bottom: 0; }
+  .generation .etiquette-gen {
+    position: absolute;
+    left: 0;
+    top: -0.4rem;
+    font-family: var(--mono);
+    font-size: .62rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+  }
+  .personne {
+    border: 1px solid var(--regle);
+    background: var(--papier);
+    padding: .5rem .7rem;
+    min-width: 10rem;
+    max-width: 13rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+  .personne:hover { border-color: var(--tampon); }
+  .personne.actif { border-color: var(--tampon); box-shadow: 0 0 0 2px rgba(140, 47, 27, .25); }
+  .personne .p-nom { font-size: .92rem; }
+  .personne .p-detail {
+    font-family: var(--mono);
+    font-size: .64rem;
+    color: var(--encre-pale);
+    margin-top: .2rem;
+  }
+  .personne .p-sources {
+    font-family: var(--mono);
+    font-size: .6rem;
+    color: var(--tampon);
+    margin-top: .25rem;
+  }
+  .personne.moi { border-width: 2px; border-color: var(--tampon); }
+  #docs-personne {
+    margin-top: 1rem;
+    display: flex;
+    gap: .7rem;
+    flex-wrap: wrap;
+  }
+  #docs-personne .doc-carte {
+    font-family: var(--mono);
+    font-size: .72rem;
+    border: 1px solid var(--regle);
+    background: var(--papier);
+    padding: .45rem .7rem;
+    cursor: pointer;
+    color: var(--encre);
+  }
+  #docs-personne .doc-carte:hover { border-color: var(--tampon); color: var(--tampon); }
+  .methode {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--encre-pale);
+    border: 1px dashed var(--regle);
+    padding: .7rem .9rem;
+    margin-top: 1.6rem;
+    max-width: none;
+  }
+  footer {
+    border-top: 1px solid var(--regle);
+    color: var(--encre-pale);
+    font-family: var(--mono);
+    font-size: .72rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.2rem 1.5rem 2.4rem;
+  }
+  footer a { color: var(--encre-pale); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="marque" href="index.html">Greffier · Registres de mariage parisiens</a>
+  <a href="demo.html">Démonstration</a>
+  <a href="banc.html">Banc d'essai</a>
+  <a href="index.html">Les 130 actes</a>
+  <a href="origines.html" aria-current="page">Origines</a>
+  <a href="https://github.com/Abdellah427/Greffier">Code source</a>
+</nav>
+
+<header>
+  <h1>Abdellah, <em>Abdallah</em>.</h1>
+  <p class="sous-titre">Mon prénom s'écrit de deux façons, et je n'ai longtemps pas su pourquoi.
+     La réponse dormait dans une liasse de papiers jaunis que ma famille a portés de Marnia,
+     en Algérie, jusqu'en France. Cette page est l'enquête : chaque information vient d'un
+     document, chaque document a été lu avec les outils de ce site, puis vérifié à la main.</p>
+</header>
+
+<main>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce première</span>Un décret, deux orthographes</h2>
+  <p>Je m'appelle Abdellah. Certains écrivent Abdallah, et ma famille dit que ce prénom
+     m'a été donné en souvenir d'un aïeul. En cherchant lequel, j'ai trouvé ceci : une
+     mention manuscrite portée sur un registre de Marnia, petite ville de l'ouest algérien.
+     Par décret du 27 février 1965, un maçon de soixante-dix-huit ans né
+     <strong>Bernard Joseph Martinez</strong> est naturalisé algérien et « portera désormais
+     le nom de Benabderrahmane, prénom : Abdallah ». La copie française du même acte écrit
+     « Abdellah ». Les deux orthographes qui me suivent depuis l'école sont nées là,
+     sous deux plumes différentes, pour le même homme : mon arrière-arrière-grand-père.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="decret-1965"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce deuxième</span>L'homme de 1886</h2>
+  <p>Bernard Joseph Martinez naît le 27 mai 1886 à Aïn Témouchent, dans l'Oranie, de
+     Bernard Martinez et de Maria Montesinos : une famille aux noms espagnols, comme des
+     dizaines de milliers d'autres dans l'ouest de l'Algérie coloniale. Il est maçon.
+     Son fascicule de mobilisation, classe 1907, l'envoie dans la Grande Guerre en
+     service auxiliaire ; vingt ans plus tard, l'Office national des combattants lui
+     délivre à Oran la carte du combattant n° 15868. C'est la seule photographie de lui
+     que nous ayons.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="fascicule-mobilisation"></figure>
+    <figure class="piece" data-doc="carte-combattant-1936"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce troisième</span>Marnia, 11 janvier 1940</h2>
+  <p>Le 11 janvier 1940, à la mairie de Marnia, à la frontière marocaine, il épouse
+     en troisièmes noces <strong>Zahra Morsli</strong>, née dans la même ville vers 1918,
+     fille de Bensalah et de <strong>Fatma Diab</strong>. Il a cinquante-trois ans, elle
+     en a une vingtaine. L'acte, recopié en 2013 par le service central d'état civil de
+     Nantes, est exactement le type de page manuscrite pour lequel l'atelier de lecture
+     de ce site a été construit. Le petit livret de famille délivré deux mois plus tard
+     ne quittera plus jamais la famille.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="acte-mariage-1940"></figure>
+    <figure class="piece" data-doc="livret-famille-mariage"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce quatrième</span>Les enfants Martinez</h2>
+  <p>Trois enfants sont inscrits au livret : Benamar, <strong>Mostefa</strong> né le
+     27 février 1940, et <strong>Khadoudja</strong> née le 31 octobre 1942, mon
+     arrière-grand-mère. Tous déclarés sous le nom Martinez. Le livret militaire de
+     Mostefa, classe 1960, le montre appelé au service en mars 1962, dans les derniers
+     mois de la guerre, puis renvoyé dans ses foyers. Trois ans plus tard, le décret de
+     naturalisation de leur père fera de toute la fratrie des Benabderrahmane.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="livret-famille-enfants"></figure>
+    <figure class="piece" data-doc="livret-militaire-mostefa"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce cinquième</span>Choisir son nom, choisir son pays</h2>
+  <p>L'Algérie devient indépendante en 1962. Le carnet du ministère des Finances,
+     tamponné à Alger en novembre 1963, montre le vieil homme dans les démarches de
+     l'après : pensions, guichets, cachets. Puis vient le décret du 27 février 1965 :
+     à soixante-dix-huit ans, l'ancien combattant né sous un nom espagnol choisit la
+     nationalité algérienne et le nom d'Abdallah Benabderrahmane. Il meurt deux ans
+     plus tard, en 1967. Zahra, elle, vivra jusqu'en 2009. Je suis né en 2002 : nous
+     avons partagé sept ans sans que je sache rien de tout cela.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="carnet-finances-1963"></figure>
+    <figure class="piece" data-doc="carte-ouvrier-1947"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce sixième</span>L'affiche</h2>
+  <p>Dans la même liasse, un document d'une autre nature : l'appel de Fatna Diab au
+     rassemblement de la Bastille, en décembre 1972, après la mort de son frère
+     Mohamed Diab au commissariat de Versailles. Le nom Diab est celui de la mère de
+     Zahra ; la mémoire familiale dit que Mohamed Diab était un cousin ou un oncle de
+     mon arrière-grand-mère. Aucun acte ne l'établit pour l'instant : je reproduis
+     l'affiche comme un document d'histoire, et comme la prochaine piste à vérifier,
+     registre en main.</p>
+  <div class="planche">
+    <figure class="piece" data-doc="affiche-diab"></figure>
+  </div>
+</section>
+
+<section class="chapitre">
+  <h2><span class="folio">Pièce septième</span>Jusqu'à moi</h2>
+  <p>Khadoudja épouse Abdelkader Arfa ; leur fille <strong>Hassiba</strong> naît le
+     31 décembre 1964 à Maghnia, le nouveau nom de Marnia. Hassiba et Mohamed Soltani,
+     venu de l'oasis de Tolga, ont une fille née à Argenteuil en 1984 : ma mère,
+     Amina. Je nais à Nanterre le 26 juillet 2002, Abdellah Souleyman Hassani. Quatre
+     générations, deux rives, un prénom qui a traversé tout cela avec ses deux
+     orthographes. Les actes récents qui documentent ce trajet, de Maghnia à
+     Argenteuil puis Nanterre, concernent des personnes vivantes : ils sont dans
+     l'arbre, pas à l'image.</p>
+</section>
+
+<section class="chapitre" id="section-arbre">
+  <h2><span class="folio">L'arbre</span>Cinq générations, document par document</h2>
+  <div class="arbre-outils">
+    <label><input type="checkbox" id="masque-vivants"> Masquer les personnes vivantes</label>
+    <span>Cliquez sur une personne pour voir ses documents ; sur un document pour lire sa transcription.</span>
+  </div>
+  <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
+  <div id="docs-personne" aria-live="polite"></div>
+  <p class="methode">Méthode : chaque page a été photographiée puis lue avec l'atelier de ce
+     site (voir la démonstration), et la transcription vérifiée à la main. Les passages
+     douteux sont marqués [?]. Les dates sans document sont issues de l'arbre dressé par
+     la famille et restent à confirmer par les registres. Les documents des personnes
+     vivantes ne sont pas reproduits.</p>
+</section>
+
+</main>
+
+<div class="visionneuse" id="visionneuse" hidden role="dialog" aria-modal="true">
+  <button class="fermer" id="fermer">fermer ×</button>
+  <div class="visionneuse-cadre">
+    <div class="visionneuse-image" id="v-image"></div>
+    <div class="visionneuse-texte">
+      <h3 id="v-titre"></h3>
+      <p class="datation" id="v-datation"></p>
+      <pre class="transcription" id="v-transcription"></pre>
+      <table class="releve" id="v-releve"></table>
+      <p class="commentaire" id="v-commentaire"></p>
+      <div class="personnes-liees" id="v-personnes"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Greffier · documents familiaux reproduits avec l'accord de la famille ·
+  hébergé en France par OVHcloud ·
+  <a href="https://github.com/Abdellah427/Greffier">code source</a> ·
+  <a href="mailto:abdellah.hassani2002@gmail.com">contact</a> ·
+  <a href="mentions.html">mentions légales</a>
+</footer>
+
+<script src="origines.js"></script>
+<script>
+const el = id => document.getElementById(id);
+const DOCS = Object.fromEntries(window.ORIGINES.documents.map(d => [d.id, d]));
+const PERSONNES = Object.fromEntries(window.ORIGINES.personnes.map(p => [p.id, p]));
+
+/* ---------- les figures du récit ---------- */
+
+document.querySelectorAll("figure.piece").forEach(figure => {
+  const doc = DOCS[figure.dataset.doc];
+  if (!doc) return;
+  const img = document.createElement("img");
+  img.src = doc.image;
+  img.alt = doc.titre;
+  img.loading = "lazy";
+  const legende = document.createElement("figcaption");
+  legende.textContent = `${doc.titre} · ${doc.date}`;
+  figure.append(img, legende);
+  figure.addEventListener("click", () => ouvreDocument(doc.id));
+});
+
+/* ---------- la visionneuse ---------- */
+
+function ouvreDocument(id) {
+  const doc = DOCS[id];
+  if (!doc) return;
+  const zone = el("v-image");
+  zone.textContent = "";
+  if (doc.image) {
+    const img = document.createElement("img");
+    img.src = doc.image;
+    img.alt = doc.titre;
+    zone.appendChild(img);
+  } else {
+    const note = document.createElement("p");
+    note.className = "commentaire";
+    note.style.padding = "1rem";
+    note.style.color = "#cfc4ad";
+    note.textContent = "Document non reproduit : il concerne des personnes vivantes.";
+    zone.appendChild(note);
+  }
+  el("v-titre").textContent = doc.titre;
+  el("v-datation").textContent = `${doc.date} · ${doc.lieu}`;
+  el("v-transcription").textContent = doc.transcription || "";
+  el("v-transcription").hidden = !doc.transcription;
+  const table = el("v-releve");
+  table.textContent = "";
+  for (const ligne of doc.releve || []) {
+    const tr = document.createElement("tr");
+    const champ = document.createElement("td");
+    champ.textContent = ligne.champ;
+    const valeur = document.createElement("td");
+    valeur.textContent = ligne.valeur;
+    tr.append(champ, valeur);
+    table.appendChild(tr);
+  }
+  el("v-commentaire").textContent = doc.commentaire || "";
+  const chips = el("v-personnes");
+  chips.textContent = "";
+  const liees = new Set((doc.releve || []).flatMap(l => l.personnes));
+  for (const pid of liees) {
+    const p = PERSONNES[pid];
+    if (!p) continue;
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]}`.trim();
+    bouton.addEventListener("click", () => {
+      fermeVisionneuse();
+      montrePersonne(pid);
+      document.querySelector(`.personne[data-id="${pid}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    chips.appendChild(bouton);
+  }
+  el("visionneuse").hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function fermeVisionneuse() {
+  el("visionneuse").hidden = true;
+  document.body.style.overflow = "";
+}
+el("fermer").addEventListener("click", fermeVisionneuse);
+el("visionneuse").addEventListener("click", e => {
+  if (e.target === el("visionneuse")) fermeVisionneuse();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") fermeVisionneuse();
+});
+
+/* ---------- l'arbre ---------- */
+
+const NOMS_GENERATIONS = [
+  "Nés sous le Second Empire et la IIIe République",
+  "Marnia, 1886-1940", "Les enfants de Marnia",
+  "Maghnia et Tolga", "Mes parents", "Ma génération",
+];
+
+function construitArbre() {
+  const arbre = el("arbre");
+  arbre.querySelectorAll(".generation").forEach(g => g.remove());
+  const parGeneration = new Map();
+  for (const p of window.ORIGINES.personnes) {
+    if (!parGeneration.has(p.generation)) parGeneration.set(p.generation, []);
+    parGeneration.get(p.generation).push(p);
+  }
+  for (const gen of [...parGeneration.keys()].sort((a, b) => a - b)) {
+    const rangee = document.createElement("div");
+    rangee.className = "generation";
+    const etiquette = document.createElement("span");
+    etiquette.className = "etiquette-gen";
+    etiquette.textContent = NOMS_GENERATIONS[gen] || "";
+    rangee.appendChild(etiquette);
+    for (const p of parGeneration.get(gen)) {
+      const carte = document.createElement("div");
+      carte.className = "personne" + (p.id === "moi" ? " moi" : "");
+      carte.dataset.id = p.id;
+      carte.dataset.vivant = p.vivant ? "1" : "0";
+      carte.setAttribute("role", "button");
+      carte.tabIndex = 0;
+      const nomComplet = `${p.prenom} ${p.nom}`.trim();
+      carte.innerHTML = "";
+      const nom = document.createElement("div");
+      nom.className = "p-nom";
+      nom.textContent = nomComplet;
+      const detail = document.createElement("div");
+      detail.className = "p-detail";
+      detail.textContent = p.detail;
+      carte.append(nom, detail);
+      if (p.sources.length) {
+        const src = document.createElement("div");
+        src.className = "p-sources";
+        src.textContent = p.sources.length === 1 ? "1 document" : `${p.sources.length} documents`;
+        carte.appendChild(src);
+      }
+      carte.addEventListener("click", () => montrePersonne(p.id));
+      carte.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); montrePersonne(p.id); }
+      });
+      rangee.appendChild(carte);
+    }
+    arbre.appendChild(rangee);
+  }
+  appliqueMasque();
+}
+
+function appliqueMasque() {
+  const masque = el("masque-vivants").checked;
+  document.querySelectorAll(".personne").forEach(carte => {
+    carte.style.display = masque && carte.dataset.vivant === "1" ? "none" : "";
+  });
+  requestAnimationFrame(traceLiens);
+}
+
+function centreHaut(element, repere) {
+  const b = element.getBoundingClientRect();
+  const r = repere.getBoundingClientRect();
+  return [b.left - r.left + b.width / 2 + el("arbre").scrollLeft, b.top - r.top];
+}
+function centreBas(element, repere) {
+  const [x] = centreHaut(element, repere);
+  const b = element.getBoundingClientRect();
+  const r = repere.getBoundingClientRect();
+  return [x, b.bottom - r.top];
+}
+
+function traceLiens() {
+  const arbre = el("arbre");
+  const svg = el("liens");
+  svg.setAttribute("width", arbre.scrollWidth);
+  svg.setAttribute("height", arbre.scrollHeight);
+  svg.textContent = "";
+  const visible = id => {
+    const carte = arbre.querySelector(`.personne[data-id="${id}"]`);
+    return carte && carte.style.display !== "none" ? carte : null;
+  };
+  for (const union of window.ORIGINES.unions) {
+    const p1 = visible(union.parents[0]);
+    const p2 = visible(union.parents[1]);
+    const enfants = union.enfants.map(visible).filter(Boolean);
+    if ((!p1 && !p2) || !enfants.length) continue;
+    const bases = [p1, p2].filter(Boolean).map(c => centreBas(c, arbre));
+    const ancre = [
+      bases.reduce((s, b) => s + b[0], 0) / bases.length,
+      Math.max(...bases.map(b => b[1])),
+    ];
+    for (const enfant of enfants) {
+      const [ex, ey] = centreHaut(enfant, arbre);
+      const chemin = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const my = (ancre[1] + ey) / 2;
+      chemin.setAttribute("d",
+        `M ${ancre[0]} ${ancre[1]} C ${ancre[0]} ${my}, ${ex} ${my}, ${ex} ${ey}`);
+      chemin.setAttribute("fill", "none");
+      chemin.setAttribute("stroke", "rgba(140, 47, 27, .45)");
+      chemin.setAttribute("stroke-width", "1.6");
+      svg.appendChild(chemin);
+    }
+  }
+}
+
+function montrePersonne(pid) {
+  document.querySelectorAll(".personne").forEach(c =>
+    c.classList.toggle("actif", c.dataset.id === pid));
+  const p = PERSONNES[pid];
+  const zone = el("docs-personne");
+  zone.textContent = "";
+  if (!p) return;
+  if (!p.sources.length) {
+    const note = document.createElement("span");
+    note.className = "doc-carte";
+    note.style.cursor = "default";
+    note.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]} : aucun document publié, information issue de l'arbre familial.`;
+    zone.appendChild(note);
+    return;
+  }
+  for (const docId of p.sources) {
+    const doc = DOCS[docId];
+    if (!doc) continue;
+    const carte = document.createElement("button");
+    carte.type = "button";
+    carte.className = "doc-carte";
+    carte.textContent = doc.titre;
+    carte.addEventListener("click", () => ouvreDocument(docId));
+    zone.appendChild(carte);
+  }
+}
+
+el("masque-vivants").addEventListener("change", appliqueMasque);
+window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
+construitArbre();
+window.addEventListener("load", traceLiens);
+</script>
+</body>
+</html>

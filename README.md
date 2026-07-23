@@ -67,6 +67,14 @@ n'importe quel hébergement web.
   fil des lectures.
 - **`index.html` : l'explorateur.** Les 130 actes extraits, avec recherche
   plein texte insensible aux accents et filtres par champ et par année.
+- **`origines.html` : pourquoi ce projet existe.** Mon prénom s'écrit
+  Abdellah ou Abdallah selon les papiers ; la réponse était dans les
+  documents que ma famille a portés de Marnia (Algérie) jusqu'en France.
+  La page raconte l'enquête, document par document (un décret de 1965, un
+  acte de mariage de 1940, une carte du combattant de 1936...), chaque
+  pièce lue avec les outils du site puis vérifiée à la main, et dresse
+  l'arbre de cinq générations relié à ses sources, avec une option pour
+  masquer les personnes vivantes.
 
 Pour l'essayer en local : `php -S localhost:8000 -t site` (ou
 `python -m http.server -d site` sans le mode En ligne), puis ouvrir
