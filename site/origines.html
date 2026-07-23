@@ -154,6 +154,48 @@
     margin-top: .45rem;
   }
   figure.piece:hover img { box-shadow: 0 5px 20px rgba(140, 47, 27, .3); }
+  /* Portrait de Bernard, en tête de planche, avec bascule original/restauré. */
+  .piece-portrait {
+    margin: 0 0 1.2rem;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 20rem;
+    text-align: center;
+  }
+  .piece-portrait img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--regle);
+    box-shadow: 0 3px 14px rgba(43, 33, 24, .18);
+    background: var(--papier);
+  }
+  .piece-portrait .bascule {
+    display: inline-flex;
+    margin: .55rem 0 .1rem;
+    border: 1px solid var(--regle);
+    border-radius: 3px;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: .64rem;
+  }
+  .piece-portrait .bascule button {
+    border: none;
+    background: var(--papier);
+    color: var(--encre-pale);
+    padding: .3rem .75rem;
+    cursor: pointer;
+    letter-spacing: .04em;
+  }
+  .piece-portrait .bascule button.on { background: var(--tampon); color: #f6f0e2; }
+  .piece-portrait figcaption {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    margin-top: .35rem;
+    line-height: 1.5;
+  }
+
   /* Le portrait crayonné de l'auteur : posé sur le papier, sans cadre. */
   .portrait-signature { margin: 0; }
   .portrait-signature img {
@@ -720,8 +762,9 @@
        Martinez Bernard Joseph pour écrire Benabderrahmane Abdallah. Maçon de métier,
        son fascicule de mobilisation, classe 1907, l'envoie dans la Grande Guerre en
        service auxiliaire ; vingt ans plus tard, l'Office national des combattants lui
-       délivre à Oran la carte du combattant n° 15868. C'est la seule photographie de lui
-       que nous ayons.</p>
+       délivre à Oran la carte du combattant n° 15868. Le portrait ci-contre, le seul
+       que la famille ait gardé de son visage, le montre avec son lorgnon et sa
+       moustache.</p>
     <p>Sa fiche matricule, retrouvée elle aussi aux Archives nationales d'outre-mer,
        raconte cette guerre en détail : zouave au 2e régiment dès 1908, rappelé le
        3 août 1914, embarqué pour l'armée d'Orient, il est blessé d'une balle à
@@ -742,6 +785,16 @@
        cette enquête.</p>
   </div>
   <div class="planche">
+    <figure class="piece-portrait">
+      <img id="portrait-bernard" src="origines/bernard-portrait-restaure.jpg"
+           alt="Bernard Joseph Martinez, portrait" loading="lazy">
+      <div class="bascule" data-cible="portrait-bernard" role="group" aria-label="Version du portrait">
+        <button type="button" class="on" data-src="origines/bernard-portrait-restaure.jpg">Restauré</button>
+        <button type="button" data-src="origines/bernard-portrait.jpg">Original</button>
+      </div>
+      <figcaption>Bernard Joseph Martinez, la seule photographie connue de lui.
+        Version restaurée ; basculez pour voir l'original abîmé.</figcaption>
+    </figure>
     <figure class="piece" data-doc="acte-naissance-1886"></figure>
     <figure class="piece" data-doc="matricule-1907"></figure>
     <figure class="piece" data-doc="matricule-campagnes"></figure>
@@ -1313,6 +1366,17 @@ function montrePersonne(pid) {
 
 el("masque-vivants").addEventListener("change", appliqueMasque);
 el("parente-complete").addEventListener("change", appliqueMasque);
+
+// Bascule des portraits (original / restauré), même logique que le prétraitement.
+document.querySelectorAll(".bascule").forEach(bascule => {
+  const img = document.getElementById(bascule.dataset.cible);
+  bascule.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (img) img.src = btn.dataset.src;
+      bascule.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === btn));
+    });
+  });
+});
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
 window.addEventListener("load", traceLiens);
