@@ -194,6 +194,13 @@
     white-space: nowrap;
     padding-right: .9rem;
   }
+  .contexte {
+    text-align: justify;
+    hyphens: auto;
+    border-left: 3px solid var(--regle);
+    padding-left: .9rem;
+    margin: 0 0 1rem;
+  }
   .commentaire { color: var(--encre-pale); font-style: italic; }
   .personnes-liees { margin-top: .6rem; }
   .personnes-liees button {
@@ -517,6 +524,8 @@
       <p class="datation" id="v-etiquette-transcription">Transcription</p>
       <pre class="transcription" id="v-transcription"></pre>
       <table class="releve" id="v-releve"></table>
+      <p class="datation" id="v-etiquette-contexte">Éclairage historique</p>
+      <p class="contexte" id="v-contexte"></p>
       <p class="commentaire" id="v-commentaire"></p>
       <div class="personnes-liees" id="v-personnes"></div>
     </div>
@@ -577,6 +586,9 @@ function ouvreDocument(id) {
   el("v-transcription").textContent = doc.transcription || "";
   el("v-transcription").hidden = !doc.transcription;
   el("v-etiquette-transcription").hidden = !doc.transcription;
+  el("v-contexte").textContent = (doc.contexte || "").replace(/\n/g, " ");
+  el("v-contexte").hidden = !doc.contexte;
+  el("v-etiquette-contexte").hidden = !doc.contexte;
   const table = el("v-releve");
   table.textContent = "";
   for (const ligne of doc.releve || []) {

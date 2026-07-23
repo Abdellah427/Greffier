@@ -110,6 +110,16 @@ Le 7 juin 1965. Le chef [...]`,
       { champ: "Nouveau nom", valeur: "Benabderrahmane Abdallah", personnes: ["abdallah"] },
       { champ: "Fondement", valeur: "article 13 du code de la nationalité algérienne, loi 63-96 du 27 mars 1963", personnes: [] },
     ],
+    contexte:
+`À l'indépendance, le code de la nationalité algérienne (loi 63-96
+du 27 mars 1963) réserve la nationalité de plein droit aux personnes dont
+deux ascendants paternels sont nés en Algérie avec le statut musulman.
+Les Européens restés au pays, très minoritaires après le grand départ de
+1962, doivent passer par la naturalisation : c'est l'article 13 visé par
+ce décret. La naturalisation pouvait s'accompagner, à la demande de
+l'intéressé, d'un changement de nom et de prénom : Bernard Joseph
+Martinez devient ainsi Abdallah Benabderrahmane, par décision publiée et
+reportée en marge de son acte de mariage.`,
     commentaire:
 `La pièce qui donne son sens à toute la page : à 78 ans, l'arrière-arrière-
 grand-père change officiellement de nom et de nationalité. La mention
@@ -146,6 +156,15 @@ l'officier de l'état civil, Annie Chouin.`,
       { champ: "Parents de l'époux", valeur: "feu Martinez Bernard et feu Montesinos Maria", personnes: ["martinez-pere", "montesinos-maria"] },
       { champ: "Parents de l'épouse", valeur: "feu Bensalah et Diab Fatma", personnes: ["bensalah", "diab-fatma"] },
     ],
+    contexte:
+`Dans l'Algérie coloniale, l'état civil distinguait les statuts :
+l'acte précise les origines de chacun, et les unions entre un Européen
+et une Algérienne musulmane étaient rares et socialement exposées. Ce
+mariage de janvier 1940, entre un maçon de 53 ans issu de l'immigration
+espagnole et une jeune femme de Marnia, en dit long sur la vie réelle
+des quartiers populaires, loin des séparations officielles. La copie a
+été délivrée en 2013 par le service central d'état civil de Nantes, qui
+conserve les registres des Français nés hors de France.`,
     commentaire:
 `Écriture serrée d'un officier d'état civil de 1940, recopiée par le
 service central de Nantes soixante-treize ans plus tard : le genre de
@@ -170,6 +189,12 @@ Délivré le 11 mars 1940, l'officier de l'état civil.`,
     releve: [
       { champ: "Mariage", valeur: "11 janvier 1940 à Marnia", personnes: ["abdallah", "zahra"] },
     ],
+    contexte:
+`Le livret de famille, créé en France en 1877, suivait les familles
+dans tous leurs actes. Celui-ci, imprimé pour le département d'Oran,
+montre l'administration coloniale au quotidien : mêmes imprimés qu'en
+métropole, mêmes tampons, pour une famille qui ne ressemblait à aucune
+autre du registre.`,
     commentaire:
 `Le petit carnet que la famille a gardé pendant huit décennies et
 plusieurs déménagements, de Marnia jusqu'en France.` },
@@ -191,6 +216,12 @@ Cachet : mairie de Marnia.`,
       { champ: "2e enfant", valeur: "Mostefa, né le 27 février 1940", personnes: ["mostefa"] },
       { champ: "3e enfant", valeur: "Khadoudja, née le 31 octobre 1942", personnes: ["khadoudja"] },
     ],
+    contexte:
+`Trois enfants déclarés sous le patronyme espagnol Martinez, mais
+avec des prénoms arabes : Benamar, Mostefa, Khadoudja. Dans l'Algérie
+des années 1940, ce choix de prénoms pour les enfants d'un Européen et
+d'une Algérienne musulmane annonce déjà, vingt-cinq ans avant le décret,
+de quel côté la famille construisait sa vie.`,
     commentaire:
 `Trois enfants déclarés sous le nom Martinez : le décret de 1965 fera
 d'eux des Benabderrahmane. La date de Benamar diverge entre ce livret
@@ -215,6 +246,14 @@ Au verso : Croix du combattant, observations importantes.`,
       { champ: "Titulaire", valeur: "Martinez Bernard, ancien combattant de la Grande Guerre", personnes: ["abdallah"] },
       { champ: "Domicile", valeur: "Marnia, rue J.-J. Rousseau", personnes: ["abdallah"] },
     ],
+    contexte:
+`La carte du combattant est créée par la loi du 19 décembre 1926
+pour les anciens de la Grande Guerre ; l'insigne de la Croix du
+combattant, mentionné au verso, date du décret du 24 août 1930. Elle
+ouvrait des droits concrets : retraite du combattant, emplois réservés,
+tarifs spéciaux. La délivrer à Oran en 1936 à un maçon de Marnia, c'est
+reconnaître vingt ans après sa part dans une guerre menée à des milliers
+de kilomètres de chez lui.`,
     commentaire:
 `La seule photographie que nous ayons de lui : un visage franc, la
 cinquantaine, vingt ans après les tranchées.` },
@@ -236,6 +275,13 @@ Voir l'ordre pour le cas de mobilisation page 3 du présent fascicule.`,
       { champ: "Classe", valeur: "1907 (ses vingt ans)", personnes: ["abdallah"] },
       { champ: "Service", valeur: "2e classe, service auxiliaire", personnes: ["abdallah"] },
     ],
+    contexte:
+`Les Européens d'Algérie étaient soumis à la conscription comme ceux
+de métropole ; environ 155 000 d'entre eux furent mobilisés en 1914-1918,
+aux côtés d'environ 173 000 Algériens musulmans. La classe 1907
+correspond aux hommes nés en 1886-1887, atteints par la Grande Guerre à
+la fin de la vingtaine. Le « service auxiliaire » désigne les hommes
+jugés aptes aux tâches hors combat : dépôts, travaux, logistique.`,
     commentaire:
 `Le livret du soldat, usé aux pliures : il l'aura porté de la Grande
 Guerre à la réserve, jusqu'à la carte du combattant de 1936.` },
@@ -257,6 +303,12 @@ exigée pour le payement des congés payés et des allocations familiales.`,
     releve: [
       { champ: "Métier", valeur: "ouvrier du bâtiment, encore en activité à 60 ans", personnes: ["abdallah"] },
     ],
+    contexte:
+`Les congés payés de 1936 et les allocations familiales furent
+étendus par étapes aux territoires d'outre-mer : cette carte de la
+Caisse sociale des travaux publics et du bâtiment en Algérie servait
+précisément à faire valoir ces droits sur les chantiers. À soixante ans
+passés, l'ancien combattant pose encore des murs.`,
     commentaire:
 `Un maçon de soixante ans qui fait valoir ses congés payés : la vie
 matérielle, entre les grands actes.` },
@@ -274,6 +326,13 @@ Alger.`,
     releve: [
       { champ: "Date", valeur: "un an après l'indépendance, deux ans avant le décret", personnes: ["abdallah"] },
     ],
+    contexte:
+`En 1962, l'immense majorité des Européens d'Algérie, près de huit
+cent mille personnes, quitte le pays en quelques mois. Rester est un
+choix rare. Ce carnet du ministère algérien des Finances, tamponné à
+Alger en novembre 1963, montre un homme de 77 ans qui refait ses
+démarches de pension dans l'administration du nouvel État, deux ans
+avant sa naturalisation.`,
     commentaire:
 `Le carnet est presque illisible, rongé par les manipulations : c'est
 typiquement le document qui met les modèles de lecture en difficulté,
@@ -296,6 +355,12 @@ ses foyers le [...] 1962. Cachet du bureau de recrutement d'Oran,
     releve: [
       { champ: "Titulaire", valeur: "Mostefa, fils aîné du second mariage, appelé en 1962", personnes: ["mostefa"] },
     ],
+    contexte:
+`La classe 1960 rassemble les jeunes gens nés en 1940. Mostefa est
+appelé le 2 mars 1962 : les accords d'Évian sont signés le 18 mars, le
+cessez-le-feu prend effet le lendemain. Son passage sous les drapeaux
+français aura duré le temps de la fin d'une guerre, avant un retour
+rapide dans ses foyers. Son livret porte encore le nom Martinez.`,
     commentaire:
 `Le fils porte encore le nom Martinez sur son livret militaire : appelé
 en mars 1962, dans les tout derniers mois de la guerre d'Algérie, puis
@@ -320,6 +385,13 @@ immigrés épris de justice. Ancienne gare de la Bastille, dimanche
     releve: [
       { champ: "Mémoire familiale", valeur: "Mohamed Diab serait un parent de l'arrière-grand-mère Khadoudja, par la famille Diab de Marnia", personnes: ["diab-fatma", "khadoudja"] },
     ],
+    contexte:
+`Mohamed Diab meurt le 29 novembre 1972 au commissariat de
+Versailles ; un brigadier sera renvoyé devant les assises. L'affaire
+mobilise les comités de défense de la vie et des droits des immigrés et
+marque les années 1970 : le rassemblement de la Bastille annoncé par
+cette affiche en fait partie. Le texte est bilingue, pour être lu des
+deux côtés de l'immigration.`,
     commentaire:
 `Ce document historique des luttes de l'immigration (Mohamed Diab est
 mort au commissariat de Versailles le 29 novembre 1972) a été conservé
