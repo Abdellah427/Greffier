@@ -28,7 +28,7 @@ personnes: [
               "acte-mariage-1940", "livret-famille-mariage",
               "carte-combattant-1936", "fascicule-mobilisation",
               "carte-ouvrier-1947", "carnet-finances-1963"] },
-  { id: "jeanne-bollet", sexe: "f", prenom: "Jeanne", nom: "Bollet [?]",
+  { id: "jeanne-bollet", sexe: "f", prenom: "Jeanne", nom: "Polliet [?]",
     detail: "première épouse, mariée à Marnia en 1911", vivant: false, generation: 1,
     sources: ["acte-naissance-1886"] },
   { id: "fatima-semordi", sexe: "f", prenom: "Fatima", nom: "Semordi",
@@ -93,7 +93,7 @@ unions: [
   { parents: ["bensalah", "diab-fatma"], enfants: ["zahra"] },
   { parents: ["abdallah", "zahra"],
     enfants: ["benamar", "mostefa", "khadoudja"],
-    note: "mariés à Marnia le 11 janvier 1940" },
+    note: "mariés à Marnia le 11 janvier 1940", acte: "acte-mariage-1940" },
   { parents: ["arfa-abdelkader", "khadoudja"],
     enfants: ["arfa-amine", "hassiba", "arfa-latifa"] },
   { parents: ["mezouar-ahmed", "khadoudja"], enfants: [],
@@ -124,7 +124,7 @@ Mentions marginales :
 Par acte en date du vingt sept mai mil neuf cent onze, inscrit le même
 jour à la mairie de Marnia (Oran), Martinez Bernard Joseph, dont la
 naissance est constatée dans l'acte ci-contre, a contracté mariage avec
-Bollet Jeanne [?]. Mention faite par nous, greffier du tribunal d'Oran.
+Polliet Jeanne [?]. Mention faite par nous, greffier du tribunal d'Oran.
 Marié le 22 novembre 1930 à Tlemcen avec Fatima Semordi. Oran, le
 27 novembre 1930, le greffier.
 Marié le 11 janvier 1940 à Marnia avec Morsli Zahra bent Bensalah.
@@ -136,7 +136,7 @@ portera désormais le nom de : Benabderrahmane, prénom : Abdallah [...]
 Le 7 juin 1965.`,
     releve: [
       { champ: "Naissance", valeur: "27 mai 1886 (« né le jour d'hier »), acte dressé devant le maire Camille Chabaud", personnes: ["abdallah"] },
-      { champ: "1er mariage", valeur: "27 mai 1911 à Marnia, avec Jeanne Bollet [?], le jour de ses 25 ans", personnes: ["abdallah", "jeanne-bollet"] },
+      { champ: "1er mariage", valeur: "27 mai 1911 à Marnia, avec Jeanne Polliet [?], le jour de ses 25 ans", personnes: ["abdallah", "jeanne-bollet"] },
       { champ: "2e mariage", valeur: "22 novembre 1930 à Tlemcen, avec Fatima Semordi", personnes: ["abdallah", "fatima-semordi"] },
       { champ: "3e mariage", valeur: "11 janvier 1940 à Marnia, avec Morsli Zahra bent Bensalah", personnes: ["abdallah", "zahra"] },
       { champ: "Rectification", valeur: "1965 : le nom est rayé sur l'acte même, Benabderrahmane Abdallah écrit à la place", personnes: ["abdallah"] },
@@ -197,14 +197,14 @@ Condamnations : condamné par jugement du tribunal correctionnel
 d'Oudjda en date du 3 juin 1930 à un an d'emprisonnement avec sursis,
 pour abus de confiance.
 Localités successives habitées : 1911, Bel-Abbès, rue du Soleil, chez
-M. Bollet ; 1912, Marnia, maçon ; 1916 [?], Bel-Abbès, rue du Soleil ;
+M. Polliet [?] ; 1912, Marnia, maçon ; 1916 [?], Bel-Abbès, rue du Soleil ;
 1919, Mascara ; 1921, Marnia, ferme Riant [?] ; 1922 [?], Tlemcen,
 faubourg [?] ; 1933, Marnia, rue Jean-Jacques Rousseau.`,
     releve: [
       { champ: "Régiment", valeur: "2e régiment de zouaves, incorporé en 1908, rappelé le 3 août 1914", personnes: ["abdallah"] },
       { champ: "Signalement", valeur: "1,69 m, cheveux châtains, yeux gris, visage ovale", personnes: ["abdallah"] },
       { champ: "Fin de guerre", valeur: "service auxiliaire en 1918 pour bronchite chronique, congé le 14 avril 1919", personnes: ["abdallah"] },
-      { champ: "Chez les Bollet", valeur: "domicilié en 1911 rue du Soleil à Bel-Abbès, chez M. Bollet, son beau-père", personnes: ["abdallah", "jeanne-bollet"] },
+      { champ: "Chez les Polliet", valeur: "domicilié en 1911 rue du Soleil à Bel-Abbès, chez M. Polliet [?], son beau-père", personnes: ["abdallah", "jeanne-bollet"] },
     ],
     contexte:
 `Le registre matricule est la biographie administrative de chaque

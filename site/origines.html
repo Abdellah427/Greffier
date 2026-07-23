@@ -352,11 +352,12 @@
     stroke-linejoin: round;
     opacity: .8;
   }
-  .anneau-union {
+  .lien-mariage-clic {
+    stroke: transparent;
+    stroke-width: 16;
     fill: none;
-    stroke: var(--tampon);
-    stroke-width: 1.5;
-    opacity: .85;
+    cursor: pointer;
+    pointer-events: stroke;
   }
   .arbre-legende {
     display: flex;
@@ -797,14 +798,13 @@
 <section class="chapitre" id="section-arbre">
   <h2><span class="folio">L'arbre</span>Ma lignée directe, document par document</h2>
   <div class="arbre-outils">
-    <label><input type="checkbox" id="parente-complete"> Afficher toute la parenté</label>
     <label><input type="checkbox" id="masque-vivants"> Masquer les personnes vivantes</label>
     <span>Cliquez sur une personne pour voir ses documents ; sur un document pour lire sa transcription.</span>
     <button type="button" class="atelier-lien" id="atelier-lien">Atelier des portraits</button>
   </div>
   <input type="file" id="portrait-fichier" accept="image/jpeg,image/png,image/webp" hidden>
   <div class="arbre-legende">
-    <span><span class="ex ex-mariage"></span> trait horizontal : mariage</span>
+    <span><span class="ex ex-mariage"></span> trait horizontal : mariage (cliquable si l'acte existe)</span>
     <span><span class="ex ex-filiation"></span> trait vertical : parents et enfants</span>
   </div>
   <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
@@ -1089,10 +1089,9 @@ function construitArbre() {
 
 function appliqueMasque() {
   const masque = el("masque-vivants").checked;
-  const complet = el("parente-complete").checked;
   document.querySelectorAll(".personne").forEach(carte => {
     const cacheVivant = masque && carte.dataset.vivant === "1";
-    const cacheCollateral = !complet && carte.dataset.directe !== "1";
+    const cacheCollateral = carte.dataset.directe !== "1";
     carte.style.display = (cacheVivant || cacheCollateral) ? "none" : "";
   });
   // Les rangées vidées par le filtre ne doivent pas laisser d'étiquette flottante.
@@ -1124,15 +1123,6 @@ function traitSVG(svg, d, classe) {
   p.setAttribute("class", classe);
   svg.appendChild(p);
 }
-function anneauxSVG(svg, x, y) {
-  // Deux anneaux entrelacés : le symbole du mariage.
-  for (const dx of [-3, 3]) {
-    const c = document.createElementNS(SVGNS, "circle");
-    c.setAttribute("cx", x + dx); c.setAttribute("cy", y); c.setAttribute("r", 4);
-    c.setAttribute("class", "anneau-union");
-    svg.appendChild(c);
-  }
-}
 
 function traceLiens() {
   const arbre = el("arbre");
@@ -1144,46 +1134,53 @@ function traceLiens() {
     const carte = arbre.querySelector(`.personne[data-id="${id}"]`);
     return carte && carte.style.display !== "none" ? carte : null;
   };
-  // Combien de mariages déjà tracés pour chaque personne, afin d'étager les
-  // unions multiples (Bernard et ses trois femmes) sur des niveaux distincts.
-  const nbMariages = {};
   for (const union of window.ORIGINES.unions) {
     const p1 = visible(union.parents[0]);
     const p2 = visible(union.parents[1]);
     const enfants = union.enfants.map(visible).filter(Boolean);
     if (!p1 && !p2) continue;
 
-    // Point d'où part la filiation, et lien de mariage si les deux époux sont là.
-    let origineX, origineY;
+    // Barre de mariage entre les deux époux ; sinon on part du parent présent.
+    let barreG, barreD, origineY;
     if (p1 && p2) {
       const [x1, y1] = centreBas(p1, arbre);
       const [x2, y2] = centreBas(p2, arbre);
-      // Chaque mariage supplémentaire d'une même personne descend d'un cran,
-      // pour que les barres ne se chevauchent jamais et restent lisibles.
-      const etage = Math.max(nbMariages[union.parents[0]] || 0,
-                             nbMariages[union.parents[1]] || 0);
-      nbMariages[union.parents[0]] = (nbMariages[union.parents[0]] || 0) + 1;
-      nbMariages[union.parents[1]] = (nbMariages[union.parents[1]] || 0) + 1;
-      const yBarre = Math.max(y1, y2) + 11 + etage * 11;
+      const yBarre = Math.max(y1, y2) + 11;
       traitSVG(svg, `M ${x1} ${y1} V ${yBarre} H ${x2} V ${y2}`, "lien-mariage");
-      origineX = (x1 + x2) / 2;
+      // Un acte de mariage rattaché : la barre devient cliquable.
+      if (union.acte && DOCS[union.acte]) {
+        const zone = document.createElementNS(SVGNS, "path");
+        zone.setAttribute("d", `M ${Math.min(x1, x2)} ${yBarre} H ${Math.max(x1, x2)}`);
+        zone.setAttribute("class", "lien-mariage-clic");
+        const t = document.createElementNS(SVGNS, "title");
+        t.textContent = "Voir l'acte de mariage";
+        zone.appendChild(t);
+        zone.addEventListener("click", () => ouvreDocument(union.acte));
+        svg.appendChild(zone);
+      }
+      barreG = Math.min(x1, x2); barreD = Math.max(x1, x2);
       origineY = yBarre;
-      anneauxSVG(svg, origineX, yBarre);
     } else {
-      const seul = p1 || p2;
-      const [x, y] = centreBas(seul, arbre);
-      origineX = x; origineY = y + 9;
+      const [x, y] = centreBas(p1 || p2, arbre);
+      barreG = barreD = x; origineY = y + 9;
     }
     if (!enfants.length) continue;
 
-    // Filiation : un tronc vertical, une barre de fratrie, un trait par enfant.
+    // Filiation : le tronc descend pile au centre des enfants (pas en zigzag).
     const hauts = enfants.map(e => centreHaut(e, arbre));
+    const xEnfants = hauts.map(h => h[0]);
     const yBus = Math.min(...hauts.map(h => h[1])) - 16;
-    const xs = hauts.map(h => h[0]).concat(origineX);
-    traitSVG(svg, `M ${origineX} ${origineY} V ${yBus}`, "lien-filiation");
-    traitSVG(svg, `M ${Math.min(...xs)} ${yBus} H ${Math.max(...xs)}`, "lien-filiation");
-    for (const [ex, ey] of hauts) {
-      traitSVG(svg, `M ${ex} ${yBus} V ${ey}`, "lien-filiation");
+    const centre = (Math.min(...xEnfants) + Math.max(...xEnfants)) / 2;
+    const troncX = Math.max(barreG, Math.min(barreD, centre));
+    if (enfants.length === 1) {
+      // Enfant unique : un seul trait vertical, pile sous l'union.
+      traitSVG(svg, `M ${troncX} ${origineY} V ${hauts[0][1]}`, "lien-filiation");
+    } else {
+      traitSVG(svg, `M ${troncX} ${origineY} V ${yBus}`, "lien-filiation");
+      traitSVG(svg, `M ${Math.min(...xEnfants)} ${yBus} H ${Math.max(...xEnfants)}`, "lien-filiation");
+      for (const [ex, ey] of hauts) {
+        traitSVG(svg, `M ${ex} ${yBus} V ${ey}`, "lien-filiation");
+      }
     }
   }
 }
@@ -1216,7 +1213,6 @@ function montrePersonne(pid) {
 }
 
 el("masque-vivants").addEventListener("change", appliqueMasque);
-el("parente-complete").addEventListener("change", appliqueMasque);
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
 window.addEventListener("load", traceLiens);
