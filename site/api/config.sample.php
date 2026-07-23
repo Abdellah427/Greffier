@@ -43,6 +43,10 @@ return [
         ],
     ],
 
+    // Clé personnelle de l'atelier des portraits de la page Origines :
+    // choisissez une phrase longue et gardez-la pour vous. Vide = atelier coupé.
+    'cle_atelier' => '',
+
     // Lectures par visiteur et par jour, tous modèles confondus.
     'quota_ip' => 15,
 

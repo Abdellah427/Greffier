@@ -74,7 +74,10 @@ n'importe quel hébergement web.
   acte de mariage de 1940, une carte du combattant de 1936...), chaque
   pièce lue avec les outils du site puis vérifiée à la main, et dresse
   l'arbre de cinq générations relié à ses sources, avec une option pour
-  masquer les personnes vivantes.
+  masquer les personnes vivantes. Un atelier protégé par clé
+  (`site/api/portrait.php`, clé `cle_atelier` du `config.php` serveur)
+  permet de déposer un portrait sur chaque fiche ; les photographies
+  restent sur le serveur, jamais dans le dépôt.
 
 Pour l'essayer en local : `php -S localhost:8000 -t site` (ou
 `python -m http.server -d site` sans le mode En ligne), puis ouvrir

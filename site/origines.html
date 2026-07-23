@@ -294,6 +294,42 @@
     margin-top: .25rem;
   }
   .personne.moi { border-width: 2px; border-color: var(--tampon); }
+  .personne .portrait {
+    width: 100%;
+    height: 7.5rem;
+    object-fit: cover;
+    display: block;
+    border: 1px solid var(--regle);
+    background: var(--papier-2);
+    margin-bottom: .45rem;
+  }
+  .atelier-lien {
+    font-family: var(--mono);
+    font-size: .72rem;
+    background: transparent;
+    border: 1px dashed var(--regle);
+    border-radius: 3px;
+    color: var(--encre-pale);
+    padding: .3rem .7rem;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .atelier-lien:hover, body.atelier .atelier-lien {
+    color: var(--tampon);
+    border-color: var(--tampon);
+  }
+  .atelier-boutons { display: none; gap: .35rem; margin-top: .4rem; }
+  body.atelier .atelier-boutons { display: flex; }
+  .atelier-boutons button {
+    font-family: var(--mono);
+    font-size: .62rem;
+    border: 1px solid var(--regle);
+    background: var(--papier);
+    color: var(--encre);
+    padding: .15rem .45rem;
+    cursor: pointer;
+  }
+  .atelier-boutons button:hover { border-color: var(--tampon); color: var(--tampon); }
   #docs-personne {
     margin-top: 1rem;
     display: flex;
@@ -457,7 +493,9 @@
   <div class="arbre-outils">
     <label><input type="checkbox" id="masque-vivants"> Masquer les personnes vivantes</label>
     <span>Cliquez sur une personne pour voir ses documents ; sur un document pour lire sa transcription.</span>
+    <button type="button" class="atelier-lien" id="atelier-lien">Atelier des portraits</button>
   </div>
+  <input type="file" id="portrait-fichier" accept="image/jpeg,image/png,image/webp" hidden>
   <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
   <div id="docs-personne" aria-live="polite"></div>
   <p class="methode">Méthode : chaque page a été photographiée puis lue avec l'atelier de ce
@@ -476,6 +514,7 @@
     <div class="visionneuse-texte">
       <h3 id="v-titre"></h3>
       <p class="datation" id="v-datation"></p>
+      <p class="datation" id="v-etiquette-transcription">Transcription</p>
       <pre class="transcription" id="v-transcription"></pre>
       <table class="releve" id="v-releve"></table>
       <p class="commentaire" id="v-commentaire"></p>
@@ -537,6 +576,7 @@ function ouvreDocument(id) {
   el("v-datation").textContent = `${doc.date} · ${doc.lieu}`;
   el("v-transcription").textContent = doc.transcription || "";
   el("v-transcription").hidden = !doc.transcription;
+  el("v-etiquette-transcription").hidden = !doc.transcription;
   const table = el("v-releve");
   table.textContent = "";
   for (const ligne of doc.releve || []) {
@@ -723,6 +763,123 @@ el("masque-vivants").addEventListener("change", appliqueMasque);
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
 window.addEventListener("load", traceLiens);
+
+/* ---------- les portraits et leur atelier ----------
+   Les photographies vivent uniquement sur le serveur (jamais dans le
+   dépôt) ; le dépôt et le retrait demandent la clé personnelle définie
+   dans le config.php du serveur. */
+
+function metPortrait(pid, version) {
+  const carte = document.querySelector(`.personne[data-id="${pid}"]`);
+  if (!carte) return;
+  let img = carte.querySelector(".portrait");
+  if (!img) {
+    img = document.createElement("img");
+    img.className = "portrait";
+    img.alt = "";
+    img.addEventListener("load", () => requestAnimationFrame(traceLiens));
+    img.addEventListener("error", () => { img.remove(); requestAnimationFrame(traceLiens); });
+    carte.prepend(img);
+  }
+  img.src = `origines/portraits/${pid}.jpg` + (version ? `?v=${version}` : "");
+}
+
+fetch("api/portrait.php?liste=1").then(r => r.json()).then(({ portraits }) => {
+  for (const pid of portraits || []) metPortrait(pid);
+}).catch(() => { /* pas de service : la page reste complète sans portraits */ });
+
+function cleAtelier(redemande) {
+  let cle = localStorage.getItem("cle-atelier");
+  if (!cle || redemande) {
+    cle = prompt("Clé de l'atelier (celle du config.php du serveur) :", cle || "");
+    if (cle) localStorage.setItem("cle-atelier", cle);
+  }
+  return cle;
+}
+
+let personneEnCours = null;
+const fichierPortrait = el("portrait-fichier");
+
+el("atelier-lien").addEventListener("click", () => {
+  if (!document.body.classList.contains("atelier") && !cleAtelier(false)) return;
+  document.body.classList.toggle("atelier");
+  el("atelier-lien").textContent = document.body.classList.contains("atelier")
+    ? "Fermer l'atelier" : "Atelier des portraits";
+  if (document.body.classList.contains("atelier")) poseBoutonsAtelier();
+  requestAnimationFrame(traceLiens);
+});
+
+function poseBoutonsAtelier() {
+  document.querySelectorAll(".personne").forEach(carte => {
+    if (carte.querySelector(".atelier-boutons")) return;
+    const barre = document.createElement("div");
+    barre.className = "atelier-boutons";
+    const depose = document.createElement("button");
+    depose.type = "button";
+    depose.textContent = "photo";
+    depose.addEventListener("click", e => {
+      e.stopPropagation();
+      personneEnCours = carte.dataset.id;
+      fichierPortrait.click();
+    });
+    const retire = document.createElement("button");
+    retire.type = "button";
+    retire.textContent = "retirer";
+    retire.addEventListener("click", async e => {
+      e.stopPropagation();
+      const reponse = await appelAtelier({ personne: carte.dataset.id, supprimer: true });
+      if (reponse) {
+        carte.querySelector(".portrait")?.remove();
+        requestAnimationFrame(traceLiens);
+      }
+    });
+    barre.append(depose, retire);
+    carte.appendChild(barre);
+  });
+}
+
+async function appelAtelier(charge) {
+  const cle = cleAtelier(false);
+  if (!cle) return null;
+  const reponse = await fetch("api/portrait.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cle, ...charge }),
+  }).catch(() => null);
+  if (!reponse) { alert("Le serveur est injoignable."); return null; }
+  const corps = await reponse.json().catch(() => ({}));
+  if (reponse.status === 403) {
+    localStorage.removeItem("cle-atelier");
+    alert(corps.erreur || "Clé incorrecte.");
+    return null;
+  }
+  if (!reponse.ok) { alert(corps.erreur || `Le serveur a répondu ${reponse.status}.`); return null; }
+  return corps;
+}
+
+fichierPortrait.addEventListener("change", () => {
+  const fichier = fichierPortrait.files[0];
+  fichierPortrait.value = "";
+  if (!fichier || !personneEnCours) return;
+  const lecteur = new FileReader();
+  lecteur.onload = () => {
+    const image = new Image();
+    image.onload = async () => {
+      const MAX = 900;
+      const ratio = Math.min(1, MAX / Math.max(image.width, image.height));
+      const toile = document.createElement("canvas");
+      toile.width = Math.round(image.width * ratio);
+      toile.height = Math.round(image.height * ratio);
+      toile.getContext("2d").drawImage(image, 0, 0, toile.width, toile.height);
+      const base64 = toile.toDataURL("image/jpeg", 0.86).split(",")[1];
+      const reponse = await appelAtelier({ personne: personneEnCours, image: base64 });
+      if (reponse) metPortrait(personneEnCours, Date.now());
+      personneEnCours = null;
+    };
+    image.src = lecteur.result;
+  };
+  lecteur.readAsDataURL(fichier);
+});
 </script>
 </body>
 </html>

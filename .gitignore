@@ -33,3 +33,4 @@ extraction_pretraite.json
 
 # Registre des lectures publiques : uniquement sur le serveur
 site/api/releves.jsonl
+site/origines/portraits/
