@@ -247,6 +247,28 @@ def extrait_entites_mpopp(texte: str) -> list[tuple[str, str]]:
     return entites
 
 
+# --------------------------------------------------------------------------
+# Dataset harmonise : un seul format de record pour toutes les sources
+# --------------------------------------------------------------------------
+# Que la donnee vienne de M-POPP, d'un futur jeu espagnol ou du generateur
+# synthetique, chaque page produit le meme dictionnaire. C'est le contrat qui
+# permet aux notebooks 02, 03 et 04 de se passer des donnees sans ambiguite.
+CHAMPS_RECORD = ("source", "langue", "split", "image", "texte", "entites")
+
+
+def construit_record(source: str, langue: str, split: str,
+                     image, texte: str, entites: list[tuple[str, str]]) -> dict:
+    """Cree un record harmonise (schema commun a toutes les sources).
+
+    `image` est laisse tel quel (chemin, nom de fichier ou objet PIL selon le
+    notebook). `entites` est une liste de couples (type, valeur) qui devient une
+    liste de listes serialisable.
+    """
+    return {"source": source, "langue": langue, "split": split,
+            "image": image, "texte": texte,
+            "entites": [[t, v] for (t, v) in entites]}
+
+
 if __name__ == "__main__":
     # Petits tests de coherence (executes avec: python modele/outils.py)
     assert cer("abcde", "abcde") == 0.0
@@ -270,4 +292,9 @@ if __name__ == "__main__":
     assert ents["pere_epoux"] == "Henri Itsweire", ents
     assert ents["date"] == "vingt trois Septembre", ents
     assert ents["lieu"] == "Paris", ents
+
+    rec = construit_record("m-popp", "fr", "train", "img.png",
+                           texte_propre_mpopp(ex), extrait_entites_mpopp(ex))
+    assert set(rec) == set(CHAMPS_RECORD)
+    assert rec["entites"][0] == ["epoux_prenom", "Charles Louis"], rec["entites"]
     print("outils.py : tous les tests passent")
