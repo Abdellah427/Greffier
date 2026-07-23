@@ -339,16 +339,16 @@ chargée pour trancher à l'œil entre Abdallah et Abdellah.`,
     releve: [
       { champ: "Lecture du Journal officiel (1965)", valeur: "Abdallah, en caractères d'imprimerie", personnes: ["abdallah"] },
       { champ: "Lecture de la copie de Nantes (2013)", valeur: "Abdellah, à la main, en marge de l'acte de 1940", personnes: ["abdallah"] },
-      { champ: "Corrélation avec les a du décret", valeur: "0,95 avec le a final du même mot", personnes: [] },
-      { champ: "Corrélation avec les e du décret", valeur: "0,79 au mieux", personnes: [] },
+      { champ: "Corrélation avec les a du décret", valeur: "95 % avec le a final du même mot", personnes: [] },
+      { champ: "Corrélation avec les e du décret", valeur: "79 % au mieux", personnes: [] },
       { champ: "Verdict", valeur: "a probable, environ trois chances sur quatre", personnes: ["abdallah", "moi"] },
     ],
     contexte:
 `Pour départager les deux lectures, la lettre en cause a été comparée
 pixel par pixel aux autres lettres frappées par la même machine sur le
 même décret : les glyphes sont binarisés, recadrés, ramenés à la même
-taille, puis corrélés. Le pâté s'apparie à 0,95 avec le a final du même
-mot, frappé dans les mêmes conditions d'encrage, contre 0,79 pour le
+taille, puis corrélés. Le pâté s'apparie à 95 % avec le a final du même
+mot, frappé dans les mêmes conditions d'encrage, contre 79 % pour le
 meilleur e du document : environ trois chances sur quatre pour le a. Le
 Journal officiel, composé en imprimerie par un typographe qui avait le
 décret sous les yeux, a lu Abdallah ; l'officier d'état civil de Nantes
