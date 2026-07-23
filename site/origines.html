@@ -92,16 +92,30 @@
   }
   .chapitre p { text-align: justify; hyphens: auto; max-width: 72ch; }
   .planche {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.4rem;
-    flex-wrap: wrap;
     margin: 1.2rem 0 .4rem;
   }
   figure.piece {
     margin: 0;
-    width: 340px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 400px;
+    justify-self: center;
     cursor: zoom-in;
+  }
+  /* Sur grand écran, le récit se lit en vis-à-vis : texte d'un côté,
+     documents de l'autre, en alternant à chaque chapitre. */
+  @media (min-width: 900px) {
+    .chapitre:not(#section-arbre) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 3.5rem;
+      align-items: center;
+    }
+    section.chapitre:nth-of-type(even):not(#section-arbre) .texte { order: 2; }
+    .chapitre .texte:last-child { grid-column: 1 / -1; }
+    .chapitre .planche { margin: 0; }
   }
   figure.piece img {
     width: 100%;
@@ -147,8 +161,38 @@
     align-items: center;
     justify-content: center;
     min-height: 14rem;
+    position: relative;
+    overflow: hidden;
   }
-  .visionneuse-image img { max-width: 100%; max-height: 92vh; object-fit: contain; }
+  .visionneuse-image img { max-width: 100%; max-height: 92vh; object-fit: contain; cursor: zoom-in; }
+  .loupe {
+    position: absolute;
+    width: 11rem;
+    height: 11rem;
+    border-radius: 50%;
+    border: 2px solid var(--encre);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35), inset 0 0 4px rgba(0, 0, 0, .3);
+    background-repeat: no-repeat;
+    background-color: #0d0d0d;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .loupe[hidden] { display: none; }
+  .loupe::after {
+    content: attr(data-facteur);
+    position: absolute;
+    left: 50%;
+    bottom: -.5rem;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: .62rem;
+    background: var(--papier);
+    border: 1px solid var(--encre);
+    border-radius: 2px;
+    padding: 0 .3rem;
+    color: var(--encre);
+    white-space: nowrap;
+  }
   .visionneuse-texte {
     padding: 1.4rem 1.6rem;
     overflow-y: auto;
@@ -396,29 +440,33 @@
 <main>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce première</span>Un décret, deux orthographes</h2>
-  <p>Je m'appelle Abdellah. Certains écrivent Abdallah, et ma famille dit que ce prénom
-     m'a été donné en souvenir d'un aïeul. En cherchant lequel, j'ai trouvé ceci : une
-     mention manuscrite portée sur un registre de Marnia, petite ville de l'ouest algérien.
-     Par décret du 27 février 1965, un maçon de soixante-dix-huit ans né
-     <strong>Bernard Joseph Martinez</strong> est naturalisé algérien et « portera désormais
-     le nom de Benabderrahmane, prénom : Abdallah ». La copie française du même acte écrit
-     « Abdellah ». Les deux orthographes qui me suivent depuis l'école sont nées là,
-     sous deux plumes différentes, pour le même homme : mon arrière-arrière-grand-père.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce première</span>Un décret, deux orthographes</h2>
+    <p>Je m'appelle Abdellah. Certains écrivent Abdallah, et ma famille dit que ce prénom
+       m'a été donné en souvenir d'un aïeul. En cherchant lequel, j'ai trouvé ceci : une
+       mention manuscrite portée sur un registre de Marnia, petite ville de l'ouest algérien.
+       Par décret du 27 février 1965, un maçon de soixante-dix-huit ans né
+       <strong>Bernard Joseph Martinez</strong> est naturalisé algérien et « portera désormais
+       le nom de Benabderrahmane, prénom : Abdallah ». La copie française du même acte écrit
+       « Abdellah ». Les deux orthographes qui me suivent depuis l'école sont nées là,
+       sous deux plumes différentes, pour le même homme : mon arrière-arrière-grand-père.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="decret-1965"></figure>
   </div>
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce deuxième</span>L'homme de 1886</h2>
-  <p>Bernard Joseph Martinez naît le 27 mai 1886 à Aïn Témouchent, dans l'Oranie, de
-     Bernard Martinez et de Maria Montesinos : une famille aux noms espagnols, comme des
-     dizaines de milliers d'autres dans l'ouest de l'Algérie coloniale. Il est maçon.
-     Son fascicule de mobilisation, classe 1907, l'envoie dans la Grande Guerre en
-     service auxiliaire ; vingt ans plus tard, l'Office national des combattants lui
-     délivre à Oran la carte du combattant n° 15868. C'est la seule photographie de lui
-     que nous ayons.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce deuxième</span>L'homme de 1886</h2>
+    <p>Bernard Joseph Martinez naît le 27 mai 1886 à Aïn Témouchent, dans l'Oranie, de
+       Bernard Martinez et de Maria Montesinos : une famille aux noms espagnols, comme des
+       dizaines de milliers d'autres dans l'ouest de l'Algérie coloniale. Il est maçon.
+       Son fascicule de mobilisation, classe 1907, l'envoie dans la Grande Guerre en
+       service auxiliaire ; vingt ans plus tard, l'Office national des combattants lui
+       délivre à Oran la carte du combattant n° 15868. C'est la seule photographie de lui
+       que nous ayons.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="fascicule-mobilisation"></figure>
     <figure class="piece" data-doc="carte-combattant-1936"></figure>
@@ -426,14 +474,16 @@
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce troisième</span>Marnia, 11 janvier 1940</h2>
-  <p>Le 11 janvier 1940, à la mairie de Marnia, à la frontière marocaine, il épouse
-     en troisièmes noces <strong>Zahra Morsli</strong>, née dans la même ville vers 1918,
-     fille de Bensalah et de <strong>Fatma Diab</strong>. Il a cinquante-trois ans, elle
-     en a une vingtaine. L'acte, recopié en 2013 par le service central d'état civil de
-     Nantes, est exactement le type de page manuscrite pour lequel l'atelier de lecture
-     de ce site a été construit. Le petit livret de famille délivré deux mois plus tard
-     ne quittera plus jamais la famille.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce troisième</span>Marnia, 11 janvier 1940</h2>
+    <p>Le 11 janvier 1940, à la mairie de Marnia, à la frontière marocaine, il épouse
+       en troisièmes noces <strong>Zahra Morsli</strong>, née dans la même ville vers 1918,
+       fille de Bensalah et de <strong>Fatma Diab</strong>. Il a cinquante-trois ans, elle
+       en a une vingtaine. L'acte, recopié en 2013 par le service central d'état civil de
+       Nantes, est exactement le type de page manuscrite pour lequel l'atelier de lecture
+       de ce site a été construit. Le petit livret de famille délivré deux mois plus tard
+       ne quittera plus jamais la famille.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="acte-mariage-1940"></figure>
     <figure class="piece" data-doc="livret-famille-mariage"></figure>
@@ -441,13 +491,15 @@
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce quatrième</span>Les enfants Martinez</h2>
-  <p>Trois enfants sont inscrits au livret : Benamar, <strong>Mostefa</strong> né le
-     27 février 1940, et <strong>Khadoudja</strong> née le 31 octobre 1942, mon
-     arrière-grand-mère. Tous déclarés sous le nom Martinez. Le livret militaire de
-     Mostefa, classe 1960, le montre appelé au service en mars 1962, dans les derniers
-     mois de la guerre, puis renvoyé dans ses foyers. Trois ans plus tard, le décret de
-     naturalisation de leur père fera de toute la fratrie des Benabderrahmane.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce quatrième</span>Les enfants Martinez</h2>
+    <p>Trois enfants sont inscrits au livret : Benamar, <strong>Mostefa</strong> né le
+       27 février 1940, et <strong>Khadoudja</strong> née le 31 octobre 1942, mon
+       arrière-grand-mère. Tous déclarés sous le nom Martinez. Le livret militaire de
+       Mostefa, classe 1960, le montre appelé au service en mars 1962, dans les derniers
+       mois de la guerre, puis renvoyé dans ses foyers. Trois ans plus tard, le décret de
+       naturalisation de leur père fera de toute la fratrie des Benabderrahmane.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="livret-famille-enfants"></figure>
     <figure class="piece" data-doc="livret-militaire-mostefa"></figure>
@@ -455,14 +507,16 @@
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce cinquième</span>Choisir son nom, choisir son pays</h2>
-  <p>L'Algérie devient indépendante en 1962. Le carnet du ministère des Finances,
-     tamponné à Alger en novembre 1963, montre le vieil homme dans les démarches de
-     l'après : pensions, guichets, cachets. Puis vient le décret du 27 février 1965 :
-     à soixante-dix-huit ans, l'ancien combattant né sous un nom espagnol choisit la
-     nationalité algérienne et le nom d'Abdallah Benabderrahmane. Il meurt deux ans
-     plus tard, en 1967. Zahra, elle, vivra jusqu'en 2009. Je suis né en 2002 : nous
-     avons partagé sept ans sans que je sache rien de tout cela.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce cinquième</span>Choisir son nom, choisir son pays</h2>
+    <p>L'Algérie devient indépendante en 1962. Le carnet du ministère des Finances,
+       tamponné à Alger en novembre 1963, montre le vieil homme dans les démarches de
+       l'après : pensions, guichets, cachets. Puis vient le décret du 27 février 1965 :
+       à soixante-dix-huit ans, l'ancien combattant né sous un nom espagnol choisit la
+       nationalité algérienne et le nom d'Abdallah Benabderrahmane. Il meurt deux ans
+       plus tard, en 1967. Zahra, elle, vivra jusqu'en 2009. Je suis né en 2002 : nous
+       avons partagé sept ans sans que je sache rien de tout cela.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="carnet-finances-1963"></figure>
     <figure class="piece" data-doc="carte-ouvrier-1947"></figure>
@@ -470,29 +524,33 @@
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce sixième</span>L'affiche</h2>
-  <p>Dans la même liasse, un document d'une autre nature : l'appel de Fatna Diab au
-     rassemblement de la Bastille, en décembre 1972, après la mort de son frère
-     Mohamed Diab au commissariat de Versailles. Le nom Diab est celui de la mère de
-     Zahra ; la mémoire familiale dit que Mohamed Diab était un cousin ou un oncle de
-     mon arrière-grand-mère. Aucun acte ne l'établit pour l'instant : je reproduis
-     l'affiche comme un document d'histoire, et comme la prochaine piste à vérifier,
-     registre en main.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce sixième</span>L'affiche</h2>
+    <p>Dans la même liasse, un document d'une autre nature : l'appel de Fatna Diab au
+       rassemblement de la Bastille, en décembre 1972, après la mort de son frère
+       Mohamed Diab au commissariat de Versailles. Le nom Diab est celui de la mère de
+       Zahra ; la mémoire familiale dit que Mohamed Diab était un cousin ou un oncle de
+       mon arrière-grand-mère. Aucun acte ne l'établit pour l'instant : je reproduis
+       l'affiche comme un document d'histoire, et comme la prochaine piste à vérifier,
+       registre en main.</p>
+  </div>
   <div class="planche">
     <figure class="piece" data-doc="affiche-diab"></figure>
   </div>
 </section>
 
 <section class="chapitre">
-  <h2><span class="folio">Pièce septième</span>Jusqu'à moi</h2>
-  <p>Khadoudja épouse Abdelkader Arfa ; leur fille <strong>Hassiba</strong> naît le
-     31 décembre 1964 à Maghnia, le nouveau nom de Marnia. Hassiba et Mohamed Soltani,
-     venu de l'oasis de Tolga, ont une fille née à Argenteuil en 1984 : ma mère,
-     Amina. Je nais à Nanterre le 26 juillet 2002, Abdellah Souleyman Hassani. Quatre
-     générations, deux rives, un prénom qui a traversé tout cela avec ses deux
-     orthographes. Les actes récents qui documentent ce trajet, de Maghnia à
-     Argenteuil puis Nanterre, concernent des personnes vivantes : ils sont dans
-     l'arbre, pas à l'image.</p>
+  <div class="texte">
+    <h2><span class="folio">Pièce septième</span>Jusqu'à moi</h2>
+    <p>Khadoudja épouse Abdelkader Arfa ; leur fille <strong>Hassiba</strong> naît le
+       31 décembre 1964 à Maghnia, le nouveau nom de Marnia. Hassiba et Mohamed Soltani,
+       venu de l'oasis de Tolga, ont une fille née à Argenteuil en 1984 : ma mère,
+       Amina. Je nais à Nanterre le 26 juillet 2002, Abdellah Souleyman Hassani. Quatre
+       générations, deux rives, un prénom qui a traversé tout cela avec ses deux
+       orthographes. Les actes récents qui documentent ce trajet, de Maghnia à
+       Argenteuil puis Nanterre, concernent des personnes vivantes : ils sont dans
+       l'arbre, pas à l'image.</p>
+  </div>
 </section>
 
 <section class="chapitre" id="section-arbre">
@@ -517,7 +575,9 @@
 <div class="visionneuse" id="visionneuse" hidden role="dialog" aria-modal="true">
   <button class="fermer" id="fermer">fermer ×</button>
   <div class="visionneuse-cadre">
-    <div class="visionneuse-image" id="v-image"></div>
+    <div class="visionneuse-image" id="v-image">
+      <div class="loupe" id="v-loupe" hidden aria-hidden="true"></div>
+    </div>
     <div class="visionneuse-texte">
       <h3 id="v-titre"></h3>
       <p class="datation" id="v-datation"></p>
@@ -567,7 +627,8 @@ function ouvreDocument(id) {
   const doc = DOCS[id];
   if (!doc) return;
   const zone = el("v-image");
-  zone.textContent = "";
+  zone.querySelectorAll("img, p").forEach(n => n.remove());
+  el("v-loupe").hidden = true;
   if (doc.image) {
     const img = document.createElement("img");
     img.src = doc.image;
@@ -626,6 +687,46 @@ function fermeVisionneuse() {
   el("visionneuse").hidden = true;
   document.body.style.overflow = "";
 }
+// La loupe des documents : la même que sur la démonstration et le banc,
+// grossissement réglable à la molette.
+const loupeDocument = el("v-loupe");
+let grossissement = 2.4;
+let dernierePosition = null;
+
+function dessineLoupeDocument(clientX, clientY) {
+  const img = el("v-image").querySelector("img");
+  if (!img || !img.naturalWidth) { loupeDocument.hidden = true; return; }
+  const boite = img.getBoundingClientRect();
+  const x = clientX - boite.left;
+  const y = clientY - boite.top;
+  if (x < 0 || y < 0 || x > boite.width || y > boite.height) {
+    loupeDocument.hidden = true;
+    return;
+  }
+  loupeDocument.hidden = false;
+  loupeDocument.dataset.facteur = "× " + grossissement.toFixed(1).replace(".", ",");
+  const rayon = loupeDocument.offsetWidth / 2;
+  const cadre = el("v-image").getBoundingClientRect();
+  loupeDocument.style.left = (clientX - cadre.left - rayon) + "px";
+  loupeDocument.style.top = (clientY - cadre.top - rayon) + "px";
+  loupeDocument.style.backgroundImage = `url("${img.src}")`;
+  loupeDocument.style.backgroundSize =
+    `${boite.width * grossissement}px ${boite.height * grossissement}px`;
+  loupeDocument.style.backgroundPosition =
+    `${rayon - x * grossissement}px ${rayon - y * grossissement}px`;
+}
+el("v-image").addEventListener("mousemove", e => {
+  dernierePosition = [e.clientX, e.clientY];
+  dessineLoupeDocument(e.clientX, e.clientY);
+});
+el("v-image").addEventListener("wheel", e => {
+  if (loupeDocument.hidden) return;
+  e.preventDefault();
+  grossissement = Math.min(6, Math.max(1.4, grossissement * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+  if (dernierePosition) dessineLoupeDocument(dernierePosition[0], dernierePosition[1]);
+}, { passive: false });
+el("v-image").addEventListener("mouseleave", () => { loupeDocument.hidden = true; });
+
 el("fermer").addEventListener("click", fermeVisionneuse);
 el("visionneuse").addEventListener("click", e => {
   if (e.target === el("visionneuse")) fermeVisionneuse();
