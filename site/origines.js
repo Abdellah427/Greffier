@@ -22,10 +22,17 @@ personnes: [
   { id: "abdallah", prenom: "Bernard Joseph", nom: "Martinez",
     detail: "devenu Abdallah Benabderrahmane en 1965 · 1886-1967 · Aïn Témouchent puis Marnia",
     vivant: false, generation: 1,
-    sources: ["decret-1965", "jo-1965-decret", "loi-1963",
+    sources: ["acte-naissance-1886", "decret-1965", "jo-1965-decret", "loi-1963",
               "acte-mariage-1940", "livret-famille-mariage",
               "carte-combattant-1936", "fascicule-mobilisation",
               "carte-ouvrier-1947", "carnet-finances-1963"] },
+  { id: "jeanne-bollet", prenom: "Jeanne", nom: "Bollet [?]",
+    detail: "première épouse, mariée à Marnia en 1911", vivant: false, generation: 1,
+    sources: ["acte-naissance-1886"] },
+  { id: "fatima-semordi", prenom: "Fatima", nom: "Semordi",
+    detail: "deuxième épouse, mariée à Tlemcen en 1930, morte avant 1940",
+    vivant: false, generation: 1,
+    sources: ["acte-naissance-1886", "acte-mariage-1940"] },
   { id: "zahra", prenom: "Zahra", nom: "Morsli",
     detail: "vers 1917-2009 · Marnia", vivant: false, generation: 1,
     sources: ["acte-mariage-1940", "livret-famille-mariage"] },
@@ -77,6 +84,10 @@ personnes: [
 
 unions: [
   { parents: ["martinez-pere", "montesinos-maria"], enfants: ["abdallah"] },
+  { parents: ["abdallah", "jeanne-bollet"], enfants: [],
+    note: "mariés à Marnia le 27 mai 1911" },
+  { parents: ["abdallah", "fatima-semordi"], enfants: [],
+    note: "mariés à Tlemcen le 22 novembre 1930" },
   { parents: ["bensalah", "diab-fatma"], enfants: ["zahra"] },
   { parents: ["abdallah", "zahra"],
     enfants: ["benamar", "mostefa", "khadoudja"],
@@ -91,6 +102,60 @@ unions: [
 ],
 
 documents: [
+  { id: "acte-naissance-1886",
+    image: "origines/acte-naissance-1886.jpg",
+    titre: "L'acte de naissance de 1886, et toute une vie en marge",
+    date: "27 mai 1886",
+    lieu: "registre d'Aïn Témouchent, acte n° 74 · ANOM, vue 02S267-0538",
+    transcription:
+`N° 74. Naissance de Martinez Bernard Joseph [rayé en 1965 et remplacé
+par :] Benabderrahmane Abdallah.
+L'an mil huit cent quatre-vingt-six, le [vingt-huit mai] du matin, par
+devant nous Chabaud Camille, maire de la commune d'Aïn-Temouchent,
+arrondissement et département d'Oran, remplissant les fonctions
+d'officier de l'état civil, [...] lequel nous a présenté un enfant
+[...] être né le jour d'hier [...] son domicile [...] comparant et de
+[...] été faites en présence [...] et de Jules [...] tous deux
+domiciliés [...] et aux témoins [...] le sieur Joseph [...]
+
+Mentions marginales :
+Par acte en date du vingt sept mai mil neuf cent onze, inscrit le même
+jour à la mairie de Marnia (Oran), Martinez Bernard Joseph, dont la
+naissance est constatée dans l'acte ci-contre, a contracté mariage avec
+Bollet Jeanne [?]. Mention faite par nous, greffier du tribunal d'Oran.
+Marié le 22 novembre 1930 à Tlemcen avec Fatima Semordi. Oran, le
+27 novembre 1930, le greffier.
+Marié le 11 janvier 1940 à Marnia avec Morsli Zahra bent Bensalah.
+Oran, le 1er juin 1940 [?].
+[Feuillet collé sur l'acte :] Rectification administrative (art. 99 du
+Code civil). Décret du 27 février 1965 [...] est naturalisé Algérien
+[...] Mr Martinez Bernard Joseph né le 27 mai 1886 à Aïn Temouchent et
+portera désormais le nom de : Benabderrahmane, prénom : Abdallah [...]
+Le 7 juin 1965.`,
+    releve: [
+      { champ: "Naissance", valeur: "27 mai 1886 (« né le jour d'hier »), acte dressé devant le maire Camille Chabaud", personnes: ["abdallah"] },
+      { champ: "1er mariage", valeur: "27 mai 1911 à Marnia, avec Jeanne Bollet [?], le jour de ses 25 ans", personnes: ["abdallah", "jeanne-bollet"] },
+      { champ: "2e mariage", valeur: "22 novembre 1930 à Tlemcen, avec Fatima Semordi", personnes: ["abdallah", "fatima-semordi"] },
+      { champ: "3e mariage", valeur: "11 janvier 1940 à Marnia, avec Morsli Zahra bent Bensalah", personnes: ["abdallah", "zahra"] },
+      { champ: "Rectification", valeur: "1965 : le nom est rayé sur l'acte même, Benabderrahmane Abdallah écrit à la place", personnes: ["abdallah"] },
+    ],
+    contexte:
+`L'état civil français reporte en marge de l'acte de naissance les
+grands actes de la vie : c'est le système des mentions marginales. Sur
+cette page du registre d'Aïn Témouchent, numérisée par les Archives
+nationales d'outre-mer, la marge du n° 74 contient ainsi trois mariages
+et une naturalisation, de 1911 à 1965. Le feuillet de rectification
+collé sur l'acte est celui dont la famille conservait la photographie.
+Autour de lui, les actes voisins disent la ville : Vinas, Nieto,
+Delgado, Mengual, et Abdelkader ben Ansali, présenté par son père
+journalier. L'index de l'ANOM enregistre l'homme sous ses deux noms.`,
+    commentaire:
+`La pièce que je pensais introuvable : son acte de naissance, avec sa
+vie entière écrite autour. Un premier mariage le jour de ses
+vingt-cinq ans avec une Européenne, un deuxième à Tlemcen, le
+troisième avec mon arrière-arrière-grand-mère, et en 1965 son ancien
+nom rayé à l'encre sur l'acte même qui l'avait vu naître.` },
+
   { id: "decret-1965",
     image: "origines/decret-1965.jpg",
     titre: "Le décret de 1965 : un nom pour un autre",
