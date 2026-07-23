@@ -150,7 +150,13 @@ et une naturalisation, de 1911 à 1965. Le feuillet de rectification
 collé sur l'acte est celui dont la famille conservait la photographie.
 Autour de lui, les actes voisins disent la ville : Vinas, Nieto,
 Delgado, Mengual, et Abdelkader ben Ansali, présenté par son père
-journalier. L'index de l'ANOM enregistre l'homme sous ses deux noms.`,
+journalier. L'index de l'ANOM enregistre l'homme sous ses deux noms.
+En 1886, l'année de cette naissance, la province d'Oran comptait plus
+d'Espagnols que de Français, quatre-vingt-douze mille contre
+quatre-vingt mille, venus surtout de Murcie, d'Almería, d'Alicante et
+de Valence fuir la sécheresse et la crise agraire du Levant espagnol :
+les Martinez et les Montesinos étaient de ceux-là (Juan Bautista Vilar,
+« Los españoles en la Argelia francesa », Murcie, 1989).`,
     commentaire:
 `La pièce que je pensais introuvable : son acte de naissance, avec sa
 vie entière écrite autour. Un premier mariage le jour de ses
