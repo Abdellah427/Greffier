@@ -511,20 +511,83 @@
     cursor: pointer;
   }
   .atelier-boutons button:hover { border-color: var(--tampon); color: var(--tampon); }
+  /* Le panneau des documents : fenêtre flottante à droite, ouverte seulement
+     quand une personne est sélectionnée, pour ne pas rogner l'arbre. */
+  .arbre-zone { margin-top: 1rem; }
   #docs-personne {
-    margin-top: 1rem;
-    display: flex;
-    gap: .7rem;
-    flex-wrap: wrap;
+    display: none;
+    position: fixed;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 21rem;
+    max-height: 82vh;
+    overflow-y: auto;
+    z-index: 25;
+    border: 1px solid var(--regle);
+    background: var(--carte);
+    box-shadow: 0 8px 30px rgba(43, 33, 24, .3);
+    border-radius: 4px;
+    padding: 1.1rem 1.2rem;
   }
+  #docs-personne.ouvert { display: block; }
+  #docs-personne .panneau-fermer {
+    position: absolute;
+    top: .5rem;
+    right: .6rem;
+    background: none;
+    border: none;
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--encre-pale);
+    cursor: pointer;
+    padding: .2rem .3rem;
+  }
+  #docs-personne .panneau-fermer:hover { color: var(--tampon); }
+  @media (max-width: 720px) {
+    #docs-personne {
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: auto;
+      transform: none;
+      max-height: 60vh;
+      border-radius: 6px 6px 0 0;
+    }
+  }
+  #docs-personne .panneau-titre {
+    font-family: var(--serif-display);
+    font-size: 1.2rem;
+    margin: 0 0 .15rem;
+  }
+  #docs-personne .panneau-sous {
+    font-family: var(--mono);
+    font-size: .64rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin: 0 0 .8rem;
+  }
+  #docs-personne .panneau-vide {
+    font-family: var(--mono);
+    font-size: .74rem;
+    line-height: 1.6;
+    color: var(--encre-pale);
+    margin: 0;
+  }
+  #docs-personne .doc-liste { display: flex; flex-direction: column; gap: .5rem; }
   #docs-personne .doc-carte {
     font-family: var(--mono);
-    font-size: .72rem;
+    font-size: .82rem;
     border: 1px solid var(--regle);
     background: var(--papier);
-    padding: .45rem .7rem;
+    padding: .6rem .8rem;
     cursor: pointer;
     color: var(--encre);
+    text-align: left;
+    width: 100%;
   }
   #docs-personne .doc-carte:hover { border-color: var(--tampon); color: var(--tampon); }
   .epilogue-section { text-align: center; }
@@ -546,8 +609,8 @@
     border: 1px dashed var(--regle);
     padding: .7rem .9rem;
     margin-top: 1.6rem;
-    max-width: none;
   }
+  #section-arbre .methode { max-width: none; }
   footer {
     border-top: 1px solid var(--regle);
     color: var(--encre-pale);
@@ -798,6 +861,7 @@
 <section class="chapitre" id="section-arbre">
   <h2><span class="folio">L'arbre</span>Ma lignée directe, document par document</h2>
   <div class="arbre-outils">
+    <label><input type="checkbox" id="parente-complete"> Afficher toute la parenté</label>
     <label><input type="checkbox" id="masque-vivants"> Masquer les personnes vivantes</label>
     <span>Cliquez sur une personne pour voir ses documents ; sur un document pour lire sa transcription.</span>
     <button type="button" class="atelier-lien" id="atelier-lien">Atelier des portraits</button>
@@ -807,8 +871,10 @@
     <span><span class="ex ex-mariage"></span> trait horizontal : mariage (cliquable si l'acte existe)</span>
     <span><span class="ex ex-filiation"></span> trait vertical : parents et enfants</span>
   </div>
-  <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
-  <div id="docs-personne" aria-live="polite"></div>
+  <div class="arbre-zone">
+    <div class="arbre" id="arbre"><svg id="liens" aria-hidden="true"></svg></div>
+    <aside id="docs-personne" aria-live="polite"></aside>
+  </div>
   <p class="methode">Méthode : chaque page a été photographiée puis lue avec l'atelier de ce
      site (voir la démonstration), et la transcription vérifiée à la main. Les passages
      douteux sont marqués [?]. Les passages en arabe, comme le bandeau de l'affiche de
@@ -1089,9 +1155,10 @@ function construitArbre() {
 
 function appliqueMasque() {
   const masque = el("masque-vivants").checked;
+  const complet = el("parente-complete").checked;
   document.querySelectorAll(".personne").forEach(carte => {
     const cacheVivant = masque && carte.dataset.vivant === "1";
-    const cacheCollateral = carte.dataset.directe !== "1";
+    const cacheCollateral = !complet && carte.dataset.directe !== "1";
     carte.style.display = (cacheVivant || cacheCollateral) ? "none" : "";
   });
   // Les rangées vidées par le filtre ne doivent pas laisser d'étiquette flottante.
@@ -1185,34 +1252,61 @@ function traceLiens() {
   }
 }
 
+function fermePanneau() {
+  el("docs-personne").classList.remove("ouvert");
+  document.querySelectorAll(".personne.actif").forEach(c => c.classList.remove("actif"));
+}
+
 function montrePersonne(pid) {
   document.querySelectorAll(".personne").forEach(c =>
     c.classList.toggle("actif", c.dataset.id === pid));
   const p = PERSONNES[pid];
   const zone = el("docs-personne");
   zone.textContent = "";
-  if (!p) return;
+  if (!p) { fermePanneau(); return; }
+  zone.classList.add("ouvert");
+
+  const fermer = document.createElement("button");
+  fermer.type = "button";
+  fermer.className = "panneau-fermer";
+  fermer.textContent = "×";
+  fermer.setAttribute("aria-label", "Fermer");
+  fermer.addEventListener("click", fermePanneau);
+  zone.appendChild(fermer);
+
+  const titre = document.createElement("p");
+  titre.className = "panneau-titre";
+  titre.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]}`.trim();
+  const sous = document.createElement("p");
+  sous.className = "panneau-sous";
+  zone.append(titre, sous);
+
   if (!p.sources.length) {
-    const note = document.createElement("span");
-    note.className = "doc-carte";
-    note.style.cursor = "default";
-    note.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]} : aucun document publié, information issue de l'arbre familial.`;
+    sous.textContent = "aucun document publié";
+    const note = document.createElement("p");
+    note.className = "panneau-vide";
+    note.textContent = "Information issue de l'arbre familial, à confirmer par les registres.";
     zone.appendChild(note);
-    return;
-  }
-  for (const docId of p.sources) {
-    const doc = DOCS[docId];
-    if (!doc) continue;
-    const carte = document.createElement("button");
-    carte.type = "button";
-    carte.className = "doc-carte";
-    carte.textContent = doc.titre;
-    carte.addEventListener("click", () => ouvreDocument(docId));
-    zone.appendChild(carte);
+  } else {
+    sous.textContent = p.sources.length === 1 ? "1 document" : `${p.sources.length} documents`;
+    const liste = document.createElement("div");
+    liste.className = "doc-liste";
+    for (const docId of p.sources) {
+      const doc = DOCS[docId];
+      if (!doc) continue;
+      const carte = document.createElement("button");
+      carte.type = "button";
+      carte.className = "doc-carte";
+      carte.textContent = doc.titre;
+      carte.addEventListener("click", () => ouvreDocument(docId));
+      liste.appendChild(carte);
+    }
+    zone.appendChild(liste);
   }
 }
 
 el("masque-vivants").addEventListener("change", appliqueMasque);
+el("parente-complete").addEventListener("change", appliqueMasque);
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
 window.addEventListener("load", traceLiens);
