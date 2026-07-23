@@ -170,24 +170,70 @@
     box-shadow: 0 3px 14px rgba(43, 33, 24, .18);
     background: var(--papier);
   }
-  .piece-portrait .bascule {
-    display: inline-flex;
-    margin: .55rem 0 .1rem;
+  /* Curseur avant/après pour comparer la photo et sa reconstruction. */
+  .avant-apres {
+    position: relative;
+    width: 100%;
+    line-height: 0;
+    user-select: none;
+    touch-action: pan-y;
+  }
+  .avant-apres .ap-img {
+    width: 100%;
+    display: block;
     border: 1px solid var(--regle);
-    border-radius: 3px;
-    overflow: hidden;
-    font-family: var(--mono);
-    font-size: .64rem;
+    box-shadow: 0 3px 14px rgba(43, 33, 24, .18);
   }
-  .piece-portrait .bascule button {
-    border: none;
+  .avant-apres .ap-top {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  }
+  .avant-apres .ap-top .ap-img { position: absolute; inset: 0; height: 100%; }
+  .ap-poignee {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: var(--pos);
+    width: 2px;
     background: var(--papier);
-    color: var(--encre-pale);
-    padding: .3rem .75rem;
-    cursor: pointer;
-    letter-spacing: .04em;
+    transform: translateX(-1px);
+    box-shadow: 0 0 0 1px rgba(140, 47, 27, .8);
+    pointer-events: none;
   }
-  .piece-portrait .bascule button.on { background: var(--tampon); color: #f6f0e2; }
+  .ap-poignee::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 1.8rem; height: 1.8rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--tampon);
+    border: 2px solid var(--papier);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .3);
+  }
+  .ap-range {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+  }
+  .ap-tag {
+    position: absolute;
+    bottom: .55rem;
+    font-family: var(--mono);
+    font-size: .56rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #f6f0e2;
+    background: rgba(44, 36, 22, .72);
+    padding: .18rem .4rem;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .ap-tag-g { left: .5rem; }
+  .ap-tag-d { right: .5rem; }
   .piece-portrait figcaption {
     font-family: var(--mono);
     font-size: .68rem;
@@ -811,13 +857,21 @@
   </div>
   <div class="planche">
     <figure class="piece-portrait">
-      <img id="portrait-bernard" src="origines/bernard-portrait-restaure.jpg"
-           alt="Bernard Joseph Martinez, portrait" loading="lazy">
-      <div class="bascule" data-cible="portrait-bernard" role="group" aria-label="Version du portrait">
-        <button type="button" class="on" data-src="origines/bernard-portrait-restaure.jpg">Restauré</button>
-        <button type="button" data-src="origines/bernard-portrait.jpg">Original</button>
+      <div class="avant-apres" id="cmp-bernard" style="--pos:50%">
+        <img class="ap-img" src="origines/bernard-portrait.jpg"
+             alt="Photographie d'origine de Bernard Joseph Martinez" loading="lazy">
+        <div class="ap-top">
+          <img class="ap-img" src="origines/bernard-portrait-restaure.jpg"
+               alt="Reconstruction par IA du portrait de Bernard Joseph Martinez" loading="lazy">
+        </div>
+        <span class="ap-tag ap-tag-g">Photo d'origine</span>
+        <span class="ap-tag ap-tag-d">Reconstruction IA</span>
+        <div class="ap-poignee" aria-hidden="true"></div>
+        <input class="ap-range" type="range" min="0" max="100" value="50"
+               aria-label="Comparer la photographie d'origine et la reconstruction">
       </div>
-      <figcaption>Bernard Joseph Martinez, la seule photographie connue de lui.</figcaption>
+      <figcaption>Bernard Joseph Martinez : la seule photographie connue de lui, à gauche,
+        et à droite sa reconstruction par intelligence artificielle.</figcaption>
     </figure>
     <figure class="piece" data-doc="acte-naissance-1886"></figure>
     <figure class="piece" data-doc="matricule-1907"></figure>
@@ -1398,15 +1452,12 @@ function montrePersonne(pid) {
 el("masque-vivants").addEventListener("change", appliqueMasque);
 el("parente-complete").addEventListener("change", appliqueMasque);
 
-// Bascule des portraits (original / restauré), même logique que le prétraitement.
-document.querySelectorAll(".bascule").forEach(bascule => {
-  const img = document.getElementById(bascule.dataset.cible);
-  bascule.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (img) img.src = btn.dataset.src;
-      bascule.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === btn));
-    });
-  });
+// Curseur avant/après : on glisse pour révéler l'original ou la reconstruction.
+document.querySelectorAll(".avant-apres").forEach(cmp => {
+  const range = cmp.querySelector(".ap-range");
+  const maj = () => cmp.style.setProperty("--pos", range.value + "%");
+  range.addEventListener("input", maj);
+  maj();
 });
 window.addEventListener("resize", () => requestAnimationFrame(traceLiens));
 construitArbre();
