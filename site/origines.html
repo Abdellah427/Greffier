@@ -452,7 +452,15 @@
   }
   .personne[data-sexe="f"] .p-sexe { color: #b06a4e; }
   .personne[data-sexe="h"] .p-sexe { color: #8a9a7b; }
-  .personne .p-nom { font-size: .92rem; padding-right: 1rem; }
+  /* On réserve la hauteur de deux lignes pour tous les noms : ainsi la ligne
+     de naissance et le compte de documents s'alignent d'une carte à l'autre,
+     que le prénom tienne sur une ou deux lignes. */
+  .personne .p-nom {
+    font-size: .92rem;
+    padding-right: 1rem;
+    line-height: 1.25;
+    min-height: 2.5em;
+  }
   .personne .p-detail {
     font-family: var(--mono);
     font-size: .64rem;
