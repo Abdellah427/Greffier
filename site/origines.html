@@ -154,6 +154,23 @@
     margin-top: .45rem;
   }
   figure.piece:hover img { box-shadow: 0 5px 20px rgba(140, 47, 27, .3); }
+  /* Le portrait crayonné de l'auteur : posé sur le papier, sans cadre. */
+  .portrait-signature { margin: 0; }
+  .portrait-signature img {
+    width: 100%;
+    max-width: 22rem;
+    display: block;
+    margin: 0 auto;
+  }
+  .portrait-signature figcaption {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--encre-pale);
+    text-align: center;
+    margin: .5rem auto 0;
+    max-width: 24rem;
+    line-height: 1.5;
+  }
 
   /* ---------- la visionneuse ---------- */
   .visionneuse {
@@ -841,6 +858,13 @@
        bout du trajet. Quatre générations, deux rives, deux orthographes. Les actes
        récents qui documentent ce chemin, de Maghnia à Argenteuil puis Nanterre,
        concernent des personnes vivantes : ils sont dans l'arbre, pas à l'image.</p>
+  </div>
+  <div class="planche">
+    <figure class="portrait-signature">
+      <img src="origines/moi-crayon.png" alt="Abdellah Hassani, portrait au crayon" loading="lazy">
+      <figcaption>Abdellah Souleyman Hassani, en manifestation contre les crimes racistes,
+        Paris. Un siècle après l'affiche de la famille, le même refus, au crayon.</figcaption>
+    </figure>
   </div>
 </section>
 
