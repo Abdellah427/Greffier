@@ -1,0 +1,80 @@
+{
+  "_note": "Rempli par le notebook 05 (evaluation). Valeurs null = pas encore mesure. Aucun chiffre ici ne doit apparaitre sur le site ou dans le README tant qu'il est null : la page bascule automatiquement en mode 'a venir'.",
+  "meta": {
+    "genere_le": null,
+    "commit_git": null,
+    "jeu": "m-popp",
+    "split": "test",
+    "separation": "par_page",
+    "nb_pages_test": 32,
+    "graine": 42,
+    "protocole": "meme jeu de test et meme metrique pour tous les modeles",
+    "avertissement": "Jeu de test petit (32 pages) : scores a lire avec prudence."
+  },
+  "modeles": [
+    {
+      "id": "greffier-actes",
+      "nom": "Greffier (maison)",
+      "type": "maison",
+      "base": "Qwen/Qwen2-VL-2B-Instruct",
+      "nb_parametres": null,
+      "poids_mo": null,
+      "vitesse_ms_par_page": null,
+      "cout_par_page": 0,
+      "reconnaissance": { "cer_global": null, "wer_global": null },
+      "extraction": {
+        "f1_micro": null, "precision_micro": null, "rappel_micro": null,
+        "vp": null, "fp": null, "fn": null
+      }
+    },
+    {
+      "id": "generaliste-reference",
+      "nom": "Gros generaliste (reference)",
+      "type": "generaliste",
+      "base": null,
+      "nb_parametres": null,
+      "poids_mo": null,
+      "vitesse_ms_par_page": null,
+      "cout_par_page": null,
+      "reconnaissance": { "cer_global": null, "wer_global": null },
+      "extraction": {
+        "f1_micro": null, "precision_micro": null, "rappel_micro": null,
+        "vp": null, "fp": null, "fn": null
+      }
+    }
+  ],
+  "par_entite": {
+    "date":          { "occurrences": null, "par_modele": {} },
+    "lieu":          { "occurrences": null, "par_modele": {} },
+    "epoux_prenom":  { "occurrences": null, "par_modele": {} },
+    "epoux_nom":     { "occurrences": null, "par_modele": {} },
+    "epoux_metier":  { "occurrences": null, "par_modele": {} },
+    "epouse_prenom": { "occurrences": null, "par_modele": {} },
+    "epouse_nom":    { "occurrences": null, "par_modele": {} },
+    "epouse_metier": { "occurrences": null, "par_modele": {} },
+    "pere_epoux":    { "occurrences": null, "par_modele": {} },
+    "mere_epoux":    { "occurrences": null, "par_modele": {} },
+    "pere_epouse":   { "occurrences": null, "par_modele": {} },
+    "mere_epouse":   { "occurrences": null, "par_modele": {} }
+  },
+  "exemples": [
+    {
+      "type": "reussite",
+      "image": null,
+      "texte_reference": null,
+      "entites_reference": [],
+      "par_modele": {}
+    },
+    {
+      "type": "echec",
+      "image": null,
+      "texte_reference": null,
+      "entites_reference": [],
+      "par_modele": {}
+    }
+  ],
+  "limites": [
+    "Jeu de test de 32 pages : intervalle de confiance large.",
+    "Espagnol couvert par le synthetique, non evalue sur du reel (Esposalles inaccessible)."
+  ]
+}

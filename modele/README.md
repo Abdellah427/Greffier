@@ -1,5 +1,12 @@
 # Greffier, le modèle
 
+[![Licence : MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](../LICENSE)
+[![Statut](https://img.shields.io/badge/statut-en%20cours-orange.svg)](#les-résultats)
+[![Modèle](https://img.shields.io/badge/Hugging%20Face-modèle-yellow.svg)](https://huggingface.co/Abdellah427/greffier-actes)
+[![Jeu de données](https://img.shields.io/badge/Hugging%20Face-données-yellow.svg)](https://huggingface.co/datasets/Abdellah427/greffier-actes-harmonise)
+[![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Abdellah427/Greffier/blob/main/modele/01_exploration_mpopp.ipynb)
+[![tests](https://github.com/Abdellah427/Greffier/actions/workflows/ci.yml/badge.svg)](https://github.com/Abdellah427/Greffier/actions/workflows/ci.yml)
+
 Sous-projet : entraîner un modèle spécialisé dans la lecture et l'extraction
 d'informations des actes d'état civil manuscrits, France et Espagne. C'est la
 suite logique du site : là où les fiches sont aujourd'hui produites par des
@@ -43,6 +50,22 @@ un jeu de validation si on obtenait l'accès.
 
 Les entités sont harmonisées vers un jeu commun (époux, épouse, parents,
 métier, lieu, date), défini dans `outils.py` et `config.json`.
+
+## Les résultats
+
+Rien encore : le modèle n'est pas entraîné, donc aucun chiffre n'est publié
+ici. Ce serait malhonnête. Le tableau se remplira depuis le notebook 05
+(évaluation), et les mêmes chiffres iront, à l'identique, dans la model card
+Hugging Face et sur la page du site.
+
+| Tâche | Métrique | Greffier (maison) | Généraliste (référence) |
+|---|---|---|---|
+| Lecture (HTR) | CER / WER | à venir | à venir |
+| Extraction | F1 micro par information | à venir | à venir |
+
+Protocole : même jeu de test (32 pages), jamais vu à l'entraînement, séparation
+par page, mêmes métriques pour tous les modèles. Jeu de test petit, donc scores
+à lire avec prudence.
 
 ## Principes d'honnêteté
 
@@ -115,3 +138,36 @@ l'entraînement. Liens directs (dépôt public) :
 évaluation et explicabilité.
 
 Les notebooks sont prévus pour Google Colab (GPU gratuit).
+
+## Reproduire
+
+    git clone https://github.com/Abdellah427/Greffier.git
+    cd Greffier
+    pip install -r modele/requirements.txt
+    python modele/outils.py        # tests des métriques et du parseur M-POPP
+
+Les notebooks tournent sur Colab. Ouvrir le notebook 01 via le badge « Ouvrir
+dans Colab » en haut : il télécharge M-POPP et l'explore sans aucune clé. Le
+token Hugging Face (pour publier) va dans les secrets Colab, jamais dans le code.
+
+## Structure du dépôt (partie modèle)
+
+    modele/
+    ├── README.md                    ce fichier
+    ├── config.json                  source de vérité (entités, chemins, dépôts)
+    ├── outils.py                    métriques, parseur M-POPP, tests
+    ├── requirements.txt             dépendances des notebooks
+    ├── 01_exploration_mpopp.ipynb   regarder les données en vrai
+    ├── 02_donnees_harmonisees.ipynb dataset harmonisé, publié sur Hugging Face
+    └── resultats/
+        └── resultats.json           rempli par l'évaluation (null pour l'instant)
+
+Jamais versionnés : les poids du modèle (sur Hugging Face), l'archive M-POPP
+(environ 1 Go, téléchargée à la volée), aucune donnée d'état civil non publique.
+
+## Liens
+
+- Code : https://github.com/Abdellah427/Greffier
+- Modèle : https://huggingface.co/Abdellah427/greffier-actes
+- Jeu de données : https://huggingface.co/datasets/Abdellah427/greffier-actes-harmonise
+- Page du projet : https://abdellah-hassani.fr/greffier/modele.html

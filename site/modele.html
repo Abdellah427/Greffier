@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greffier : le modèle · Abdellah Hassani</title>
+<meta name="description" content="Un modèle spécialisé, entraîné de bout en bout, pour lire et extraire les informations des actes d'état civil manuscrits français et espagnols. Projet mené ouvertement, mesuré honnêtement.">
+<meta name="author" content="Abdellah Hassani">
+<link rel="canonical" href="https://abdellah-hassani.fr/greffier/modele.html">
+<meta property="og:title" content="Greffier : le modèle · Abdellah Hassani">
+<meta property="og:description" content="Un modèle spécialisé, entraîné de bout en bout, pour lire les actes d'état civil manuscrits. Mesuré honnêtement, publié en open source.">
+<meta property="og:url" content="https://abdellah-hassani.fr/greffier/modele.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#128209;</text></svg>">
+<style>
+  :root {
+    --papier: #efe8d8;
+    --papier-2: #e7dcc4;
+    --regle: #cdbfa0;
+    --encre: #2c2416;
+    --encre-pale: #77684f;
+    --tampon: #8c2f1b;
+    --carte: #f6f0e2;
+    --exact: #557a48;
+    --serif-display: 'Didot', 'Bodoni MT', 'Playfair Display', Georgia, serif;
+    --serif-body: Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--serif-body); background: var(--papier); color: var(--encre); line-height: 1.55; }
+  a { color: var(--tampon); }
+  :focus-visible { outline: 2px solid var(--tampon); outline-offset: 2px; }
+  nav {
+    display: flex; gap: 1.5rem; align-items: baseline; max-width: 1400px;
+    margin: 0 auto; padding: 1.1rem 1.5rem 0; font-size: .85rem;
+    font-family: var(--mono); flex-wrap: wrap;
+  }
+  nav .marque { letter-spacing: .08em; text-transform: uppercase; color: var(--encre-pale); margin-right: auto; text-decoration: none; }
+  nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav a[aria-current] { color: var(--encre); border-bottom: 2px solid var(--tampon); }
+  header { max-width: 1400px; margin: 0 auto; padding: 2.2rem 1.5rem 0; }
+  header h1 { font-family: var(--serif-display); font-weight: normal; font-size: clamp(1.9rem, 4vw, 2.7rem); margin: 0 0 .6rem; }
+  header h1 em { color: var(--tampon); font-style: italic; }
+  .chapo {
+    font-family: var(--serif-display); font-style: italic; font-size: 1.12rem;
+    line-height: 1.5; color: var(--encre-pale); max-width: 44rem; margin: 0;
+  }
+  main { max-width: 1400px; margin: 0 auto; padding: 1.8rem 1.5rem 4rem; }
+  section {
+    background: var(--carte); border: 1px solid var(--regle); border-radius: 4px;
+    padding: 1.3rem 1.5rem; margin-bottom: 1rem;
+  }
+  section h2 {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--tampon); font-weight: normal; margin: 0 0 .8rem;
+  }
+  p { margin: 0 0 .7rem; text-align: justify; }
+  p:last-child { margin-bottom: 0; }
+  h3 { font-family: var(--serif-display); font-weight: normal; font-size: 1.25rem; margin: 0 0 .5rem; }
+
+  /* Bandeau essentiel */
+  .accroche { font-size: 1.05rem; margin-bottom: 1rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+  .chip {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .04em;
+    padding: .3rem .6rem; border: 1px solid var(--regle); border-radius: 999px;
+    background: var(--papier); color: var(--encre-pale);
+  }
+  .chip.statut { border-color: var(--tampon); color: var(--tampon); }
+  .liens { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .2rem; }
+  .lien {
+    font-family: var(--mono); font-size: .8rem; text-decoration: none;
+    padding: .5rem .85rem; border: 1px solid var(--regle); border-radius: 4px;
+    background: var(--papier); color: var(--encre);
+    display: inline-flex; align-items: center; gap: .4rem;
+  }
+  .lien:hover { border-color: var(--tampon); color: var(--tampon); text-decoration: none; }
+  .lien .fleche { color: var(--encre-pale); }
+
+  /* Entree vers sortie */
+  .flux { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; margin-top: 1.2rem; }
+  .flux .fleche-flux { font-family: var(--mono); color: var(--tampon); font-size: 1.4rem; text-align: center; }
+  .panneau { border: 1px solid var(--regle); border-radius: 4px; background: var(--papier); padding: .9rem; }
+  .panneau .etiq { font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--encre-pale); margin-bottom: .5rem; }
+  .registre {
+    font-family: var(--serif-body); font-size: .82rem; line-height: 1.5;
+    color: var(--encre); white-space: pre-wrap;
+    background: rgba(255, 253, 246, .7); border-left: 3px solid var(--regle);
+    padding: .6rem .7rem; border-radius: 2px;
+  }
+  .sortie-json {
+    font-family: var(--mono); font-size: .72rem; line-height: 1.5;
+    white-space: pre-wrap; margin: 0; color: var(--encre);
+    background: rgba(255, 253, 246, .7); border-left: 3px solid var(--tampon);
+    padding: .6rem .7rem; border-radius: 2px; overflow-x: auto;
+  }
+  .sortie-json .cle { color: var(--tampon); }
+  .note-exemple { font-family: var(--mono); font-size: .66rem; color: var(--encre-pale); margin-top: .6rem; }
+
+  /* Encadre methode */
+  .methode {
+    font-family: var(--mono); font-size: .78rem; line-height: 1.6;
+    border: 1px dashed var(--regle); border-radius: 4px; padding: .9rem 1rem;
+    background: var(--papier); margin-top: .8rem; color: var(--encre);
+  }
+  .methode strong { color: var(--tampon); font-weight: normal; }
+
+  /* Table des donnees */
+  table.releve { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: .4rem; }
+  table.releve th, table.releve td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--regle); }
+  table.releve th { font-family: var(--mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--encre-pale); font-weight: normal; }
+  table.releve td.nombre { font-family: var(--mono); }
+  .entites-liste { font-family: var(--mono); font-size: .76rem; line-height: 1.8; margin-top: .3rem; color: var(--encre); }
+  .entites-liste span { display: inline-block; padding: .1rem .45rem; margin: .1rem; border: 1px solid var(--regle); border-radius: 3px; background: var(--papier); }
+
+  /* Resultats a venir : feuille de route */
+  .bandeau-avenir {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .06em;
+    color: var(--tampon); border: 1px solid var(--tampon); border-radius: 4px;
+    padding: .5rem .8rem; display: inline-block; margin-bottom: 1rem;
+  }
+  .feuille-route { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+  .jalon { border: 1px solid var(--regle); border-radius: 4px; padding: .8rem .9rem; background: var(--papier); }
+  .jalon h4 { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .5rem; font-weight: normal; }
+  .jalon.fait h4 { color: var(--exact); }
+  .jalon.cours h4 { color: var(--tampon); }
+  .jalon.suite h4 { color: var(--encre-pale); }
+  .jalon ul { margin: 0; padding-left: 1.1rem; font-size: .82rem; }
+  .jalon li { margin-bottom: .3rem; }
+  #resultats-table { width: 100%; }
+
+  details.technique { margin-top: 0; }
+  details.technique summary {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--tampon); cursor: pointer; margin-bottom: .6rem;
+  }
+  .maj { font-family: var(--mono); font-size: .68rem; color: var(--encre-pale); margin-top: .4rem; }
+
+  footer {
+    border-top: 1px solid var(--regle); color: var(--encre-pale); font-size: .8rem;
+    text-align: center; padding: 1.4rem; font-family: var(--mono);
+  }
+  @media (max-width: 760px) {
+    .flux { grid-template-columns: 1fr; }
+    .flux .fleche-flux { transform: rotate(90deg); }
+    .feuille-route { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    nav { flex-wrap: wrap; gap: .45rem 1.1rem; font-size: .72rem; padding: .9rem 1rem 0; }
+    nav .marque { flex-basis: 100%; margin-right: 0; }
+    p { text-align: left; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Greffier, le modèle",
+  "description": "Modèle spécialisé dans la lecture et l'extraction d'informations des actes d'état civil manuscrits français et espagnols.",
+  "codeRepository": "https://github.com/Abdellah427/Greffier",
+  "programmingLanguage": "Python",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": {
+    "@type": "Person",
+    "name": "Abdellah Hassani",
+    "url": "https://abdellah-hassani.fr/greffier/",
+    "sameAs": ["https://github.com/Abdellah427", "https://huggingface.co/Abdellah427"]
+  }
+}
+</script>
+</head>
+<body>
+
+<nav>
+  <a class="marque" href="index.html">Greffier · Registres de mariage parisiens</a>
+  <a href="demo.html">Démonstration</a>
+  <a href="banc.html">Banc d'essai</a>
+  <a href="index.html">Les 130 actes</a>
+  <a href="origines.html">Origines</a>
+  <a href="modele.html" aria-current="page">Le modèle</a>
+  <a href="https://github.com/Abdellah427/Greffier">Code source</a>
+</nav>
+
+<header>
+  <h1>Un modèle qui apprend à lire les <em>vieilles écritures</em></h1>
+  <p class="chapo">Tout part d'un prénom illisible sur un acte de ma famille. Plutôt que de me contenter d'un gros modèle généraliste, j'en entraîne un, petit et spécialisé, de bout en bout, et je le mesure honnêtement.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>L'essentiel</h2>
+    <p class="accroche">Lire une photographie d'acte manuscrit, puis en extraire les informations utiles (les époux, leurs parents, métiers, la date, le lieu) sous forme structurée. Un modèle maison, léger, entraîné surtout sur des actes synthétiques, comparé sans tricher à un gros modèle généraliste.</p>
+    <div class="chips">
+      <span class="chip statut">Statut : en cours</span>
+      <span class="chip">France et Espagne</span>
+      <span class="chip">314 pages réelles annotées</span>
+      <span class="chip">12 informations extraites</span>
+      <span class="chip">open source, MIT</span>
+      <span class="chip">coût nul pour le visiteur</span>
+    </div>
+    <div class="liens">
+      <a class="lien" href="https://github.com/Abdellah427/Greffier" target="_blank" rel="noopener">Code sur GitHub <span class="fleche">&#8599;</span></a>
+      <a class="lien" href="https://huggingface.co/Abdellah427/greffier-actes" target="_blank" rel="noopener">Modèle sur Hugging Face <span class="fleche">&#8599;</span></a>
+      <a class="lien" href="https://huggingface.co/datasets/Abdellah427/greffier-actes-harmonise" target="_blank" rel="noopener">Jeu de données <span class="fleche">&#8599;</span></a>
+      <a class="lien" href="https://colab.research.google.com/github/Abdellah427/Greffier/blob/main/modele/01_exploration_mpopp.ipynb" target="_blank" rel="noopener">Ouvrir dans Colab <span class="fleche">&#8599;</span></a>
+    </div>
+
+    <div class="flux">
+      <div class="panneau">
+        <div class="etiq">Entrée : un acte manuscrit</div>
+        <div class="registre">Charles Louis Itsweire, cocher, âgé de vingt neuf ans, né à Winnezeele (Nord), fils de Henri Itsweire, cultivateur, et de Rose Deleu, sans profession, épouse le vingt trois septembre à Paris...</div>
+      </div>
+      <div class="fleche-flux">&#8594;</div>
+      <div class="panneau">
+        <div class="etiq">Sortie : les informations, structurées</div>
+<pre class="sortie-json">{
+  <span class="cle">"epoux_prenom"</span>: "Charles Louis",
+  <span class="cle">"epoux_nom"</span>:    "Itsweire",
+  <span class="cle">"epoux_metier"</span>: "cocher",
+  <span class="cle">"pere_epoux"</span>:   "Henri Itsweire",
+  <span class="cle">"mere_epoux"</span>:   "Rose Deleu",
+  <span class="cle">"date"</span>:         "vingt trois septembre",
+  <span class="cle">"lieu"</span>:         "Paris"
+}</pre>
+      </div>
+    </div>
+    <p class="note-exemple">Exemple tiré des annotations M-POPP (vérité terrain), pour montrer le format d'entrée et de sortie. Ce n'est pas une prédiction du modèle.</p>
+  </section>
+
+  <section>
+    <h2>Le problème</h2>
+    <p>Sur un acte rapporté par ma famille, un prénom se lit mal : Abdellah, ou Abdallah ? Les archives d'état civil sont numérisées par millions, mais restent des images. Pour retrouver et recouper des actes, il faut encore les déchiffrer à la main, un par un.</p>
+    <p>Les gros modèles de vision actuels lisent déjà très bien l'imprimé et étonnamment bien le manuscrit. Mais sur ces écritures anciennes, aux mises en page changeantes, dans deux langues, ils se trompent encore, et surtout on ne sait pas exactement ce qu'ils valent sur ce cas précis. D'où l'idée d'un modèle dédié, dont je maîtrise l'entraînement et que je peux mesurer.</p>
+  </section>
+
+  <section>
+    <h2>La démarche</h2>
+    <p>Le chemin, impasses comprises. D'abord tester les modèles généralistes pour avoir une référence honnête. Ensuite chercher les vrais jeux de données du domaine, et il y en a peu : je pars de M-POPP, des actes de mariage parisiens annotés par des chercheurs. Comme il est petit, je construis un générateur d'actes synthétiques, en français et en espagnol, pour entraîner à grande échelle. Enfin j'affine le modèle sur les vrais actes, et je compare.</p>
+    <div class="methode">
+      <strong>Protocole de comparaison.</strong> Même jeu de test que pour le généraliste, jamais vu à l'entraînement. Séparation par page, aucune fuite. Mêmes métriques pour tous : taux d'erreur caractère et mot pour la lecture, précision, rappel et F1 par information pour l'extraction. On rapporte aussi les échecs.
+    </div>
+  </section>
+
+  <section>
+    <h2>Les données</h2>
+    <p>Une seule source réelle, choisie parce qu'elle colle exactement à la tâche. Le volume viendra du générateur synthétique, y compris pour l'espagnol.</p>
+    <table class="releve">
+      <tr><th>Jeu</th><th>M-POPP (INSA Rouen, projet EXO-POPP)</th></tr>
+      <tr><td>Nature</td><td>actes de mariage parisiens manuscrits, 1880 à 1940</td></tr>
+      <tr><td>Pages annotées</td><td class="nombre">314</td></tr>
+      <tr><td>Découpage</td><td class="nombre">250 entraînement · 32 validation · 32 test</td></tr>
+      <tr><td>Licence</td><td>CC-BY 4.0</td></tr>
+      <tr><td>Modèles de base envisagés</td><td>Florence-2-base · Qwen2-VL-2B</td></tr>
+    </table>
+    <p style="margin-top:.9rem">Les douze informations extraites de chaque acte :</p>
+    <div class="entites-liste">
+      <span>date</span><span>lieu</span>
+      <span>époux : prénom</span><span>époux : nom</span><span>époux : métier</span>
+      <span>épouse : prénom</span><span>épouse : nom</span><span>épouse : métier</span>
+      <span>père de l'époux</span><span>mère de l'époux</span>
+      <span>père de l'épouse</span><span>mère de l'épouse</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Les résultats</h2>
+    <div id="resultats-avenir">
+      <span class="bandeau-avenir">À venir</span>
+      <p>Le modèle n'est pas encore entraîné, donc aucun score n'est affiché ici. Ce serait malhonnête d'en inventer. À la place, voici où en est le projet, très concrètement.</p>
+      <div class="feuille-route">
+        <div class="jalon fait">
+          <h4>Fait</h4>
+          <ul>
+            <li>Décodage du format d'annotation de M-POPP</li>
+            <li>Lecture et harmonisation des 314 pages</li>
+            <li>Jeu de données commun aux futures sources</li>
+            <li>Métriques testées : erreur caractère, F1 par information</li>
+          </ul>
+        </div>
+        <div class="jalon cours">
+          <h4>En cours</h4>
+          <ul>
+            <li>Générateur d'actes synthétiques, français et espagnol</li>
+            <li>Pré-entraînement puis affinage sur le réel</li>
+          </ul>
+        </div>
+        <div class="jalon suite">
+          <h4>Prochaines étapes</h4>
+          <ul>
+            <li>Évaluation comparée, maison contre généraliste</li>
+            <li>Score par information, sur les 32 pages de test</li>
+            <li>Un cas de réussite et un cas d'échec, montrés tels quels</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="resultats-table" hidden></div>
+    <p class="maj">Dernière mise à jour : juillet 2026</p>
+  </section>
+
+  <section>
+    <h2>Limites et honnêteté</h2>
+    <p>Le jeu de test ne fait que 32 pages : les scores, quand ils arriveront, seront à lire avec prudence, avec un intervalle de confiance large. L'espagnol sera couvert par des actes synthétiques, mais non évalué sur du réel, faute d'un jeu annoté accessible. Le domaine est borné : des actes de mariage manuscrits d'une période et de régions données, pas n'importe quel manuscrit. Ces limites ne sont pas des détails, elles font partie du projet.</p>
+  </section>
+
+  <section>
+    <details class="technique">
+      <summary>Détails techniques</summary>
+      <h3>Architecture</h3>
+      <p>La tâche impose un modèle qui lit une page entière et en sort directement le texte balisé, pas un système ligne à ligne. On vise donc un petit modèle vision-langage, Florence-2-base ou Qwen2-VL-2B, affiné pour produire le texte puis les douze informations.</p>
+      <h3>Annotations</h3>
+      <p>M-POPP encode les informations par des symboles placés après chaque mot. Un module maison les traduit vers le jeu commun des douze informations, ce qui alimente directement les métriques d'extraction. Tout est reproductible depuis les carnets Colab et vérifié par des tests automatiques.</p>
+      <h3>Stockage</h3>
+      <p>Trois espaces gratuits, chacun son rôle, rien sur un disque personnel : Colab pour entraîner, Hugging Face pour héberger le modèle et le jeu de données, GitHub pour le code et les résultats. Les données synthétiques sont générées à la volée, aucun dossier lourd à conserver.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  Greffier · un modèle spécialisé pour l'état civil manuscrit ·
+  <a href="index.html">retour au site</a> ·
+  <a href="https://github.com/Abdellah427/Greffier">code source</a> ·
+  <a href="mailto:abdellah.hassani2002@gmail.com">contact</a> ·
+  <a href="mentions.html">mentions légales</a>
+</footer>
+
+<script src="modele.js"></script>
+<script>
+// Bascule automatique : tant que window.RESULTATS est null, on garde la
+// feuille de route. Quand l'evaluation aura rempli resultats.json (puis
+// modele.js), on affiche le tableau chiffre. Aucun nombre n'est ecrit en dur.
+(function () {
+  var r = window.RESULTATS;
+  if (!r || !Array.isArray(r.modeles)) return;
+  var mesures = r.modeles.some(function (m) {
+    return m.reconnaissance && m.reconnaissance.cer_global != null;
+  });
+  if (!mesures) return;
+
+  function pct(x) { return x == null ? "n. d." : (x * 100).toFixed(1) + " %"; }
+  var lignes = r.modeles.map(function (m) {
+    return "<tr><td>" + m.nom + "</td>" +
+      "<td class='nombre'>" + pct(m.reconnaissance && m.reconnaissance.cer_global) + "</td>" +
+      "<td class='nombre'>" + pct(m.reconnaissance && m.reconnaissance.wer_global) + "</td>" +
+      "<td class='nombre'>" + pct(m.extraction && m.extraction.f1_micro) + "</td></tr>";
+  }).join("");
+  var avert = r.meta && r.meta.avertissement ? "<p class='maj'>" + r.meta.avertissement + "</p>" : "";
+  var html = "<table class='releve'><tr><th>Modèle</th><th>Erreur caractère</th>" +
+    "<th>Erreur mot</th><th>F1 extraction</th></tr>" + lignes + "</table>" + avert;
+
+  document.getElementById("resultats-avenir").hidden = true;
+  var t = document.getElementById("resultats-table");
+  t.innerHTML = html;
+  t.hidden = false;
+})();
+</script>
+
+</body>
+</html>

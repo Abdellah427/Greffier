@@ -1,0 +1,23 @@
+name: tests
+
+# Verifie que les outils du modele restent corrects (metriques CER/WER,
+# parseur M-POPP, contrat de record). Rapide, sans donnees lourdes.
+on:
+  push:
+    paths:
+      - "modele/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "modele/**"
+
+jobs:
+  outils:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Tests integres de outils.py
+        run: python modele/outils.py
