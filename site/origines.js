@@ -75,7 +75,7 @@ personnes: [
     sources: ["acte-naissance-abdellah"] },
 
   // Moi et les miens
-  { id: "khadija", prenom: "Khadija", nom: "Hassani",
+  { id: "khadija", prenom: "Maïssen", nom: "Hassani",
     detail: "née en 1999", vivant: true, generation: 5, sources: [] },
   { id: "moi", prenom: "Abdellah Souleyman", nom: "Hassani",
     detail: "né en 2002 à Nanterre · moi", vivant: true, generation: 5,
