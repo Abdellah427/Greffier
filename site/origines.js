@@ -22,7 +22,8 @@ personnes: [
   { id: "abdallah", prenom: "Bernard Joseph", nom: "Martinez",
     detail: "devenu Abdallah Benabderrahmane en 1965 · 1886-1967 · Aïn Témouchent puis Marnia",
     vivant: false, generation: 1,
-    sources: ["acte-naissance-1886", "decret-1965", "jo-1965-decret", "loi-1963",
+    sources: ["acte-naissance-1886", "matricule-1907", "matricule-campagnes",
+              "decret-1965", "jo-1965-decret", "loi-1963",
               "acte-mariage-1940", "livret-famille-mariage",
               "carte-combattant-1936", "fascicule-mobilisation",
               "carte-ouvrier-1947", "carnet-finances-1963"] },
@@ -155,6 +156,91 @@ vie entière écrite autour. Un premier mariage le jour de ses
 vingt-cinq ans avec une Européenne, un deuxième à Tlemcen, le
 troisième avec mon arrière-arrière-grand-mère, et en 1965 son ancien
 nom rayé à l'encre sur l'acte même qui l'avait vu naître.` },
+
+  { id: "matricule-1907",
+    image: "origines/matricule-1907.jpg",
+    titre: "La fiche matricule : une vie en une page",
+    date: "classe 1907, matricule 2276",
+    lieu: "bureau de recrutement d'Oran · ANOM, registre 02RM0118",
+    transcription:
+`Martinez, prénoms : Bernard. Numéro matricule du recrutement : 2276.
+Classe de mobilisation : 1907.
+État civil : né le 27 mai 1886 à Aïn Temouchent, canton dudit,
+département d'Oran, résidant à Marnia, profession de maçon, fils de
+Martinez Bernard et de Maria Montesino, domiciliés à Marnia, canton
+dudit, département d'Oran.
+Signalement : cheveux châtains, sourcils châtains, yeux gris, front
+ordinaire, nez moyen, bouche moyenne, menton rond, visage ovale.
+Taille : 1 m 69. Degré d'instruction générale : 1.
+Décision du conseil de révision : classé dans la 1re partie de la
+liste en 1908. Bon.
+Détail des services : incorporé au 2e régiment de zouaves à compter du
+5 octobre 1908, arrivé au corps et soldat de 2e classe ledit jour.
+Envoyé en congé le 24 septembre 1910, se retire à Marnia (Oran),
+certificat de bonne conduite accordé. A obéi à la mobilisation
+générale, au 2e régiment de zouaves, le 3 août 1914. Passé au 2e
+groupe d'artillerie de campagne (17 avril 1917), puis au 6e groupe
+d'artillerie à pied, puis au 10e régiment d'artillerie à pied. Classé
+service auxiliaire par décision de la commission de réforme de Tlemcen
+du 21 juin 1918, pour bronchite chronique, inapte définitif au port
+des armes. Envoyé en congé illimité le 14 avril 1919, se retire à
+Mascara. Carte du combattant le 14/12/30. Dégagé de toute obligation
+militaire le 13-10-1935.
+Condamnations : condamné par jugement du tribunal correctionnel
+d'Oudjda en date du 3 juin 1930 à un an d'emprisonnement avec sursis,
+pour abus de confiance.
+Localités successives habitées : 1911, Bel-Abbès, rue du Soleil, chez
+M. Bollet ; 1912, Marnia, maçon ; 1916 [?], Bel-Abbès, rue du Soleil ;
+1919, Mascara ; 1921, Marnia, ferme Riant [?] ; 1922 [?], Tlemcen,
+faubourg [?] ; 1933, Marnia, rue Jean-Jacques Rousseau.`,
+    releve: [
+      { champ: "Régiment", valeur: "2e régiment de zouaves, incorporé en 1908, rappelé le 3 août 1914", personnes: ["abdallah"] },
+      { champ: "Signalement", valeur: "1,69 m, cheveux châtains, yeux gris, visage ovale", personnes: ["abdallah"] },
+      { champ: "Fin de guerre", valeur: "service auxiliaire en 1918 pour bronchite chronique, congé le 14 avril 1919", personnes: ["abdallah"] },
+      { champ: "Chez les Bollet", valeur: "domicilié en 1911 rue du Soleil à Bel-Abbès, chez M. Bollet, son beau-père", personnes: ["abdallah", "jeanne-bollet"] },
+    ],
+    contexte:
+`Le registre matricule est la biographie administrative de chaque
+soldat, tenue toute sa vie par le bureau de recrutement. Celui d'Oran,
+conservé aux ANOM et consultable en ligne, suit Bernard Martinez de
+ses vingt ans à ses cinquante ans : les casernes, les campagnes, les
+adresses successives, jusqu'à la petite mention rouge de la carte du
+combattant. Le fascicule de mobilisation conservé par la famille porte
+le même numéro, 2276 : les deux documents se répondent à un siècle
+de distance.`,
+    commentaire:
+`Une page d'écriture serrée qui contient plus de vie que bien des
+livres : on y apprend jusqu'à la couleur de ses yeux. Gris.` },
+
+  { id: "matricule-campagnes",
+    image: "origines/matricule-campagnes.jpg",
+    titre: "Blessé devant Monastir",
+    date: "20 octobre 1916",
+    lieu: "front d'Orient, Macédoine · feuillet des campagnes de la fiche matricule",
+    transcription:
+`Campagnes : contre l'Allemagne du 3 août 1914 ; aux armées,
+campagne double, au 14-9-1916 ; Orient, du 2-9-1916 au 28-2-1917 ;
+Algérie, du 1-3-1917 ; campagne double au 20-10-1917 ; Algérie du
+21-10-1917, campagne simple, au 11-11-1918.
+Blessures, citations, décorations, etc. : Blessé le 20 octobre 1916,
+plaie pénétrante à l'épaule droite par balle, au combat de Kénali
+(Monastir).
+Médaille commémorative de la grande guerre. Médaille de la Victoire.`,
+    releve: [
+      { champ: "Blessure", valeur: "20 octobre 1916, balle à l'épaule droite, combat de Kenali, devant Monastir", personnes: ["abdallah"] },
+      { champ: "Décorations", valeur: "médaille commémorative de la Grande Guerre, médaille de la Victoire", personnes: ["abdallah"] },
+    ],
+    contexte:
+`À l'automne 1916, l'armée d'Orient, débarquée à Salonique, attaque en
+Macédoine pour reprendre Monastir. Le combat de Kenali, où les zouaves
+et l'armée serbe affrontent les lignes bulgares et allemandes, est un
+des plus durs de l'offensive : Monastir tombera le 19 novembre 1916.
+Le maçon d'Aïn Témouchent y reçoit une balle dans l'épaule droite,
+à trois mille kilomètres de chez lui.`,
+    commentaire:
+`La famille savait qu'il avait « fait la guerre » ; personne ne savait
+plus laquelle, ni où. C'était la Macédoine, et il y a laissé du sang
+le 20 octobre 1916.` },
 
   { id: "decret-1965",
     image: "origines/decret-1965.jpg",
