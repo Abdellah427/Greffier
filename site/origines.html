@@ -225,8 +225,18 @@
     border: 1px solid var(--regle);
     border-left: 3px solid var(--tampon);
     padding: .9rem 1rem;
-    margin: 0 0 1rem;
+    margin: .6rem 0 0;
   }
+  .pli-transcription { margin: .4rem 0 1rem; }
+  .pli-transcription summary {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--tampon);
+    cursor: pointer;
+  }
+  .pli-transcription summary:hover { text-decoration: underline; }
   .releve { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
   .releve td {
     border-top: 1px dotted var(--regle);
@@ -623,12 +633,14 @@
     <div class="visionneuse-texte">
       <h3 id="v-titre"></h3>
       <p class="datation" id="v-datation"></p>
-      <p class="datation" id="v-etiquette-transcription">Transcription</p>
-      <pre class="transcription" id="v-transcription"></pre>
       <table class="releve" id="v-releve"></table>
       <p class="datation" id="v-etiquette-contexte">Éclairage historique</p>
       <p class="contexte" id="v-contexte"></p>
       <p class="commentaire" id="v-commentaire"></p>
+      <details class="pli-transcription" id="v-pli-transcription">
+        <summary>Voir la transcription</summary>
+        <pre class="transcription" id="v-transcription"></pre>
+      </details>
       <div class="personnes-liees" id="v-personnes"></div>
     </div>
   </div>
@@ -687,8 +699,8 @@ function ouvreDocument(id) {
   el("v-titre").textContent = doc.titre;
   el("v-datation").textContent = `${doc.date} · ${doc.lieu}`;
   el("v-transcription").textContent = doc.transcription || "";
-  el("v-transcription").hidden = !doc.transcription;
-  el("v-etiquette-transcription").hidden = !doc.transcription;
+  el("v-pli-transcription").hidden = !doc.transcription;
+  el("v-pli-transcription").open = false;
   el("v-contexte").textContent = (doc.contexte || "").replace(/\n/g, " ");
   el("v-contexte").hidden = !doc.contexte;
   el("v-etiquette-contexte").hidden = !doc.contexte;
