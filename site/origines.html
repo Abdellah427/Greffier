@@ -107,13 +107,13 @@
   /* Sur grand écran, le récit se lit en vis-à-vis : texte d'un côté,
      documents de l'autre, en alternant à chaque chapitre. */
   @media (min-width: 900px) {
-    .chapitre:not(#section-arbre) {
+    .chapitre:not(#section-arbre):not(.epilogue-section) {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 3.5rem;
       align-items: center;
     }
-    section.chapitre:nth-of-type(even):not(#section-arbre) .texte { order: 2; }
+    section.chapitre:nth-of-type(even):not(#section-arbre):not(.epilogue-section) .texte { order: 2; }
     .chapitre .texte:last-child { grid-column: 1 / -1; }
     .chapitre .planche { margin: 0; }
   }
@@ -397,6 +397,18 @@
     color: var(--encre);
   }
   #docs-personne .doc-carte:hover { border-color: var(--tampon); color: var(--tampon); }
+  .epilogue-section { text-align: center; }
+  .epilogue {
+    font-family: var(--serif-display);
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: var(--encre);
+    max-width: 46rem;
+    margin: 1.2rem auto 0;
+    text-align: center !important;
+  }
+  .epilogue em { color: var(--tampon); }
+  .epilogue .arabe { font-size: 1.35rem; }
   .methode {
     font-family: var(--mono);
     font-size: .72rem;
@@ -442,10 +454,10 @@
 <section class="chapitre">
   <div class="texte">
     <h2><span class="folio">Pièce première</span>Un décret, deux orthographes</h2>
-    <p>Je m'appelle Abdellah. Certains écrivent Abdallah, et ce prénom m'a été donné en
-       référence à un aïeul dont la famille raconte qu'à l'indépendance de l'Algérie,
-       quand presque tous ceux de son origine partaient, il a choisi de rester, et
-       jusqu'à changer de nom. En cherchant qui il était, j'ai trouvé ceci : une
+    <p>Je m'appelle Abdellah. Certains écrivent Abdallah, et ce prénom m'a été donné
+       en hommage à mon aïeul, naturalisé algérien à l'indépendance : quand presque
+       tous ceux de son origine partaient, lui a choisi de rester, et jusqu'à changer
+       de nom. En cherchant qui il était, j'ai trouvé ceci : une
        mention manuscrite portée sur un registre de Marnia, petite ville de l'ouest algérien.
        Par décret du 27 février 1965, un maçon de soixante-dix-huit ans né
        <strong>Bernard Joseph Martinez</strong> est naturalisé algérien et « portera désormais
@@ -578,6 +590,15 @@
      douteux sont marqués [?]. Les dates sans document sont issues de l'arbre dressé par
      la famille et restent à confirmer par les registres. Les documents des personnes
      vivantes ne sont pas reproduits.</p>
+</section>
+
+<section class="chapitre epilogue-section">
+  <p class="epilogue">Abdellah, Abdallah : les registres retiendront les deux graphies,
+     et peut-être qu'au fond elles importent peu. En arabe, ce prénom ne s'écrit que
+     d'une façon, <span class="arabe" lang="ar" dir="rtl">عبد الله</span>, et ne dit
+     qu'une chose : <em>serviteur de Dieu</em>. Une plume française, une plume
+     algérienne, un maçon qui le choisit à soixante-dix-huit ans, un enfant qui le
+     reçoit à Nanterre : les écritures passent, le sens, lui, traverse.</p>
 </section>
 
 </main>
