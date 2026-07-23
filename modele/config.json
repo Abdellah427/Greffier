@@ -12,7 +12,8 @@
     },
     "esposalles": {
       "langue": "ca",
-      "note": "IEHHR, actes de mariage de Barcelone, a recuperer au notebook 02"
+      "statut": "ecarte",
+      "note": "Version annotee en entites (IEHHR) derriere inscription CVC Barcelone ; version libre au niveau ligne, sans entites. Espagne couverte par le generateur synthetique. Esposalles = validation optionnelle si acces obtenu."
     }
   },
   "entites_cibles": [
