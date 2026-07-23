@@ -57,11 +57,11 @@ personnes: [
   // La génération née à Maghnia
   { id: "arfa-amine", prenom: "Amine", nom: "Arfa",
     detail: "né en 1963", vivant: true, generation: 3, sources: [] },
+  { id: "arfa-latifa", prenom: "Latifa", nom: "Arfa",
+    detail: "née en 1967", vivant: true, generation: 3, sources: [] },
   { id: "hassiba", prenom: "Hassiba", nom: "Arfa",
     detail: "née en 1964 à Maghnia", vivant: true, generation: 3,
     sources: ["acte-naissance-amina"] },
-  { id: "arfa-latifa", prenom: "Latifa", nom: "Arfa",
-    detail: "née en 1967", vivant: true, generation: 3, sources: [] },
   { id: "soltani-mohamed", prenom: "Mohamed", nom: "Soltani",
     detail: "né en 1958 à Tolga", vivant: true, generation: 3,
     sources: ["acte-naissance-amina"] },
