@@ -1,0 +1,36 @@
+{
+  "_note": "Config partagee entre tous les notebooks. Les entites cibles sont un brouillon a confirmer apres exploration des vraies annotations M-POPP (notebook 01).",
+  "seed": 42,
+  "datasets": {
+    "m_popp": {
+      "langue": "fr",
+      "zenodo": "10980636",
+      "url": "https://zenodo.org/records/10980636/files/m-popp_datasets.zip?download=1"
+    },
+    "esposalles": {
+      "langue": "ca",
+      "note": "IEHHR, actes de mariage de Barcelone, a recuperer au notebook 02"
+    }
+  },
+  "entites_cibles": [
+    "date", "lieu",
+    "epoux_prenom", "epoux_nom", "epoux_metier",
+    "epouse_prenom", "epouse_nom", "epouse_metier",
+    "pere_epoux", "mere_epoux", "pere_epouse", "mere_epouse"
+  ],
+  "modele_base_candidats": [
+    "microsoft/Florence-2-base",
+    "Qwen/Qwen2-VL-2B-Instruct"
+  ],
+  "huggingface": {
+    "compte": "A_DEFINIR",
+    "repo_modele": "greffier-actes",
+    "repo_dataset": "greffier-actes-harmonise"
+  },
+  "chemins": {
+    "travail": "/content/greffier",
+    "donnees": "/content/greffier/data",
+    "checkpoints": "/content/greffier/checkpoints",
+    "resultats": "modele/resultats"
+  }
+}

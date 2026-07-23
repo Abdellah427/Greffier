@@ -48,10 +48,45 @@ vers un jeu commun d'entités (époux, épouse, parents, métier, lieu, date).
 - On ne s'attribue pas le travail des équipes de recherche (DAN, DANIEL) : on
   s'appuie sur leur tâche et leur dataset, on mène le projet de bout en bout.
 
-## Les notebooks
+## Organisation technique (sans Google Drive)
 
-1. `01_exploration_mpopp.ipynb` : télécharger et regarder M-POPP en vrai
-   (structure, exemples, format des entités, statistiques). Aucun entraînement.
+Trois espaces gratuits, chacun son rôle. Rien sur le Drive personnel.
+
+- **Google Colab** (`/content`) : le plan de travail. Grand disque temporaire,
+  effacé à chaque session. On y télécharge les données et on y entraîne.
+- **Hugging Face Hub** : le stockage persistant des gros artefacts, le modèle
+  final et le dataset harmonisé. Gratuit, versionné, et c'est de là que le site
+  servira le modèle. Les checkpoints y sont poussés en cours d'entraînement pour
+  survivre à une coupure de session.
+- **GitHub** (ce dépôt) : le code, la config, et les résultats (petits fichiers
+  JSON et figures) qui alimenteront la page « À propos du modèle » du site.
+
+Les données synthétiques sont **générées à la volée** pendant l'entraînement :
+aucun dossier de milliers d'images à stocker.
+
+Le token Hugging Face se met dans les secrets de Colab, jamais dans le code.
+
+## Le contrat entre notebooks
+
+Les notebooks ne partagent pas de mémoire : ils se passent des fichiers à des
+emplacements convenus (voir `config.json`).
+
+| Notebook | Lit | Écrit |
+|---|---|---|
+| 01 exploration | rien | confirme le schéma d'entités |
+| 02 données | M-POPP, Esposalles | dataset harmonisé (HF) |
+| 03 synthétique | config | générateur d'actes (code) |
+| 04 entraînement | harmonisé + synthétique | modèle (HF) |
+| 05 évaluation | modèle + jeu de test | résultats (`modele/resultats/`) |
+
+## Fichiers
+
+- `config.json` : la source de vérité partagée (entités cibles, chemins, dépôts).
+- `outils.py` : fonctions communes (graine, CER, WER, score d'entités). Testé
+  avec `python modele/outils.py`.
+- `requirements.txt` : dépendances des notebooks.
+- `01_exploration_mpopp.ipynb` : télécharger et regarder M-POPP en vrai. Aucun
+  entraînement.
 
 À venir : exploration d'Esposalles et harmonisation des étiquettes, générateur
 synthétique, pré-entraînement, fine-tuning, évaluation et explicabilité.
