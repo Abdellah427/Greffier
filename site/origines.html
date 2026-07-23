@@ -456,7 +456,7 @@
     border: 1px solid var(--regle);
     background: rgba(255, 253, 246, .55);
     padding: 1.4rem 1rem 1.6rem;
-    overflow-x: auto;
+    overflow-x: clip;
   }
   .arbre svg {
     position: absolute;
@@ -512,17 +512,38 @@
     .fermer { position: fixed; top: .6rem; right: .6rem; }
     .loupe { display: none; }
     .releve td:first-child { white-space: normal; padding-right: .6rem; }
-    /* L'arbre garde sa forme de tableau et défile horizontalement. */
-    .generation {
-      flex-wrap: nowrap;
-      width: max-content;
-      min-width: 100%;
-      padding-top: 1.1rem;
-      margin-left: auto;
-      margin-right: auto;
+    /* Sur mobile, l'arbre devient vertical : chaque génération est un bloc
+       empilé, le couple côte à côte, relié au suivant par un trait. */
+    .arbre { padding: .8rem .6rem 1.2rem; }
+    .arbre svg { display: none; }
+    .arbre .generation {
+      flex-wrap: wrap;
+      width: auto;
+      min-width: 0;
+      justify-content: center;
+      gap: .5rem;
+      margin-bottom: 2.6rem;
+      padding-top: 0;
     }
-    .generation .etiquette-gen { top: -.1rem; white-space: nowrap; }
-    .personne { flex: 0 0 auto; width: 11.5rem; }
+    .arbre .generation:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -2.1rem;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 2rem;
+      background: var(--regle);
+    }
+    .arbre .generation .etiquette-gen {
+      position: static;
+      display: block;
+      width: 100%;
+      text-align: center;
+      white-space: normal;
+      margin-bottom: .55rem;
+    }
+    .arbre .personne { flex: 1 1 8rem; width: auto; min-width: 0; max-width: 11rem; }
   }
   .generation {
     position: relative;
