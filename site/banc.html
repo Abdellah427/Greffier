@@ -485,6 +485,16 @@
   @media (prefers-reduced-motion: reduce) {
     .flux .curseur { animation: none; }
   }
+
+  @media (max-width: 640px) {
+    nav {
+      flex-wrap: wrap;
+      gap: .45rem 1.1rem;
+      font-size: .72rem;
+      padding: .9rem 1rem 0;
+    }
+    nav .marque { flex-basis: 100%; margin-right: 0; }
+  }
 </style>
 </head>
 <body>
