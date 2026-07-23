@@ -1,11 +1,14 @@
 {
-  "_note": "Config partagee entre tous les notebooks. Les entites cibles sont un brouillon a confirmer apres exploration des vraies annotations M-POPP (notebook 01).",
+  "_note": "Config partagee entre tous les notebooks. Schema d'entites confirme apres exploration des vraies annotations M-POPP (notebook 01) : les 12 entites ci-dessous se mappent directement sur les etiquettes emojis du dataset.",
   "seed": 42,
   "datasets": {
     "m_popp": {
       "langue": "fr",
       "zenodo": "10980636",
-      "url": "https://zenodo.org/records/10980636/files/m-popp_datasets.zip?download=1"
+      "url": "https://zenodo.org/records/10980636/files/m-popp_datasets.zip?download=1",
+      "encodage_retenu": 2,
+      "labels": "handwritten/labels/labels-handwritten-encoding-2.json",
+      "note": "Labels groupes en un JSON (racine 'ground_truth' -> train/valid/test -> {image: {text}}). Split par page deja fourni. Entites en emojis apres chaque mot, parsees par extrait_entites_mpopp() dans outils.py. Roles : 👨 epoux, 👰 epouse, 👴/👵 parents, 🥸 temoin, 📖 corps de l'acte."
     },
     "esposalles": {
       "langue": "ca",
