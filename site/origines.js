@@ -149,8 +149,7 @@ nationales d'outre-mer, la marge du n° 74 contient ainsi trois mariages
 et une naturalisation, de 1911 à 1965. Le feuillet de rectification
 collé sur l'acte est celui dont la famille conservait la photographie.
 Autour de lui, les actes voisins disent la ville : Vinas, Nieto,
-Delgado, Mengual, et Abdelkader ben Ansali, présenté par son père
-journalier. L'index de l'ANOM enregistre l'homme sous ses deux noms.
+Delgado, Mengual. L'index de l'ANOM enregistre l'homme sous ses deux noms.
 En 1886, l'année de cette naissance, la province d'Oran comptait plus
 d'Espagnols que de Français, quatre-vingt-douze mille contre
 quatre-vingt mille, venus surtout de Murcie, d'Almería, d'Alicante et
