@@ -602,6 +602,14 @@
     color: var(--encre-pale);
     margin-top: .2rem;
   }
+  /* Prenoms des personnes vivantes : floutes pour preserver leur vie privee. */
+  .prenom-floute {
+    display: inline-block;
+    filter: blur(5px);
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+  }
   .personne .p-sources {
     font-family: var(--mono);
     font-size: .6rem;
@@ -1176,7 +1184,7 @@ function ouvreDocument(id) {
     if (!p) continue;
     const bouton = document.createElement("button");
     bouton.type = "button";
-    bouton.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]}`.trim();
+    bouton.appendChild(nomAffiche(p, true));
     bouton.addEventListener("click", () => {
       fermeVisionneuse();
       montrePersonne(pid);
@@ -1285,7 +1293,6 @@ function construitArbre() {
       carte.dataset.sexe = p.sexe || "";
       carte.setAttribute("role", "button");
       carte.tabIndex = 0;
-      const nomComplet = `${p.prenom} ${p.nom}`.trim();
       carte.innerHTML = "";
       if (p.sexe) {
         const sexe = document.createElement("span");
@@ -1296,7 +1303,7 @@ function construitArbre() {
       }
       const nom = document.createElement("div");
       nom.className = "p-nom";
-      nom.textContent = nomComplet;
+      nom.appendChild(nomAffiche(p, false));
       const detail = document.createElement("div");
       detail.className = "p-detail";
       detail.textContent = p.detail;
@@ -1422,6 +1429,20 @@ function fermePanneau() {
   document.querySelectorAll(".personne.actif").forEach(c => c.classList.remove("actif"));
 }
 
+// Rend un nom en floutant le prenom des personnes vivantes (sauf "moi").
+// Renvoie un fragment DOM : le prenom dans un span floutable, puis le nom en clair.
+function nomAffiche(p, court) {
+  const prenom = court ? p.prenom.split(",")[0] : p.prenom;
+  const nom = court ? p.nom.split(",")[0] : p.nom;
+  const frag = document.createDocumentFragment();
+  const sp = document.createElement("span");
+  sp.textContent = prenom;
+  if (p.vivant && p.id !== "moi") sp.className = "prenom-floute";
+  frag.appendChild(sp);
+  if (nom) frag.appendChild(document.createTextNode(" " + nom));
+  return frag;
+}
+
 function montrePersonne(pid) {
   document.querySelectorAll(".personne").forEach(c =>
     c.classList.toggle("actif", c.dataset.id === pid));
@@ -1441,7 +1462,7 @@ function montrePersonne(pid) {
 
   const titre = document.createElement("p");
   titre.className = "panneau-titre";
-  titre.textContent = `${p.prenom.split(",")[0]} ${p.nom.split(",")[0]}`.trim();
+  titre.appendChild(nomAffiche(p, true));
   const sous = document.createElement("p");
   sous.className = "panneau-sous";
   zone.append(titre, sous);
