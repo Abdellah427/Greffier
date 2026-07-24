@@ -207,14 +207,20 @@ faubourg [?] ; 1933, Marnia, rue Jean-Jacques Rousseau.`,
       { champ: "Chez les Polliet", valeur: "domicilié en 1911 rue du Soleil à Bel-Abbès, chez M. Polliet [?], son beau-père", personnes: ["abdallah", "jeanne-bollet"] },
     ],
     contexte:
-`Le registre matricule est la biographie administrative de chaque
-soldat, tenue toute sa vie par le bureau de recrutement. Celui d'Oran,
-conservé aux ANOM et consultable en ligne, suit Bernard Martinez de
-ses vingt ans à ses cinquante ans : les casernes, les campagnes, les
-adresses successives, jusqu'à la petite mention rouge de la carte du
-combattant. Le fascicule de mobilisation conservé par la famille porte
-le même numéro, 2276 : les deux documents se répondent à un siècle
-de distance.`,
+`Le registre matricule est la biographie administrative d'un soldat,
+tenue toute sa vie par le bureau de recrutement. Celui d'Oran, conservé
+aux ANOM et consultable en ligne, suit Bernard Martinez de ses vingt ans
+à ses cinquante ans, et raconte sans le vouloir une vie entière. Maçon
+incorporé au 2e régiment de zouaves, rappelé dès le 3 août 1914, il est
+versé en 1918 dans le service auxiliaire pour une bronchite chronique qui
+le déclare inapte au port des armes. Vient ensuite un accroc avec la
+justice : en 1930, le tribunal d'Oudjda le condamne à un an de prison
+avec sursis pour abus de confiance, une peine qui reste suspendue. Et une
+vie sans repos, une douzaine d'adresses en vingt ans, de Bel-Abbès à
+Tlemcen en passant par Mascara et Marnia, dont cette année 1911 où il
+loge rue du Soleil chez son beau-père Polliet. Le fascicule de
+mobilisation gardé par la famille porte le même numéro, 2276 : les deux
+documents se répondent à un siècle de distance.`,
     commentaire:
 `Une page d'écriture serrée qui contient plus de vie que bien des
 livres : on y apprend jusqu'à la couleur de ses yeux. Gris.` },
